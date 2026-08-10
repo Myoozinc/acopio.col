@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acopio Colombia - Mapa de Ayuda Terremoto 7.4 | 10 Agosto 2026</title>
+    <meta name="description" content="Mapa interactivo de ayuda para víctimas del terremoto de magnitud 7.4 en Colombia. Centros de acopio, refugios, hospitales, donaciones y rutas de emergencia.">
+    <meta name="keywords" content="terremoto colombia 2026, ayuda terremoto, centros de acopio, refugios, donaciones, mapa emergencia">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Acopio Colombia - Ayuda Terremoto 2026">
+    <meta property="og:description" content="Mapa interactivo para ayudar a las víctimas del terremoto 7.4 en Colombia. Encuentra centros de acopio, refugios y hospitales.">
+    <meta property="og:type" content="website">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇨🇴</text></svg>">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- MarkerCluster CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-mode">
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader-content">
+            <div class="loader-flag">
+                <div class="flag-stripe yellow"></div>
+                <div class="flag-stripe blue"></div>
+                <div class="flag-stripe red"></div>
+            </div>
+            <h2>Acopio Colombia</h2>
+            <p>Cargando mapa de emergencia...</p>
+            <div class="loader-bar"><div class="loader-progress"></div></div>
+        </div>
+    </div>
+
+    <div id="app-container">
+        
+        <!-- Sidebar -->
+        <aside id="sidebar" class="glass-panel">
+            <header id="sidebar-header">
+                <div class="header-top">
+                    <div class="logo-section">
+                        <span class="logo-icon">🇨🇴</span>
+                        <div>
+                            <h1>Acopio Colombia</h1>
+                            <p class="subtitle">Sismo 7.4 • 10 Agosto 2026</p>
+                        </div>
+                    </div>
+                    <div class="header-controls">
+                        <button id="theme-toggle" class="icon-btn" title="Cambiar Tema">☀️</button>
+                        <button id="sidebar-toggle-mobile" class="icon-btn mobile-only" title="Cerrar">✕</button>
+                    </div>
+                </div>
+                
+                <!-- Emergency Banner -->
+                <div class="emergency-banner">
+                    <span class="pulse-dot"></span>
+                    <span>EMERGENCIA ACTIVA — Línea Nacional: <strong>123</strong></span>
+                </div>
+            </header>
+
+            <!-- Stats Grid -->
+            <div class="stats-container">
+                <div class="stat-box" data-tooltip="Fallecidos confirmados">
+                    <span class="stat-icon">💔</span>
+                    <span class="stat-value critical" id="stat-deaths">0</span>
+                    <span class="stat-label">Fallecidos</span>
+                </div>
+                <div class="stat-box" data-tooltip="Personas heridas">
+                    <span class="stat-icon">🤕</span>
+                    <span class="stat-value warning" id="stat-injured">0</span>
+                    <span class="stat-label">Heridos</span>
+                </div>
+                <div class="stat-box" data-tooltip="Personas desplazadas">
+                    <span class="stat-icon">🏃</span>
+                    <span class="stat-value info" id="stat-displaced">0</span>
+                    <span class="stat-label">Desplazados</span>
+                </div>
+                <div class="stat-box" data-tooltip="Zonas afectadas">
+                    <span class="stat-icon">📍</span>
+                    <span class="stat-value" id="stat-zones">0</span>
+                    <span class="stat-label">Zonas</span>
+                </div>
+                <div class="stat-box" data-tooltip="Refugios disponibles">
+                    <span class="stat-icon">🏠</span>
+                    <span class="stat-value shelter-color" id="stat-shelters">0</span>
+                    <span class="stat-label">Refugios</span>
+                </div>
+                <div class="stat-box" data-tooltip="Centros de Acopio">
+                    <span class="stat-icon">📦</span>
+                    <span class="stat-value success" id="stat-centers">0</span>
+                    <span class="stat-label">Centros</span>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="tabs" role="tablist">
+                <button class="tab-btn active" data-tab="info" role="tab" aria-selected="true">
+                    <span class="tab-icon">ℹ️</span>
+                    <span class="tab-text">Info</span>
+                </button>
+                <button class="tab-btn" data-tab="list" role="tab">
+                    <span class="tab-icon">📋</span>
+                    <span class="tab-text">Lugares</span>
+                </button>
+                <button class="tab-btn" data-tab="add" role="tab">
+                    <span class="tab-icon">➕</span>
+                    <span class="tab-text">Añadir</span>
+                </button>
+                <button class="tab-btn" data-tab="donations" role="tab">
+                    <span class="tab-icon">💛</span>
+                    <span class="tab-text">Donar</span>
+                </button>
+                <button class="tab-btn" data-tab="missing" role="tab">
+                    <span class="tab-icon">🔍</span>
+                    <span class="tab-text">Buscar</span>
+                </button>
+            </nav>
+
+            <!-- Tab Content -->
+            <div class="tab-content custom-scrollbar">
+                
+                <!-- Info Tab -->
+                <div id="tab-info" class="tab-pane active">
+                    <div class="alert-box critical-alert">
+                        <div class="alert-header">
+                            <span class="alert-icon">⚠️</span>
+                            <h3>Emergencia Nacional</h3>
+                        </div>
+                        <p><strong>Magnitud 7.4</strong> — Epicentro: San José del Palmar, Chocó</p>
+                        <p>Profundidad: 107 km • Hora: 7:34 AM</p>
+                        <p class="alert-highlight">📞 Número de Emergencia: <strong>123</strong></p>
+                    </div>
+                    
+                    <div class="section collapsible">
+                        <h3 class="section-header" onclick="toggleSection(this)">
+                            📱 Contactos de Emergencia
+                            <span class="chevron">▼</span>
+                        </h3>
+                        <div class="section-content">
+                            <div id="emergency-contacts-list" class="contacts-grid">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section collapsible">
+                        <h3 class="section-header" onclick="toggleSection(this)">
+                            🛡️ Tips de Seguridad
+                            <span class="chevron">▼</span>
+                        </h3>
+                        <div class="section-content">
+                            <ul class="tips-list" id="safety-tips">
+                                <!-- Populated by JS -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="section collapsible">
+                        <h3 class="section-header" onclick="toggleSection(this)">
+                            🗺️ Zonas Afectadas
+                            <span class="chevron">▼</span>
+                        </h3>
+                        <div class="section-content">
+                            <div id="zones-list" class="zones-grid">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section collapsible">
+                        <h3 class="section-header" onclick="toggleSection(this)">
+                            ✈️ Aeropuertos Suspendidos
+                            <span class="chevron">▼</span>
+                        </h3>
+                        <div class="section-content">
+                            <ul class="airport-list">
+                                <li class="airport-item suspended"><span>✈️</span> Aeropuerto Matecaña — Pereira</li>
+                                <li class="airport-item suspended"><span>✈️</span> Aeropuerto La Nubia — Manizales</li>
+                                <li class="airport-item suspended"><span>✈️</span> Aeropuerto El Edén — Armenia</li>
+                                <li class="airport-item suspended"><span>✈️</span> Aeropuerto El Caraño — Quibdó</li>
+                                <li class="airport-item suspended"><span>✈️</span> Aeropuerto Santa Ana — Cartago</li>
+                                <li class="airport-item suspended"><span>✈️</span> Aeropuerto G. Tobar López — Buenaventura</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Share Section -->
+                    <div class="share-section">
+                        <h3>📢 Comparte y Ayuda</h3>
+                        <p class="share-text">Difunde esta información para que más personas puedan recibir ayuda.</p>
+                        <div class="share-buttons">
+                            <button class="share-btn whatsapp" onclick="shareOnWhatsApp()">WhatsApp</button>
+                            <button class="share-btn twitter" onclick="shareOnTwitter()">X / Twitter</button>
+                            <button class="share-btn facebook" onclick="shareOnFacebook()">Facebook</button>
+                            <button class="share-btn copy" onclick="copyShareLink()">📋 Copiar Link</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- List Tab -->
+                <div id="tab-list" class="tab-pane">
+                    <div class="filter-controls">
+                        <select id="filter-type" class="select-styled">
+                            <option value="all">🗂️ Todos los lugares</option>
+                            <option value="collection">📦 Centros de Acopio</option>
+                            <option value="shelter">🏠 Refugios</option>
+                            <option value="hospital">🏥 Hospitales</option>
+                        </select>
+                        <div class="search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="search-input" placeholder="Buscar por ciudad o nombre...">
+                        </div>
+                    </div>
+                    <div id="list-count" class="list-count"></div>
+                    <ul id="places-list" class="places-list custom-scrollbar">
+                        <!-- Populated via JS -->
+                    </ul>
+                </div>
+
+                <!-- Add Tab -->
+                <div id="tab-add" class="tab-pane">
+                    <div class="form-header">
+                        <h3>➕ Registrar Nuevo Lugar</h3>
+                        <p class="form-subtitle">Ayuda a otros agregando centros de acopio o refugios al mapa.</p>
+                    </div>
+                    <form id="add-place-form">
+                        <div class="form-group">
+                            <label for="add-type">Tipo de Lugar</label>
+                            <select id="add-type" required class="select-styled">
+                                <option value="collection">📦 Centro de Acopio</option>
+                                <option value="shelter">🏠 Refugio</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="add-name">Nombre del lugar</label>
+                            <input type="text" id="add-name" required placeholder="Ej: Cruz Roja Pereira">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-address">Dirección / Ciudad</label>
+                            <input type="text" id="add-address" required placeholder="Ej: Cra. 14 #15-55, Pereira">
+                        </div>
+                        <div class="form-group">
+                            <label for="add-contact">Teléfono de Contacto</label>
+                            <input type="text" id="add-contact" placeholder="Ej: (606) 335-5444">
+                        </div>
+                        
+                        <div id="dynamic-fields-collection" class="dynamic-fields">
+                            <div class="form-group">
+                                <label for="add-needs">Artículos Necesitados</label>
+                                <textarea id="add-needs" rows="2" placeholder="Ej: Agua, Alimentos, Mantas, Medicinas"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="add-schedule">Horario de Atención</label>
+                                <input type="text" id="add-schedule" placeholder="Ej: 24 horas">
+                            </div>
+                        </div>
+                        
+                        <div id="dynamic-fields-shelter" class="dynamic-fields hidden">
+                            <div class="form-group">
+                                <label for="add-capacity">Capacidad Total</label>
+                                <input type="number" id="add-capacity" placeholder="Ej: 500">
+                            </div>
+                            <div class="form-group">
+                                <label for="add-occupancy">Ocupación Actual</label>
+                                <input type="number" id="add-occupancy" placeholder="Ej: 200">
+                            </div>
+                            <div class="form-group">
+                                <label for="add-amenities">Servicios Disponibles</label>
+                                <textarea id="add-amenities" rows="2" placeholder="Ej: Agua, baños, colchonetas, atención médica"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>📍 Ubicación en el Mapa</label>
+                            <p class="small-text">Haga clic en el mapa para seleccionar coordenadas, o use el botón para obtener su ubicación GPS.</p>
+                            <div class="coord-inputs">
+                                <input type="number" id="add-lat" step="any" placeholder="Latitud" required>
+                                <input type="number" id="add-lng" step="any" placeholder="Longitud" required>
+                            </div>
+                            <button type="button" id="btn-use-location" class="btn-secondary">📍 Usar mi ubicación actual</button>
+                        </div>
+
+                        <button type="submit" class="btn-primary">💾 Guardar Lugar</button>
+                    </form>
+                </div>
+
+                <!-- Donations Tab -->
+                <div id="tab-donations" class="tab-pane">
+                    <div class="donations-header">
+                        <h3>💛 Donaciones Verificadas</h3>
+                        <p class="donations-subtitle">Todas las organizaciones listadas están verificadas y activas en la respuesta al terremoto.</p>
+                    </div>
+                    
+                    <div class="donation-filter">
+                        <button class="donation-filter-btn active" data-dtype="all">Todas</button>
+                        <button class="donation-filter-btn" data-dtype="national">🇨🇴 Nacionales</button>
+                        <button class="donation-filter-btn" data-dtype="international">🌍 Internacionales</button>
+                    </div>
+                    
+                    <div id="donations-list">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div class="donation-tips">
+                        <h4>💡 Tips para Donar</h4>
+                        <ul>
+                            <li>Priorice donaciones monetarias — son más eficientes que enviar objetos.</li>
+                            <li>Verifique que dona a través de sitios web oficiales.</li>
+                            <li>Si dona objetos, envíe solo lo que se solicita específicamente.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Missing Persons Tab -->
+                <div id="tab-missing" class="tab-pane">
+                    <div class="missing-header">
+                        <h3>🔍 Personas Desaparecidas</h3>
+                        <p>Registre o busque personas desaparecidas tras el terremoto.</p>
+                    </div>
+                    
+                    <form id="missing-person-form">
+                        <div class="form-group">
+                            <label for="missing-name">Nombre Completo</label>
+                            <input type="text" id="missing-name" required placeholder="Nombre y Apellidos">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="missing-age">Edad</label>
+                                <input type="number" id="missing-age" placeholder="Años">
+                            </div>
+                            <div class="form-group">
+                                <label for="missing-city">Ciudad</label>
+                                <input type="text" id="missing-city" placeholder="Última ubicación">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="missing-description">Descripción</label>
+                            <textarea id="missing-description" rows="2" placeholder="Descripción física, ropa que vestía, etc."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="missing-contact">Teléfono de Contacto</label>
+                            <input type="text" id="missing-contact" placeholder="Para informar si es encontrada">
+                        </div>
+                        <button type="submit" class="btn-primary">📋 Registrar Persona</button>
+                    </form>
+                    
+                    <div class="search-wrapper" style="margin-top: 20px;">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="search-missing" placeholder="Buscar persona por nombre...">
+                    </div>
+                    
+                    <div id="missing-persons-list" class="missing-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="sidebar-footer">
+                <p>Hecho con ❤️ para Colombia — <a href="https://github.com/Myoozinc/acopio.col" target="_blank">GitHub</a></p>
+            </footer>
+        </aside>
+
+        <!-- Mobile Sidebar Toggle -->
+        <button id="mobile-menu-btn" class="mobile-menu-fab mobile-only">☰</button>
+
+        <!-- Main Map Area -->
+        <main id="map-container">
+            <div id="map"></div>
+            
+            <!-- Map Legend -->
+            <div id="map-legend" class="glass-panel map-overlay">
+                <h4>Leyenda</h4>
+                <div class="legend-item"><span class="legend-dot epicenter-dot"></span> Epicentro</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#ff3b3b"></span> Zona Crítica</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#ff9f0a"></span> Zona Severa</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#ffd60a"></span> Zona Moderada</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#32d74b"></span> Centro de Acopio</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#0a84ff"></span> Refugio</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#fff"></span> Hospital</div>
+            </div>
+            
+            <!-- Floating Controls -->
+            <div class="floating-controls map-overlay">
+                <button id="btn-geolocate" class="fab" title="Mi Ubicación">📍</button>
+                <button id="btn-toggle-zones" class="fab fab-small" title="Zonas Afectadas">🔴</button>
+                <button id="btn-toggle-legend" class="fab fab-small" title="Leyenda">📊</button>
+            </div>
+            
+            <!-- Route Info Panel -->
+            <div id="route-panel" class="glass-panel map-overlay hidden">
+                <button id="close-route" class="close-btn">&times;</button>
+                <h3>🗺️ Ruta Calculada</h3>
+                <div class="route-details">
+                    <div class="route-stat">
+                        <span class="route-icon">📏</span>
+                        <span id="route-distance">--</span>
+                    </div>
+                    <div class="route-stat">
+                        <span class="route-icon">⏱️</span>
+                        <span id="route-time">--</span>
+                    </div>
+                </div>
+                <button id="btn-clear-route" class="btn-secondary" style="margin-top:10px;">Borrar Ruta</button>
+            </div>
+        </main>
+        
+        <!-- Toast Notifications -->
+        <div id="toast-container"></div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal hidden">
+        <div class="modal-backdrop" onclick="closeEditModal()"></div>
+        <div class="modal-content glass-panel">
+            <button class="close-btn modal-close" onclick="closeEditModal()">&times;</button>
+            <h3 id="edit-modal-title">Editar Lugar</h3>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <input type="hidden" id="edit-type-hidden">
+                <div class="form-group">
+                    <label for="edit-name">Nombre</label>
+                    <input type="text" id="edit-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-address">Dirección</label>
+                    <input type="text" id="edit-address" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-contact">Contacto</label>
+                    <input type="text" id="edit-contact">
+                </div>
+                <div id="edit-collection-fields">
+                    <div class="form-group">
+                        <label for="edit-needs">Artículos Necesitados</label>
+                        <textarea id="edit-needs" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-schedule">Horario</label>
+                        <input type="text" id="edit-schedule">
+                    </div>
+                </div>
+                <div id="edit-shelter-fields" class="hidden">
+                    <div class="form-group">
+                        <label for="edit-capacity">Capacidad</label>
+                        <input type="number" id="edit-capacity">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-occupancy">Ocupación</label>
+                        <input type="number" id="edit-occupancy">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">💾 Guardar Cambios</button>
+                    <button type="button" class="btn-danger" onclick="deleteFromModal()">🗑️ Eliminar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
