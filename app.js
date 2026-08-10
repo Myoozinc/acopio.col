@@ -38,9 +38,9 @@ function initTheme() {
     const toggleBtn = document.getElementById('theme-toggle');
     const savedTheme = localStorage.getItem('theme');
     
-    if (savedTheme === 'light') {
-        document.body.classList.replace('dark-mode', 'light-mode');
-        toggleBtn.textContent = '🌙';
+    if (savedTheme === 'dark') {
+        document.body.classList.replace('light-mode', 'dark-mode');
+        toggleBtn.textContent = '☀️';
     }
 
     toggleBtn.addEventListener('click', () => {
@@ -141,7 +141,7 @@ function initMap() {
         attribution: '© Esri'
     });
 
-    // Use dark tiles by default
+    // Use light tiles by default
     if (document.body.classList.contains('dark-mode')) {
         darkTiles.addTo(map);
     } else {
