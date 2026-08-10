@@ -17,6 +17,8 @@ let currentUploadedPhotoBase64 = null;
 let isGeoVerifiedColombia = false;
 let verifiedAddressDetails = null;
 
+const DATA_KEY_APP = 'earthquake_data_v2026_colombia';
+
 let db = { affectedZones: [], collectionCenters: [], shelters: [], emergencyRequests: [], hospitals: [], epicenter: null, donations: [], emergencyContacts: {}, missingPersons: [] };
 
 // --- Initialization ---
@@ -59,7 +61,7 @@ window.enterDirectMap = function() {
         }
 
         renderAll();
-    }, 60);
+    }, 80);
 };
 
 window.enterDirectMapTab = function(tabName) {
@@ -67,7 +69,7 @@ window.enterDirectMapTab = function(tabName) {
     enterDirectMap();
     setTimeout(() => {
         document.querySelector(`[data-tab="${tabName}"]`)?.click();
-    }, 100);
+    }, 120);
 };
 
 window.returnToWelcomePortal = function() {
@@ -162,7 +164,7 @@ function initTheme() {
 
 // --- Data Management ---
 function loadData() {
-    const stored = localStorage.getItem('earthquake_data');
+    let stored = localStorage.getItem(DATA_KEY_APP) || localStorage.getItem('earthquake_data');
     if (stored) {
         try {
             db = JSON.parse(stored);
@@ -190,7 +192,7 @@ function loadData() {
 }
 
 function saveData() {
-    localStorage.setItem('earthquake_data', JSON.stringify(db));
+    localStorage.setItem(DATA_KEY_APP, JSON.stringify(db));
     if (document.getElementById('app-container') && !document.getElementById('app-container').classList.contains('hidden')) {
         renderAll();
     }
@@ -212,9 +214,14 @@ function updateDashboardStats() {
     const needElem = document.getElementById('stat-needs-count');
     if (needElem) needElem.textContent = needCount;
 
-    document.getElementById('stat-zones').textContent = (db.affectedZones || []).length;
-    document.getElementById('stat-shelters').textContent = (db.shelters || []).length;
-    document.getElementById('stat-centers').textContent = (db.collectionCenters || []).length;
+    const zonesElem = document.getElementById('stat-zones');
+    if (zonesElem) zonesElem.textContent = (db.affectedZones || []).length;
+
+    const sheltersElem = document.getElementById('stat-shelters');
+    if (sheltersElem) sheltersElem.textContent = (db.shelters || []).length;
+
+    const centersElem = document.getElementById('stat-centers');
+    if (centersElem) centersElem.textContent = (db.collectionCenters || []).length;
 }
 
 // --- Export JSON Data ---
@@ -222,7 +229,7 @@ window.exportDataJSON = function() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `Acopio_Colombia_Reportes_${new Date().toISOString().slice(0,10)}.json`);
+    downloadAnchor.setAttribute("download", `Acopio_COL_Reportes_${new Date().toISOString().slice(0,10)}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -463,7 +470,7 @@ function verifyCoordinatesLocation(lat, lng) {
     }
 }
 
-// --- Render Map Markers & Affected Zones Circles ---
+// --- Render Map Markers & Affected Zones Circles & Pins ---
 function renderMapMarkers() {
     if (!map || !markerClusterGroup || !zonesLayerGroup) return;
 
@@ -481,8 +488,8 @@ function renderMapMarkers() {
     if (db.epicenter) {
         const pulseIcon = L.divIcon({
             className: 'pulse-icon',
-            iconSize: [26, 26],
-            iconAnchor: [13, 13]
+            iconSize: [28, 28],
+            iconAnchor: [14, 14]
         });
         
         L.marker([db.epicenter.lat, db.epicenter.lng], { icon: pulseIcon, zIndexOffset: 2000 })
@@ -498,32 +505,52 @@ function renderMapMarkers() {
             .addTo(zonesLayerGroup);
     }
 
-    // Affected Zones Circles (Risaralda, Caldas, Quindío, Cali, Quibdó, Cartago, Buenaventura, San José del Palmar)
-    if (zonesVisible && db.affectedZones && db.affectedZones.length > 0) {
-        db.affectedZones.forEach(zone => {
+    // Affected Zones: Circles + Distinct Pin Markers (Pereira, Caldas, Quindío, Cali, Chocó, Cartago, Buenaventura, San José del Palmar)
+    const affectedList = (db.affectedZones && db.affectedZones.length > 0) ? db.affectedZones : (typeof initialData !== 'undefined' ? initialData.affectedZones : []);
+    
+    if (zonesVisible && affectedList && affectedList.length > 0) {
+        affectedList.forEach(zone => {
             const colors = {
-                critical: { color: '#d92525', fill: 0.18 },
-                severe: { color: '#e67e22', fill: 0.15 },
-                moderate: { color: '#f39c12', fill: 0.12 }
+                critical: { color: '#d92525', fill: 0.22, badge: '🔴 Alerta Máxima' },
+                severe: { color: '#e67e22', fill: 0.18, badge: '🟠 Alerta Severa' },
+                moderate: { color: '#f39c12', fill: 0.14, badge: '🟡 Alerta Moderada' }
             };
             const c = colors[zone.severity] || colors.moderate;
             
+            // 1. Shaded Circle Radius
             const circle = L.circle([zone.lat, zone.lng], {
                 color: c.color,
                 fillColor: c.color,
                 fillOpacity: c.fill,
-                weight: 2.5,
-                opacity: 0.8,
-                radius: zone.radius || 15000
+                weight: 3,
+                opacity: 0.9,
+                radius: zone.radius || 18000
             }).bindPopup(`
                 <div class="popup-content">
                     <h3>📍 ${zone.name}, ${zone.department}</h3>
                     <p class="popup-detail">${zone.details}</p>
-                    <p class="popup-detail">Nivel de Afectación: <strong style="color:${c.color}">${zone.severity.toUpperCase()}</strong></p>
+                    <p class="popup-detail">Nivel de Afectación: <strong style="color:${c.color}">${c.badge}</strong></p>
                 </div>
             `);
-            
             zonesLayerGroup.addLayer(circle);
+
+            // 2. Visible Pin Icon Marker for Affected City
+            const zonePinIcon = L.divIcon({
+                className: '',
+                html: `<div style="background:${c.color};color:white;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:800;box-shadow:0 3px 10px rgba(0,0,0,0.3);white-space:nowrap;border:1.5px solid white;">📍 ${zone.name}</div>`,
+                iconSize: [80, 24],
+                iconAnchor: [40, 12]
+            });
+
+            const zoneMarker = L.marker([zone.lat, zone.lng], { icon: zonePinIcon, zIndexOffset: 1500 })
+                .bindPopup(`
+                    <div class="popup-content">
+                        <h3>📍 ${zone.name}, ${zone.department}</h3>
+                        <p class="popup-detail">${zone.details}</p>
+                        <p class="popup-detail">Evaluación de Riesgo: <strong style="color:${c.color}">${c.badge}</strong></p>
+                    </div>
+                `);
+            zonesLayerGroup.addLayer(zoneMarker);
         });
     }
 
@@ -815,7 +842,7 @@ function clearRoute(hidePanel = true) {
     }
 }
 
-// --- Add Place (WITH STRICT MANDATORY VERIFICATION) ---
+// --- Add Place ---
 function handleAddPlace(e) {
     e.preventDefault();
     
@@ -1120,7 +1147,9 @@ function renderZonesList() {
     const container = document.getElementById('zones-list');
     if (!container) return;
     
-    container.innerHTML = (db.affectedZones || []).map(zone => `
+    const affectedList = (db.affectedZones && db.affectedZones.length > 0) ? db.affectedZones : (typeof initialData !== 'undefined' ? initialData.affectedZones : []);
+    
+    container.innerHTML = affectedList.map(zone => `
         <div class="zone-card ${zone.severity}" onclick="map.flyTo([${zone.lat}, ${zone.lng}], 12, {duration:1})">
             <h4>📍 ${zone.name}, ${zone.department}</h4>
             <p>${zone.details}</p>

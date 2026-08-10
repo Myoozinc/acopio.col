@@ -3,6 +3,8 @@
 // Fuentes: SGC, USGS, UNGRD, Cruz Roja Colombiana, Medios Oficiales
 // ============================================
 
+const DATA_KEY = 'earthquake_data_v2026_colombia';
+
 const initialData = {
     epicenter: {
         name: "San José del Palmar, Chocó",
@@ -16,14 +18,14 @@ const initialData = {
     },
 
     affectedZones: [
-        { id: 'zone1', name: 'Pereira', department: 'Risaralda', lat: 4.8133, lng: -75.6961, severity: 'critical', radius: 18000, details: 'Reportes de víctimas mortales y heridos. Afectaciones en edificaciones y suspensión preventiva de operaciones en Aeropuerto Matecaña.' },
-        { id: 'zone2', name: 'Manizales', department: 'Caldas', lat: 5.0689, lng: -75.5174, severity: 'severe', radius: 15000, details: 'Fallecidos confirmados por autoridades locales. Daños en estructura de la Catedral Basílica y suspensión en Aeropuerto La Nubia.' },
-        { id: 'zone3', name: 'Armenia', department: 'Quindío', lat: 4.5339, lng: -75.6811, severity: 'severe', radius: 14000, details: 'Daños estructurales en edificaciones. Operaciones en Aeropuerto El Edén suspendidas por revisión técnica.' },
-        { id: 'zone4', name: 'Cali', department: 'Valle del Cauca', lat: 3.4516, lng: -76.5320, severity: 'critical', radius: 24000, details: 'Más de 20 estructuras colapsadas reportadas. Puestos de respuesta activados por la Alcaldía y solicitud de apoyo nacional.' },
-        { id: 'zone5', name: 'Quibdó', department: 'Chocó', lat: 5.6944, lng: -76.6583, severity: 'critical', radius: 20000, details: 'Cercano al epicentro. Gobernación reporta heridos y daños estructurales. Aeropuerto El Caraño suspendido.' },
-        { id: 'zone6', name: 'Cartago', department: 'Valle del Cauca', lat: 4.7461, lng: -75.9119, severity: 'moderate', radius: 10000, details: 'Operaciones suspendidas en Aeropuerto Santa Ana. Evaluaciones de seguridad por Gestión del Riesgo.' },
-        { id: 'zone7', name: 'Buenaventura', department: 'Valle del Cauca', lat: 3.8801, lng: -77.0311, severity: 'moderate', radius: 12000, details: 'Suspensión preventiva de vuelos en Aeropuerto Gerardo Tobar López. Inspecciones en zona portuaria.' },
-        { id: 'zone8', name: 'San José del Palmar', department: 'Chocó', lat: 5.3833, lng: -76.2333, severity: 'critical', radius: 30000, details: 'EPICENTRO DEL SISMO (Mag. 7.4). Zona rural con despliegue prioritario de equipos de rescate.' }
+        { id: 'zone1', name: 'Pereira', department: 'Risaralda', lat: 4.8133, lng: -75.6961, severity: 'critical', radius: 22000, details: 'Reportes de víctimas mortales y heridos. Afectaciones en edificaciones y suspensión preventiva de operaciones en Aeropuerto Matecaña.' },
+        { id: 'zone2', name: 'Manizales', department: 'Caldas', lat: 5.0689, lng: -75.5174, severity: 'severe', radius: 18000, details: 'Fallecidos confirmados por autoridades locales. Daños en estructura de la Catedral Basílica y suspensión en Aeropuerto La Nubia.' },
+        { id: 'zone3', name: 'Armenia', department: 'Quindío', lat: 4.5339, lng: -75.6811, severity: 'severe', radius: 16000, details: 'Daños estructurales en edificaciones. Operaciones en Aeropuerto El Edén suspendidas por revisión técnica.' },
+        { id: 'zone4', name: 'Cali', department: 'Valle del Cauca', lat: 3.4516, lng: -76.5320, severity: 'critical', radius: 28000, details: 'Más de 20 estructuras colapsadas reportadas. Puestos de respuesta activados por la Alcaldía y solicitud de apoyo nacional.' },
+        { id: 'zone5', name: 'Quibdó', department: 'Chocó', lat: 5.6944, lng: -76.6583, severity: 'critical', radius: 24000, details: 'Cercano al epicentro. Gobernación reporta heridos y daños estructurales. Aeropuerto El Caraño suspendido.' },
+        { id: 'zone6', name: 'Cartago', department: 'Valle del Cauca', lat: 4.7461, lng: -75.9119, severity: 'moderate', radius: 12000, details: 'Operaciones suspendidas en Aeropuerto Santa Ana. Evaluaciones de seguridad por Gestión del Riesgo.' },
+        { id: 'zone7', name: 'Buenaventura', department: 'Valle del Cauca', lat: 3.8801, lng: -77.0311, severity: 'moderate', radius: 15000, details: 'Suspensión preventiva de vuelos en Aeropuerto Gerardo Tobar López. Inspecciones en zona portuaria.' },
+        { id: 'zone8', name: 'San José del Palmar', department: 'Chocó', lat: 5.3833, lng: -76.2333, severity: 'critical', radius: 35000, details: 'EPICENTRO DEL SISMO (Mag. 7.4). Zona rural con despliegue prioritario de equipos de rescate.' }
     ],
 
     collectionCenters: [],
@@ -109,19 +111,9 @@ const initialData = {
     missingPersons: []
 };
 
-// Asegurar almacenamiento persistente de zonas y hospitales
-const storedLocal = localStorage.getItem('earthquake_data');
-if (!storedLocal) {
-    localStorage.setItem('earthquake_data', JSON.stringify(initialData));
-} else {
-    try {
-        let parsed = JSON.parse(storedLocal);
-        if (!parsed.affectedZones || parsed.affectedZones.length === 0) {
-            parsed.affectedZones = initialData.affectedZones;
-            parsed.epicenter = initialData.epicenter;
-            localStorage.setItem('earthquake_data', JSON.stringify(parsed));
-        }
-    } catch(e) {
-        localStorage.setItem('earthquake_data', JSON.stringify(initialData));
-    }
+// Reinicialización forzada de almacenamiento con clave de versión v2026
+try {
+    localStorage.setItem(DATA_KEY, JSON.stringify(initialData));
+} catch(e) {
+    console.warn('Error inicializando datos locales:', e);
 }
