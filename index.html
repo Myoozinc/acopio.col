@@ -58,65 +58,68 @@
         <span>📶 <strong>Modo Sin Conexión:</strong> Funciona offline con mapa y registros locales.</span>
     </div>
 
-    <!-- MAIN WELCOME PORTAL (INICIAL) -->
+    <!-- MAIN WELCOME PORTAL (PORTAL INICIAL MODERN Y MINIMALISTA) -->
     <div id="welcome-portal" class="welcome-portal-view">
-        <header class="welcome-header">
-            <div class="welcome-flag-badge">🇨🇴 Colombia en Emergencia</div>
-            <h1>Acopio Colombia</h1>
-            <p class="welcome-subtitle">Sismo Mag. 7.4 • 10 de Agosto de 2026 (San José del Palmar, Chocó)</p>
-            <div class="welcome-emergency-call">
-                <span>🚨 Emergencias Vitales: </span>
-                <a href="tel:123" class="call-btn-pill">📞 Marcar 123</a>
-            </div>
-        </header>
-
-        <!-- 3 MAIN MOBILE ACTION BUTTONS -->
-        <main class="welcome-actions-container">
-            <!-- BOTÓN 1: QUIERO AYUDAR -->
-            <button class="portal-action-card card-offer" onclick="openOfferHelpModal()">
-                <div class="card-icon">💚</div>
-                <div class="card-text">
-                    <h2>Quiero Ayudar</h2>
-                    <p>Registra qué insumos, refugio o apoyo ofreces a las víctimas.</p>
+        <div class="welcome-portal-card-container glass-panel">
+            
+            <header class="welcome-header">
+                <div class="welcome-flag-badge">🇨🇴 Respuesta Terremoto Colombia</div>
+                <h1>Acopio Colombia</h1>
+                <p class="welcome-subtitle">Sismo Mag. 7.4 • 10 de Agosto de 2026 (San José del Palmar, Chocó)</p>
+                <div class="welcome-emergency-call">
+                    <span>🚨 Emergencias Vitales:</span>
+                    <a href="tel:123" class="call-btn-pill">📞 Marcar 123</a>
                 </div>
-                <div class="card-arrow">➔</div>
-            </button>
+            </header>
 
-            <!-- BOTÓN 2: NECESITO AYUDA -->
-            <button class="portal-action-card card-need" onclick="openNeedHelpModal()">
-                <div class="card-icon">🆘</div>
-                <div class="card-text">
-                    <h2>Necesito Ayuda</h2>
-                    <p>Reporta tu situación de emergencia, ubicación y necesidades de auxilio.</p>
-                </div>
-                <div class="card-arrow">➔</div>
-            </button>
+            <!-- 4 ACTION CARDS (GRID 2x2 EN DESKTOP / 1 COLUMNA EN MOBILE) -->
+            <main class="welcome-actions-grid">
+                <!-- BOTÓN 1: QUIERO AYUDAR -->
+                <button class="portal-action-card card-offer" onclick="openOfferHelpModal()">
+                    <div class="card-icon">💚</div>
+                    <div class="card-text">
+                        <h2>Quiero Ayudar</h2>
+                        <p>Registra qué insumos, refugio o apoyo ofreces a las víctimas.</p>
+                    </div>
+                    <div class="card-arrow">➔</div>
+                </button>
 
-            <!-- BOTÓN 3: MAPA DE AYUDA -->
-            <button class="portal-action-card card-map" onclick="enterDirectMap()">
-                <div class="card-icon">🗺️</div>
-                <div class="card-text">
-                    <h2>Mapa de Ayuda Interactivo</h2>
-                    <p>Explora centros de acopio, refugios, hospitales y calcula rutas GPS.</p>
-                </div>
-                <div class="card-arrow">➔</div>
-            </button>
+                <!-- BOTÓN 2: NECESITO AYUDA -->
+                <button class="portal-action-card card-need" onclick="openNeedHelpModal()">
+                    <div class="card-icon">🆘</div>
+                    <div class="card-text">
+                        <h2>Necesito Ayuda</h2>
+                        <p>Reporta tu situación de emergencia, ubicación y necesidades de auxilio.</p>
+                    </div>
+                    <div class="card-arrow">➔</div>
+                </button>
 
-            <!-- BOTÓN DONACIONES -->
-            <button class="portal-action-card card-donate" onclick="openDonationHub()">
-                <div class="card-icon">💛</div>
-                <div class="card-text">
-                    <h2>Donaciones (PayPal & Binance)</h2>
-                    <p>Aportes directos en PayPal, Cripto Binance y cuentas institucionales.</p>
-                </div>
-                <div class="card-arrow">➔</div>
-            </button>
-        </main>
+                <!-- BOTÓN 3: MAPA DE AYUDA -->
+                <button class="portal-action-card card-map" onclick="enterDirectMap()">
+                    <div class="card-icon">🗺️</div>
+                    <div class="card-text">
+                        <h2>Mapa Interactivo</h2>
+                        <p>Explora centros de acopio, refugios, hospitales y calcula rutas GPS.</p>
+                    </div>
+                    <div class="card-arrow">➔</div>
+                </button>
 
-        <footer class="welcome-footer">
-            <p>🛡️ Datos verificados con el Servicio Geológico Colombiano y UNGRD.</p>
-            <button class="theme-toggle-welcome" onclick="toggleThemeGlobal()">🌙 Cambiar Tema</button>
-        </footer>
+                <!-- BOTÓN DONACIONES -->
+                <button class="portal-action-card card-donate" onclick="openDonationHub()">
+                    <div class="card-icon">💛</div>
+                    <div class="card-text">
+                        <h2>Donaciones</h2>
+                        <p>Aportes directos en PayPal, Cripto Binance y cuentas institucionales.</p>
+                    </div>
+                    <div class="card-arrow">➔</div>
+                </button>
+            </main>
+
+            <footer class="welcome-footer">
+                <span>🛡️ Datos verificados con el Servicio Geológico Colombiano y UNGRD.</span>
+                <button class="theme-toggle-welcome" onclick="toggleThemeGlobal()">🌙 Cambiar Tema</button>
+            </footer>
+        </div>
     </div>
 
     <!-- APPLICATION CONTAINER (MAPA Y DASHBOARD) -->
