@@ -1,7 +1,7 @@
 // ============================================
 // ACOPIO COLOMBIA - App Principal & Admin / Telemetría
 // Respuesta Terremoto 7.4 Colombia - 10 Agosto 2026
-// PWA, Portal Inicial Móvil, Telemetría IP & Panel /admin (Oculto - Gingerboy / Rona12345)
+// PWA, Portal Inicial Móvil, PayPal Business (A9ACPWUBK89YQ) & Binance Pay (242214516)
 // ============================================
 
 // --- Global State ---
@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initDonationFilters();
     initAdminHashDetector();
     recordIPVisitorTelemetry();
+    initPayPalSmartButton();
     
     // Hide loading screen
     setTimeout(() => {
@@ -46,6 +47,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 800);
 });
 
+// --- Official PayPal Hosted Smart Button (A9ACPWUBK89YQ) ---
+function initPayPalSmartButton() {
+    setTimeout(() => {
+        if (typeof paypal !== 'undefined' && paypal.HostedButtons) {
+            try {
+                const targetElem = document.getElementById("paypal-container-A9ACPWUBK89YQ");
+                if (targetElem && targetElem.children.length === 0) {
+                    paypal.HostedButtons({
+                        hostedButtonId: "A9ACPWUBK89YQ"
+                    }).render("#paypal-container-A9ACPWUBK89YQ");
+                }
+            } catch (err) {
+                console.warn("PayPal Smart Button init:", err);
+            }
+        }
+    }, 1200);
+}
+
 // --- Hash & Admin Stealth Router (Accesible solo por /admin o #admin) ---
 function initAdminHashDetector() {
     function checkAdminRoute() {
@@ -53,7 +72,7 @@ function initAdminHashDetector() {
         const hash = window.location.hash;
         const search = window.location.search;
 
-        if (hash === '#admin' || search.includes('admin') || path.endsWith('/admin')) {
+        if (hash === '#admin' || search.includes('admin') || path.includes('/admin')) {
             openAdminModal();
         }
     }
@@ -176,6 +195,7 @@ window.openNeedHelpModal = function() {
 
 window.openDonationHub = function() {
     document.getElementById('modal-donations-hub')?.classList.remove('hidden');
+    initPayPalSmartButton();
 };
 
 window.closeModal = function(modalId) {
@@ -822,6 +842,9 @@ function initUI() {
             target.classList.add('active');
             target.setAttribute('aria-selected', 'true');
             document.getElementById(`tab-${target.dataset.tab}`).classList.add('active');
+            if (target.dataset.tab === 'donations') {
+                initPayPalSmartButton();
+            }
         });
     });
 
