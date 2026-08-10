@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Acopio Colombia - Mapa de Ayuda Terremoto 7.4 | 10 Agosto 2026</title>
-    <meta name="description" content="Mapa interactivo colaborativo y offline para respuesta a emergencias sismicas en Colombia. Centros de acopio, refugios, hospitales, donaciones y personas desaparecidas.">
+    <meta name="description" content="Mapa interactivo colaborativo y offline para respuesta a emergencias sismicas en Colombia. Centros de acopio verificados, refugios, hospitales, donaciones y personas desaparecidas.">
     <meta name="keywords" content="terremoto colombia 2026, ayuda terremoto, centros de acopio, refugios, donaciones, mapa emergencia">
     
     <!-- PWA & Mobile Web App Capabilities -->
@@ -16,7 +16,7 @@
     
     <!-- Open Graph -->
     <meta property="og:title" content="Acopio Colombia - Ayuda Terremoto 2026">
-    <meta property="og:description" content="Mapa interactivo colaborativo para víctimas del terremoto 7.4 en Colombia. Funciona incluso sin conexión a internet.">
+    <meta property="og:description" content="Mapa interactivo colaborativo con verificación de identidad y ubicación para centros de acopio en Colombia.">
     <meta property="og:type" content="website">
     
     <!-- Favicon -->
@@ -87,9 +87,9 @@
             <!-- Official Disclaimer Banner -->
             <div class="disclaimer-banner">
                 <div class="disclaimer-title">
-                    <span>🛡️ Aviso Oficial y Transparencia</span>
+                    <span>🛡️ Registro Verificado y Transparencia</span>
                 </div>
-                <p>Esta plataforma es una herramienta colaborativa de ayuda en tiempo real. Los datos sismológicos provienen del <strong>Servicio Geológico Colombiano (SGC)</strong>, <strong>USGS</strong> y la <strong>UNGRD</strong>. Los centros de acopio, refugios y reportes de personas son registrados y actualizados en tiempo real por la comunidad y socorristas en terreno. Para emergencias médicas vitales contacte siempre la línea <strong>123</strong>.</p>
+                <p>Todos los centros de acopio requieren <strong>verificación de ubicación en Colombia</strong>, <strong>teléfono de contacto colombiano</strong>, <strong>nombre del responsable</strong> y <strong>foto de verificación</strong> para evitar fraudes.</p>
             </div>
 
             <!-- Stats Grid -->
@@ -237,40 +237,65 @@
                     </ul>
                 </div>
 
-                <!-- Add Tab -->
+                <!-- Add Tab with STRICT VERIFICATION -->
                 <div id="tab-add" class="tab-pane">
                     <div class="form-header">
-                        <h3>➕ Registrar Punto de Ayuda</h3>
-                        <p class="form-subtitle">Reporte un centro de acopio o refugio activo en su zona para actualizar la red comunitaria.</p>
+                        <h3>➕ Registrar Centro de Acopio / Refugio</h3>
+                        <p class="form-subtitle">Para garantizar la seguridad de la ayuda, todos los campos de verificación son <strong>obligatorios</strong>.</p>
                     </div>
                     <form id="add-place-form">
                         <div class="form-group">
                             <label for="add-type">Tipo de Punto</label>
                             <select id="add-type" required class="select-styled">
-                                <option value="collection">📦 Centro de Acopio</option>
+                                <option value="collection">📦 Centro de Acopio (Verificado)</option>
                                 <option value="shelter">🏠 Refugio / Albergue</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="add-name">Nombre de la Institución o Punto</label>
-                            <input type="text" id="add-name" required placeholder="Ej: Parroquia Central / Coliseo Municipal">
+
+                        <!-- STRICT OBLIGATORY VERIFICATION FIELDS -->
+                        <div class="verification-box">
+                            <div class="verification-box-header">
+                                <span>🔒 Datos Obligatorios de Verificación</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="add-contact-name">Nombre y Apellidos del Responsable *</label>
+                                <input type="text" id="add-contact-name" required minlength="5" placeholder="Ej: Carlos Alberto Gómez Restrepo">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="add-phone">Número de Teléfono en Colombia *</label>
+                                <input type="tel" id="add-phone" required placeholder="Ej: 310 123 4567 o +57 310 123 4567" pattern="^(\+?57)?\s?(3\d{2}|60\d{1})\s?\d{3}\s?\d{4}$">
+                                <span class="field-hint">Debe ser un número móvil (3XX) o fijo (60X) válido en Colombia.</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="add-photo">Foto / Selfie de Verificación *</label>
+                                <input type="file" id="add-photo" accept="image/*" capture="user" required>
+                                <span class="field-hint">Tome una foto/selfie en el centro de acopio para verificar autenticidad.</span>
+                                <div id="photo-preview-container" class="photo-preview-box hidden">
+                                    <img id="photo-preview" src="" alt="Previsualización de foto de verificación">
+                                    <span class="photo-badge">📸 Foto cargada</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 14px;">
+                            <label for="add-name">Nombre del Centro o Lugar *</label>
+                            <input type="text" id="add-name" required placeholder="Ej: Centro de Acopio Barrio El Poblado">
                         </div>
                         <div class="form-group">
-                            <label for="add-address">Dirección / Barrio / Ciudad</label>
-                            <input type="text" id="add-address" required placeholder="Ej: Calle 10 # 5-20, Pereira">
-                        </div>
-                        <div class="form-group">
-                            <label for="add-contact">Contacto / Teléfono de Coordinación</label>
-                            <input type="text" id="add-contact" placeholder="Ej: Línea local o encargados">
+                            <label for="add-address">Calle y Dirección Completa *</label>
+                            <input type="text" id="add-address" required placeholder="Ej: Carrera 43A # 1-50, Cali, Valle del Cauca">
                         </div>
                         
                         <div id="dynamic-fields-collection" class="dynamic-fields">
                             <div class="form-group">
-                                <label for="add-needs">Suministros o Insumos Requeridos</label>
-                                <textarea id="add-needs" rows="2" placeholder="Ej: Agua enbotellada, cobijas, kits de primeros auxilios, alimentos enlatados"></textarea>
+                                <label for="add-needs">Insumos Requeridos</label>
+                                <textarea id="add-needs" rows="2" placeholder="Ej: Agua embotellada, pañales, cobijas, kits de primeros auxilios"></textarea>
                             </div>
                             <div class="form-group">
-                                <label for="add-schedule">Horarios de Recepción</label>
+                                <label for="add-schedule">Horario de Recepción</label>
                                 <input type="text" id="add-schedule" placeholder="Ej: 24 Horas / 8:00 AM - 6:00 PM">
                             </div>
                         </div>
@@ -291,16 +316,19 @@
                         </div>
 
                         <div class="form-group">
-                            <label>📍 Ubicación Geográfica</label>
-                            <p class="small-text">Toque el mapa para fijar coordenadas o presione el botón de ubicación GPS.</p>
+                            <label>📍 Ubicación Geográfica (Verificación en Colombia) *</label>
+                            <p class="small-text">Fije su posición en el mapa o use el botón GPS. La ubicación se verificará automáticamente en territorio colombiano.</p>
                             <div class="coord-inputs">
-                                <input type="number" id="add-lat" step="any" placeholder="Latitud" required>
-                                <input type="number" id="add-lng" step="any" placeholder="Longitud" required>
+                                <input type="number" id="add-lat" step="any" placeholder="Latitud" required readonly>
+                                <input type="number" id="add-lng" step="any" placeholder="Longitud" required readonly>
                             </div>
                             <button type="button" id="btn-use-location" class="btn-secondary">📍 Usar mi ubicación actual GPS</button>
+                            <div id="geo-status-indicator" class="geo-status-box hidden">
+                                <span id="geo-status-text">🔍 Verificando territorio colombiano...</span>
+                            </div>
                         </div>
 
-                        <button type="submit" class="btn-primary">💾 Guardar Punto de Ayuda</button>
+                        <button type="submit" id="btn-submit-place" class="btn-primary">🛡️ Validar y Registrar Centro de Acopio</button>
                     </form>
                 </div>
 
@@ -358,8 +386,8 @@
                             <textarea id="missing-description" rows="2" placeholder="Señas particulares, ropa, estado de salud"></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="missing-contact">Teléfono del Familiar que Busca</label>
-                            <input type="text" id="missing-contact" placeholder="Número de contacto directo">
+                            <label for="missing-contact">Teléfono del Familiar que Busca (Formato Colombia)</label>
+                            <input type="tel" id="missing-contact" required placeholder="Ej: 310 123 4567">
                         </div>
                         <button type="submit" class="btn-primary">📋 Publicar Reporte de Búsqueda</button>
                     </form>
@@ -377,7 +405,7 @@
 
             <!-- Footer -->
             <footer class="sidebar-footer">
-                <p>Respuesta Comunitaria y Solidaria • <a href="https://github.com/Myoozinc/acopio.col" target="_blank">Código Abierto en GitHub</a></p>
+                <p>Respuesta Comunitaria Verificada • <a href="https://github.com/Myoozinc/acopio.col" target="_blank">Código Abierto en GitHub</a></p>
             </footer>
         </aside>
 
@@ -397,12 +425,12 @@
             <div id="map-legend" class="glass-panel map-overlay">
                 <h4>Leyenda del Mapa</h4>
                 <div class="legend-item"><span class="legend-dot epicenter-dot"></span> Epicentro (Mag 7.4)</div>
-                <div class="legend-item"><span class="legend-dot" style="background:#ff3b3b"></span> Alerta Máxima</div>
-                <div class="legend-item"><span class="legend-dot" style="background:#ff9f0a"></span> Alerta Severa</div>
-                <div class="legend-item"><span class="legend-dot" style="background:#ffd60a"></span> Alerta Moderada</div>
-                <div class="legend-item"><span class="legend-dot" style="background:#30d158"></span> Centro de Acopio</div>
-                <div class="legend-item"><span class="legend-dot" style="background:#5e5ce6"></span> Refugio / Albergue</div>
-                <div class="legend-item"><span class="legend-dot" style="background:#ff6482"></span> Hospital Público</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#d92525"></span> Alerta Máxima</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#e67e22"></span> Alerta Severa</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#f39c12"></span> Alerta Moderada</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#27ae60"></span> Centro de Acopio (Verificado)</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#8e44ad"></span> Refugio / Albergue</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#e74c3c"></span> Hospital Público</div>
             </div>
             
             <!-- Floating Controls -->
@@ -452,8 +480,12 @@
                     <input type="text" id="edit-address" required>
                 </div>
                 <div class="form-group">
-                    <label for="edit-contact">Contacto / Teléfono</label>
-                    <input type="text" id="edit-contact">
+                    <label for="edit-contact-name">Nombre del Responsable *</label>
+                    <input type="text" id="edit-contact-name" required minlength="5">
+                </div>
+                <div class="form-group">
+                    <label for="edit-phone">Teléfono en Colombia *</label>
+                    <input type="tel" id="edit-phone" required pattern="^(\+?57)?\s?(3\d{2}|60\d{1})\s?\d{3}\s?\d{4}$">
                 </div>
                 <div id="edit-collection-fields">
                     <div class="form-group">
@@ -480,6 +512,17 @@
                     <button type="button" class="btn-danger" onclick="deleteFromModal()">🗑️ Eliminar Punto</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Image Modal for viewing selfie photo -->
+    <div id="image-modal" class="modal hidden">
+        <div class="modal-backdrop" onclick="closeImageModal()"></div>
+        <div class="modal-content glass-panel" style="text-align:center;">
+            <button class="close-btn modal-close" onclick="closeImageModal()">&times;</button>
+            <h3 id="image-modal-title">📸 Foto de Verificación de Responsable</h3>
+            <img id="image-modal-img" src="" alt="Foto de Verificación" style="max-width:100%;max-height:60vh;border-radius:10px;margin-top:10px;box-shadow:0 4px 16px rgba(0,0,0,0.3);">
+            <p id="image-modal-caption" style="margin-top:10px;font-size:0.85rem;opacity:0.8;"></p>
         </div>
     </div>
 

@@ -1,6 +1,6 @@
 /* ============================================
    ACOPIO COLOMBIA - Mapa de Ayuda Terremoto 2026
-   Premium Light/Dark Theme, Glassmorphism & PWA Mobile Support
+   Premium Light/Dark Theme, Glassmorphism & Verification Rules
    ============================================ */
 
 /* --- CSS Variables --- */
@@ -36,7 +36,7 @@
     --color-hospital: #e74c3c;
     
     --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    --sidebar-width: 390px;
+    --sidebar-width: 400px;
     --radius: 12px;
     --radius-sm: 8px;
     --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -75,14 +75,9 @@ body.light-mode { background-color: var(--bg-light); color: var(--text-light); }
     background: var(--bg-light);
     transition: opacity 0.5s, visibility 0.5s;
 }
-
 body.dark-mode #loading-screen { background: var(--bg-dark); }
 
-#loading-screen.fade-out {
-    opacity: 0;
-    visibility: hidden;
-}
-
+#loading-screen.fade-out { opacity: 0; visibility: hidden; }
 .loader-content { text-align: center; }
 
 .loader-flag {
@@ -162,17 +157,12 @@ body.dark-mode .loader-bar { background: rgba(255,255,255,0.1); }
     border: 1px solid var(--border-light);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 }
-
 body.dark-mode .glass-panel {
     background: var(--panel-dark);
     border-color: var(--border-dark);
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
 }
-
-body.light-mode .glass-panel {
-    background: var(--panel-light);
-    border-color: var(--border-light);
-}
+body.light-mode .glass-panel { background: var(--panel-light); border-color: var(--border-light); }
 
 /* --- Layout --- */
 #app-container {
@@ -182,7 +172,7 @@ body.light-mode .glass-panel {
     position: relative;
 }
 
-/* --- Sidebar / Mobile Drawer --- */
+/* --- Sidebar --- */
 #sidebar {
     width: var(--sidebar-width);
     height: 100%;
@@ -193,7 +183,6 @@ body.light-mode .glass-panel {
     border-right: 1px solid var(--border-light);
     transition: transform 0.3s ease;
 }
-
 body.dark-mode #sidebar { border-right-color: var(--border-dark); }
 
 /* Header */
@@ -210,11 +199,7 @@ body.dark-mode #sidebar-header { border-bottom-color: var(--border-dark); }
     margin-bottom: 8px;
 }
 
-.logo-section {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+.logo-section { display: flex; align-items: center; gap: 10px; }
 
 .logo-icon {
     font-size: 2rem;
@@ -231,12 +216,7 @@ body.dark-mode #sidebar-header { border-bottom-color: var(--border-dark); }
     background-clip: text;
 }
 
-.subtitle {
-    font-size: 0.78rem;
-    font-weight: 500;
-    opacity: 0.7;
-}
-
+.subtitle { font-size: 0.78rem; font-weight: 500; opacity: 0.7; }
 .header-controls { display: flex; gap: 6px; }
 
 .icon-btn {
@@ -270,10 +250,7 @@ body.dark-mode .icon-btn:hover { background: rgba(255,255,255,0.08); }
     font-weight: 500;
 }
 
-.call-link {
-    color: var(--color-critical);
-    text-decoration: none;
-}
+.call-link { color: var(--color-critical); text-decoration: none; }
 .call-link:hover { text-decoration: underline; }
 
 .pulse-dot {
@@ -313,8 +290,102 @@ body.dark-mode .disclaimer-banner {
     font-size: 0.8rem;
 }
 body.dark-mode .disclaimer-title { color: #64b5f6; }
-
 .disclaimer-banner p { opacity: 0.85; }
+
+/* --- Verification Box --- */
+.verification-box {
+    background: linear-gradient(135deg, rgba(39,174,96,0.06), rgba(0,56,147,0.06));
+    border: 1.5px dashed rgba(39,174,96,0.4);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-top: 10px;
+    margin-bottom: 12px;
+}
+body.dark-mode .verification-box {
+    background: linear-gradient(135deg, rgba(39,174,96,0.12), rgba(0,56,147,0.15));
+    border-color: rgba(39,174,96,0.5);
+}
+
+.verification-box-header {
+    font-weight: 800;
+    font-size: 0.82rem;
+    color: var(--color-success);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.field-hint {
+    display: block;
+    font-size: 0.72rem;
+    opacity: 0.7;
+    margin-top: 3px;
+    margin-bottom: 6px;
+}
+
+.photo-preview-box {
+    margin-top: 8px;
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-light);
+    max-height: 160px;
+    text-align: center;
+    background: #000;
+}
+
+.photo-preview-box img {
+    max-width: 100%;
+    max-height: 160px;
+    object-fit: cover;
+}
+
+.photo-badge {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background: rgba(39,174,96,0.9);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
+/* Geo status indicator */
+.geo-status-box {
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-top: 6px;
+}
+.geo-status-box.success { background: rgba(39,174,96,0.12); color: var(--color-success); border: 1px solid rgba(39,174,96,0.3); }
+.geo-status-box.error { background: rgba(217,37,37,0.12); color: var(--color-critical); border: 1px solid rgba(217,37,37,0.3); }
+
+/* --- Verified Badges --- */
+.verified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(39,174,96,0.12);
+    color: var(--color-success);
+    font-weight: 700;
+    font-size: 0.72rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+    border: 1px solid rgba(39,174,96,0.3);
+}
+
+.center-thumb-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 1px solid var(--border-light);
+    cursor: pointer;
+}
 
 /* --- Stats --- */
 .stats-container {
@@ -324,7 +395,6 @@ body.dark-mode .disclaimer-title { color: #64b5f6; }
     padding: 10px 14px;
     border-bottom: 1px solid var(--border-light);
 }
-
 body.dark-mode .stats-container { border-bottom-color: var(--border-dark); }
 
 .stat-box {
@@ -664,11 +734,7 @@ input:focus, select:focus, textarea:focus {
 body.dark-mode .btn-secondary { border-color: var(--border-dark); }
 .btn-secondary:hover { background: rgba(128,128,128,0.2); }
 
-.btn-donate {
-    background: #e6b800;
-    color: #1a1a1a;
-}
-
+.btn-donate { background: #e6b800; color: #1a1a1a; }
 .btn-danger {
     background: rgba(206,17,38,0.12);
     color: var(--color-critical);
@@ -679,7 +745,6 @@ body.dark-mode .btn-secondary { border-color: var(--border-dark); }
 
 /* --- Filter Controls --- */
 .filter-controls { margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
-
 .search-wrapper { position: relative; }
 .search-icon {
     position: absolute;
@@ -690,7 +755,6 @@ body.dark-mode .btn-secondary { border-color: var(--border-dark); }
     opacity: 0.5;
 }
 .search-wrapper input { padding-left: 36px; }
-
 .list-count { font-size: 0.76rem; opacity: 0.6; margin-bottom: 6px; font-weight: 600; }
 
 /* --- Places List --- */
@@ -722,6 +786,7 @@ body.dark-mode .place-card:hover { background: rgba(255,255,255,0.06); }
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-wrap: wrap;
 }
 
 .place-card p { font-size: 0.78rem; opacity: 0.75; }
@@ -1095,11 +1160,8 @@ body.dark-mode .sidebar-footer { border-top-color: var(--border-dark); }
     #map-container { width: 100%; height: 100%; }
 
     .floating-controls { bottom: 80px; right: 14px; }
-    
     #map-legend { bottom: 80px; left: 14px; padding: 8px 10px; font-size: 0.72rem; }
-    
     #route-panel { top: 12px; right: 12px; width: 220px; }
-
     .mobile-emergency-call-fab { bottom: 20px; left: 14px; padding: 10px 16px; }
 }
 
