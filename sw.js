@@ -1,4 +1,4 @@
-const CACHE_NAME = 'acopio-col-v2026-fresh-v1';
+const CACHE_NAME = 'acopio-col-v2026-fresh-v2';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -8,6 +8,8 @@ const STATIC_ASSETS = [
   './manifest.json',
   './logo.jpg',
   './assets/logo.jpg',
+  './binance_qr.jpg',
+  './assets/binance_qr.jpg',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',

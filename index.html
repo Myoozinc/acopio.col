@@ -36,7 +36,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     
     <!-- Custom CSS with Cache Buster -->
-    <link rel="stylesheet" href="styles.css?v=20260810_13">
+    <link rel="stylesheet" href="styles.css?v=20260810_14">
 </head>
 <body class="light-mode">
     
@@ -419,14 +419,18 @@
                             <div class="ud-header">
                                 <span class="ud-icon">🟡</span>
                                 <div>
-                                    <h4>Donación Cripto (Binance)</h4>
+                                    <h4>Donación Cripto (Binance Pay)</h4>
                                     <span class="ud-badge binance-badge">USDT / BTC / ETH</span>
                                 </div>
                             </div>
-                            <p class="ud-desc">Binance Pay ID / BUSD / USDT (Red TRC20/BEP20):</p>
+                            <p class="ud-desc">Escanee el código QR oficial de Binance Pay o copie el ID:</p>
+                            <div style="text-align:center;margin:10px 0;">
+                                <img src="assets/binance_qr.jpg" alt="Binance Pay QR Code" style="max-width:180px;height:auto;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.15);cursor:pointer;border:2px solid #F3BA2F;" onclick="openImageModal('assets/binance_qr.jpg', 'QR Binance Pay (ID: 242214516)')">
+                                <p style="font-size:0.72rem;opacity:0.7;margin-top:4px;">Toca la imagen para ampliar el QR</p>
+                            </div>
                             <div class="crypto-address-box">
-                                <code id="binance-address">Binance Pay ID: 884729103</code>
-                                <button class="btn-copy-sm" onclick="copyText('884729103', 'ID de Binance Pay copiado'); trackDonationIntent('Binance Pay')">📋 Copiar</button>
+                                <code id="binance-address">Binance Pay ID: 242214516</code>
+                                <button class="btn-copy-sm" onclick="copyText('242214516', 'ID Binance Pay (242214516) copiado'); trackDonationIntent('Binance Pay')">📋 Copiar ID</button>
                             </div>
                             <div class="crypto-address-box" style="margin-top:6px;">
                                 <code id="usdt-address">USDT (TRC20): TAcop1oCoL2026Sism0HeLpCoLomBiA</code>
@@ -667,10 +671,14 @@
                             <span class="ud-badge binance-badge">Sin comisiones bancarias</span>
                         </div>
                     </div>
-                    <p class="ud-desc">Cuentas Cripto autorizadas:</p>
+                    <p class="ud-desc">Escanee el código QR oficial de Binance Pay o copie el ID:</p>
+                    <div style="text-align:center;margin:10px 0;">
+                        <img src="assets/binance_qr.jpg" alt="Binance Pay QR Code" style="max-width:180px;height:auto;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.15);cursor:pointer;border:2px solid #F3BA2F;" onclick="openImageModal('assets/binance_qr.jpg', 'QR Binance Pay (ID: 242214516)')">
+                        <p style="font-size:0.72rem;opacity:0.7;margin-top:4px;">Toca la imagen para ampliar el QR</p>
+                    </div>
                     <div class="crypto-address-box">
-                        <code>Binance Pay ID: 884729103</code>
-                        <button class="btn-copy-sm" onclick="copyText('884729103', 'Binance Pay ID copiado'); trackDonationIntent('Binance Pay')">📋 Copiar</button>
+                        <code>Binance Pay ID: 242214516</code>
+                        <button class="btn-copy-sm" onclick="copyText('242214516', 'ID Binance Pay (242214516) copiado'); trackDonationIntent('Binance Pay')">📋 Copiar ID</button>
                     </div>
                     <div class="crypto-address-box" style="margin-top:6px;">
                         <code>USDT (TRC20): TAcop1oCoL2026Sism0HeLpCoLomBiA</code>
@@ -873,14 +881,14 @@
     <!-- Scripts with Cache Buster Versioning -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-    <script src="data.js?v=20260810_13"></script>
-    <script src="app.js?v=20260810_13"></script>
+    <script src="data.js?v=20260810_14"></script>
+    <script src="app.js?v=20260810_14"></script>
 
     <!-- Register Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=20260810_13')
+                navigator.serviceWorker.register('./sw.js?v=20260810_14')
                     .then(reg => {
                         console.log('Service Worker registrado:', reg.scope);
                         reg.update();
