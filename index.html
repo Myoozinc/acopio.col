@@ -36,7 +36,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     
     <!-- Custom CSS with Cache Buster -->
-    <link rel="stylesheet" href="styles.css?v=20260810_16">
+    <link rel="stylesheet" href="styles.css?v=20260811_01">
     
     <!-- PayPal Official SDK for Hosted Buttons -->
     <script src="https://www.paypal.com/sdk/js?client-id=BAAb9r5KyCBquB6ha3ipqU0FgNwUt3fyvsoVJ3IfpmpL2zyryKjV3cXznYCucP9AdR3Vd760sA4fMzwg7&components=hosted-buttons&enable-funding=venmo&currency=USD"></script>
@@ -395,9 +395,13 @@
 
                 <!-- Donations Tab -->
                 <div id="tab-donations" class="tab-pane">
-                    <div class="donations-header">
-                        <h3>💛 Donaciones Directas e Institucionales</h3>
-                        <p class="donations-subtitle">Apoye a las víctimas mediante PayPal, Cripto Binance o canales institucionales.</p>
+                    <!-- PROFESSIONAL DONATIONS EMBLEM HEADER -->
+                    <div class="donations-brand-header">
+                        <img src="assets/donaciones_logo.jpg" alt="Donaciones por Colombia - Unidos para Ayudar" class="donations-emblem-img">
+                        <div class="donations-brand-text">
+                            <h3>Donaciones por Colombia</h3>
+                            <p>Unidos para Ayudar • Canales Oficiales y Directos Verificados</p>
+                        </div>
                     </div>
                     
                     <div class="user-donation-highlight-box">
@@ -660,8 +664,15 @@
         <div class="modal-backdrop" onclick="closeModal('modal-donations-hub')"></div>
         <div class="modal-content glass-panel">
             <button class="close-btn modal-close" onclick="closeModal('modal-donations-hub')">&times;</button>
-            <h3>💛 Centro de Donaciones Directas</h3>
-            <p class="modal-sub">Realiza tu aporte directo mediante PayPal, Binance Cripto o cuentas bancarias.</p>
+            
+            <!-- PROFESSIONAL DONATIONS EMBLEM HEADER -->
+            <div class="donations-brand-header">
+                <img src="assets/donaciones_logo.jpg" alt="Donaciones por Colombia - Unidos para Ayudar" class="donations-emblem-img">
+                <div class="donations-brand-text">
+                    <h3>Donaciones por Colombia</h3>
+                    <p>Unidos para Ayudar • Canales Oficiales y Directos Verificados</p>
+                </div>
+            </div>
 
             <div class="user-donation-highlight-box" style="margin-top:14px;">
                 <div class="ud-card paypal-card">
@@ -743,7 +754,7 @@
         <div class="modal-backdrop" onclick="closeModal('modal-admin-panel')"></div>
         <div class="modal-content modal-admin-wide glass-panel">
             <button class="close-btn modal-close" onclick="closeModal('modal-admin-panel')">&times;</button>
-            <div style="display:flex;justify-space-between;align-items:center;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
                 <h3>🛡️ Panel de Control Administrador: <strong style="color:var(--col-blue);">Gingerboy</strong></h3>
                 <span class="admin-badge">Super Admin</span>
             </div>
@@ -907,14 +918,14 @@
     <!-- Scripts with Cache Buster Versioning -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-    <script src="data.js?v=20260810_16"></script>
-    <script src="app.js?v=20260810_16"></script>
+    <script src="data.js?v=20260811_01"></script>
+    <script src="app.js?v=20260811_01"></script>
 
     <!-- Register Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=20260810_16')
+                navigator.serviceWorker.register('./sw.js?v=20260811_01')
                     .then(reg => {
                         console.log('Service Worker registrado:', reg.scope);
                         reg.update();
