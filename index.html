@@ -35,8 +35,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="styles.css">
+    <!-- Custom CSS with Cache Buster -->
+    <link rel="stylesheet" href="styles.css?v=20260810_10">
 </head>
 <body class="light-mode">
     
@@ -72,10 +72,10 @@
                 </div>
             </header>
 
-            <!-- ACTION CARDS (NECESITO AYUDA PRIMERO, QUIERO AYUDAR ABAJO) -->
+            <!-- ACTION CARDS -->
             <main class="welcome-actions-grid">
                 
-                <!-- BOTÓN 1: NECESITO AYUDA (PRIORIDAD URGENTE) -->
+                <!-- BOTÓN 1: NECESITO AYUDA -->
                 <button class="portal-action-card card-need" onclick="openNeedHelpModal()">
                     <div class="card-icon">🆘</div>
                     <div class="card-text">
@@ -123,7 +123,7 @@
         </div>
     </div>
 
-    <!-- APPLICATION CONTAINER (MAPA Y DASHBOARD) -->
+    <!-- APPLICATION CONTAINER -->
     <div id="app-container" class="hidden">
         
         <!-- Top Navigation Bar for Map View -->
@@ -296,7 +296,7 @@
                     </ul>
                 </div>
 
-                <!-- Add Tab with STRICT VERIFICATION -->
+                <!-- Add Tab -->
                 <div id="tab-add" class="tab-pane">
                     <div class="form-header">
                         <h3>➕ Registrar Centro de Acopio / Refugio</h3>
@@ -311,7 +311,7 @@
                             </select>
                         </div>
 
-                        <!-- STRICT OBLIGATORY VERIFICATION FIELDS -->
+                        <!-- STRICT VERIFICATION FIELDS -->
                         <div class="verification-box">
                             <div class="verification-box-header">
                                 <span>🔒 Datos Obligatorios de Verificación</span>
@@ -387,14 +387,13 @@
                     </form>
                 </div>
 
-                <!-- Donations Tab with PayPal & Binance Pay -->
+                <!-- Donations Tab -->
                 <div id="tab-donations" class="tab-pane">
                     <div class="donations-header">
                         <h3>💛 Donaciones Directas e Institucionales</h3>
                         <p class="donations-subtitle">Apoye a las víctimas mediante PayPal, Cripto Binance o canales institucionales.</p>
                     </div>
                     
-                    <!-- USER PAYPAL & BINANCE DONATION CARDS -->
                     <div class="user-donation-highlight-box">
                         <div class="ud-card paypal-card">
                             <div class="ud-header">
@@ -746,19 +745,22 @@
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Scripts with Cache Buster Versioning -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.js"></script>
-    <script src="data.js"></script>
-    <script src="app.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="data.js?v=20260810_10"></script>
+    <script src="app.js?v=20260810_10"></script>
 
     <!-- Register Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
-                    .catch(err => console.warn('Error al registrar Service Worker:', err));
+                navigator.serviceWorker.register('./sw.js?v=20260810_10')
+                    .then(reg => {
+                        console.log('Service Worker registrado:', reg.scope);
+                        reg.update(); // Force immediate check for new worker
+                    })
+                    .catch(err => console.warn('SW err:', err));
             });
         }
     </script>
