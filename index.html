@@ -36,7 +36,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     
     <!-- Custom CSS with Cache Buster -->
-    <link rel="stylesheet" href="styles.css?v=20260810_15">
+    <link rel="stylesheet" href="styles.css?v=20260810_16">
     
     <!-- PayPal Official SDK for Hosted Buttons -->
     <script src="https://www.paypal.com/sdk/js?client-id=BAAb9r5KyCBquB6ha3ipqU0FgNwUt3fyvsoVJ3IfpmpL2zyryKjV3cXznYCucP9AdR3Vd760sA4fMzwg7&components=hosted-buttons&enable-funding=venmo&currency=USD"></script>
@@ -406,22 +406,27 @@
                             <div class="ud-header">
                                 <span class="ud-icon">💳</span>
                                 <div>
-                                    <h4>Donación por PayPal (Tarjeta o Saldo)</h4>
-                                    <span class="ud-badge">Enlace Oficial de Pagos</span>
+                                    <h4>Donación por PayPal (Tarjeta o App)</h4>
+                                    <span class="ud-badge">Universal & Directo</span>
                                 </div>
                             </div>
-                            <p class="ud-desc">Paga directamente con tarjeta de crédito/débito o cuenta PayPal:</p>
+                            <p class="ud-desc">Paga directamente desde la <strong>App de PayPal</strong> o con Tarjeta de Crédito/Débito:</p>
 
                             <!-- OFFICIAL PAYPAL HOSTED BUTTON CONTAINER -->
                             <div id="paypal-container-tab" style="margin:12px 0;min-height:45px;text-align:center;">
                                 <div id="paypal-container-A9ACPWUBK89YQ"></div>
                             </div>
 
-                            <div class="ud-action-row">
-                                <a href="https://www.paypal.com/ncp/links/A9ACPWUBK89YQ" id="paypal-link" target="_blank" rel="noopener" class="btn-paypal" onclick="trackDonationIntent('PayPal Direct')">
-                                    <span>💙 Abrir Enlace PayPal Directo</span>
+                            <div class="ud-action-row" style="flex-direction:column;gap:8px;">
+                                <a href="https://www.paypal.com/donate/?hosted_button_id=A9ACPWUBK89YQ" id="paypal-app-link" target="_blank" rel="noopener" class="btn-paypal-app" onclick="trackDonationIntent('PayPal Mobile App')">
+                                    <span>📲 Abrir en la App de PayPal (Datos Pre-llenados)</span>
                                 </a>
-                                <button class="btn-copy-sm" onclick="copyText('https://www.paypal.com/ncp/links/A9ACPWUBK89YQ', 'Enlace oficial de PayPal copiado'); trackDonationIntent('PayPal Copy')">📋 Copiar Link</button>
+                                <div style="display:flex;gap:8px;width:100%;">
+                                    <a href="https://www.paypal.com/ncp/links/A9ACPWUBK89YQ" target="_blank" rel="noopener" class="btn-paypal-web" style="flex:1;" onclick="trackDonationIntent('PayPal Web')">
+                                        <span>🌐 Enlace Web Alternativo</span>
+                                    </a>
+                                    <button class="btn-copy-sm" onclick="copyText('https://www.paypal.com/donate/?hosted_button_id=A9ACPWUBK89YQ', 'Enlace directo de PayPal copiado'); trackDonationIntent('PayPal Copy')">📋 Copiar Link</button>
+                                </div>
                             </div>
                         </div>
 
@@ -435,15 +440,17 @@
                                 </div>
                             </div>
                             <p class="ud-desc">Escanee el código QR oficial de Binance Pay o copie el ID:</p>
-                            <div style="text-align:center;margin:10px 0;">
-                                <img src="assets/binance_qr.jpg" alt="Binance Pay QR Code" style="max-width:180px;height:auto;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.15);cursor:pointer;border:2px solid #F3BA2F;" onclick="openImageModal('assets/binance_qr.jpg', 'QR Binance Pay (ID: 242214516)')">
-                                <p style="font-size:0.72rem;opacity:0.7;margin-top:4px;">Toca la imagen para ampliar el QR</p>
+
+                            <div class="qr-preview-wrapper">
+                                <img src="assets/binance_qr.jpg" alt="Binance Pay QR Code" class="qr-img-pro" onclick="openImageModal('assets/binance_qr.jpg', 'QR Oficial Binance Pay (ID: 242214516)')">
+                                <p style="font-size:0.73rem;opacity:0.75;margin-top:6px;font-weight:600;">🔍 Toca la imagen para ampliar el Código QR</p>
                             </div>
+
                             <div class="crypto-address-box">
                                 <code id="binance-address">Binance Pay ID: 242214516</code>
                                 <button class="btn-copy-sm" onclick="copyText('242214516', 'ID Binance Pay (242214516) copiado'); trackDonationIntent('Binance Pay')">📋 Copiar ID</button>
                             </div>
-                            <div class="crypto-address-box" style="margin-top:6px;">
+                            <div class="crypto-address-box">
                                 <code id="usdt-address">USDT (TRC20): TAcop1oCoL2026Sism0HeLpCoLomBiA</code>
                                 <button class="btn-copy-sm" onclick="copyText('TAcop1oCoL2026Sism0HeLpCoLomBiA', 'Dirección USDT copiada'); trackDonationIntent('USDT TRC20')">📋 Copiar</button>
                             </div>
@@ -661,16 +668,22 @@
                     <div class="ud-header">
                         <span class="ud-icon">💳</span>
                         <div>
-                            <h4>Donación PayPal</h4>
-                            <span class="ud-badge">Tarjetas de Crédito / Saldo</span>
+                            <h4>Donación por PayPal (Tarjeta o App)</h4>
+                            <span class="ud-badge">Universal & Directo</span>
                         </div>
                     </div>
-                    <p class="ud-desc">Paga directamente con tarjeta de crédito/débito o cuenta PayPal:</p>
-                    <div class="ud-action-row">
-                        <a href="https://www.paypal.com/ncp/links/A9ACPWUBK89YQ" target="_blank" rel="noopener" class="btn-paypal" onclick="trackDonationIntent('PayPal Direct Link')">
-                            <span>💙 Donar en PayPal Directo</span>
+                    <p class="ud-desc">Paga directamente desde la <strong>App de PayPal</strong> o con Tarjeta de Crédito/Débito:</p>
+
+                    <div class="ud-action-row" style="flex-direction:column;gap:8px;">
+                        <a href="https://www.paypal.com/donate/?hosted_button_id=A9ACPWUBK89YQ" target="_blank" rel="noopener" class="btn-paypal-app" onclick="trackDonationIntent('PayPal Mobile App')">
+                            <span>📲 Abrir en la App de PayPal (Datos Pre-llenados)</span>
                         </a>
-                        <button class="btn-copy-sm" onclick="copyText('https://www.paypal.com/ncp/links/A9ACPWUBK89YQ', 'Enlace de PayPal copiado'); trackDonationIntent('PayPal Copy')">📋 Copiar Link</button>
+                        <div style="display:flex;gap:8px;width:100%;">
+                            <a href="https://www.paypal.com/ncp/links/A9ACPWUBK89YQ" target="_blank" rel="noopener" class="btn-paypal-web" style="flex:1;" onclick="trackDonationIntent('PayPal Web')">
+                                <span>🌐 Enlace Web Alternativo</span>
+                            </a>
+                            <button class="btn-copy-sm" onclick="copyText('https://www.paypal.com/donate/?hosted_button_id=A9ACPWUBK89YQ', 'Enlace directo de PayPal copiado'); trackDonationIntent('PayPal Copy')">📋 Copiar Link</button>
+                        </div>
                     </div>
                 </div>
 
@@ -678,14 +691,17 @@
                     <div class="ud-header">
                         <span class="ud-icon">🟡</span>
                         <div>
-                            <h4>Donación Binance Pay / Cripto</h4>
+                            <h4>Donación Cripto (Binance Pay)</h4>
                             <span class="ud-badge binance-badge">Sin comisiones bancarias</span>
                         </div>
                     </div>
-                    <p class="ud-desc">Cuentas Cripto autorizadas:</p>
-                    <div style="text-align:center;margin:8px 0;">
-                        <img src="assets/binance_qr.jpg" alt="Binance Pay QR Code" style="max-width:160px;height:auto;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.15);cursor:pointer;border:2px solid #F3BA2F;" onclick="openImageModal('assets/binance_qr.jpg', 'QR Binance Pay (ID: 242214516)')">
+                    <p class="ud-desc">Escanee el código QR oficial de Binance Pay o copie el ID:</p>
+                    
+                    <div class="qr-preview-wrapper">
+                        <img src="assets/binance_qr.jpg" alt="Binance Pay QR Code" class="qr-img-pro" onclick="openImageModal('assets/binance_qr.jpg', 'QR Oficial Binance Pay (ID: 242214516)')">
+                        <p style="font-size:0.73rem;opacity:0.75;margin-top:6px;font-weight:600;">🔍 Toca la imagen para ampliar el Código QR</p>
                     </div>
+
                     <div class="crypto-address-box">
                         <code>Binance Pay ID: 242214516</code>
                         <button class="btn-copy-sm" onclick="copyText('242214516', 'Binance Pay ID copiado'); trackDonationIntent('Binance Pay')">📋 Copiar</button>
@@ -727,7 +743,7 @@
         <div class="modal-backdrop" onclick="closeModal('modal-admin-panel')"></div>
         <div class="modal-content modal-admin-wide glass-panel">
             <button class="close-btn modal-close" onclick="closeModal('modal-admin-panel')">&times;</button>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div style="display:flex;justify-space-between;align-items:center;margin-bottom:12px;">
                 <h3>🛡️ Panel de Control Administrador: <strong style="color:var(--col-blue);">Gingerboy</strong></h3>
                 <span class="admin-badge">Super Admin</span>
             </div>
@@ -891,14 +907,14 @@
     <!-- Scripts with Cache Buster Versioning -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-    <script src="data.js?v=20260810_15"></script>
-    <script src="app.js?v=20260810_15"></script>
+    <script src="data.js?v=20260810_16"></script>
+    <script src="app.js?v=20260810_16"></script>
 
     <!-- Register Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=20260810_15')
+                navigator.serviceWorker.register('./sw.js?v=20260810_16')
                     .then(reg => {
                         console.log('Service Worker registrado:', reg.scope);
                         reg.update();
