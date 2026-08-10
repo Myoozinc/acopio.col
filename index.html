@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Acopio Colombia - Respuesta Terremoto 7.4 | 10 Agosto 2026</title>
-    <meta name="description" content="Plataforma de auxilio sismico en Colombia. Quiero ayudar, Necesito Ayuda, Mapa interactivo de centros de acopio y Donaciones en PayPal y Binance.">
-    <meta name="keywords" content="terremoto colombia 2026, quiero ayudar colombia, necesito ayuda terremoto, centros de acopio, donaciones paypal binance">
+    <meta name="description" content="Plataforma de auxilio sismico en Colombia. Necesito Ayuda, Mapa interactivo, Quiero Ayudar y Donaciones en PayPal y Binance.">
+    <meta name="keywords" content="terremoto colombia 2026, necesito ayuda terremoto, mapa ayuda, quiero ayudar colombia, donaciones paypal binance">
     
     <!-- PWA & Mobile Web App Capabilities -->
     <link rel="manifest" href="manifest.json">
@@ -16,7 +16,7 @@
     
     <!-- Open Graph -->
     <meta property="og:title" content="Acopio Colombia - Ayuda Terremoto 2026">
-    <meta property="og:description" content="Quiero Ayudar • Necesito Ayuda • Mapa de Emergencia • Donaciones PayPal & Binance">
+    <meta property="og:description" content="Necesito Ayuda • Mapa de Emergencia • Quiero Ayudar • Donaciones PayPal & Binance">
     <meta property="og:type" content="website">
     
     <!-- Favicon -->
@@ -58,7 +58,7 @@
         <span>📶 <strong>Modo Sin Conexión:</strong> Funciona offline con mapa y registros locales.</span>
     </div>
 
-    <!-- MAIN WELCOME PORTAL (PORTAL INICIAL MODERN Y MINIMALISTA) -->
+    <!-- MAIN WELCOME PORTAL -->
     <div id="welcome-portal" class="welcome-portal-view">
         <div class="welcome-portal-card-container glass-panel">
             
@@ -72,19 +72,10 @@
                 </div>
             </header>
 
-            <!-- 4 ACTION CARDS (GRID 2x2 EN DESKTOP / 1 COLUMNA EN MOBILE) -->
+            <!-- ACTION CARDS (RE-ORDERED: NECESITO AYUDA PRIMERO, QUIERO AYUDAR ABAJO) -->
             <main class="welcome-actions-grid">
-                <!-- BOTÓN 1: QUIERO AYUDAR -->
-                <button class="portal-action-card card-offer" onclick="openOfferHelpModal()">
-                    <div class="card-icon">💚</div>
-                    <div class="card-text">
-                        <h2>Quiero Ayudar</h2>
-                        <p>Registra qué insumos, refugio o apoyo ofreces a las víctimas.</p>
-                    </div>
-                    <div class="card-arrow">➔</div>
-                </button>
-
-                <!-- BOTÓN 2: NECESITO AYUDA -->
+                
+                <!-- BOTÓN 1: NECESITO AYUDA (PRIORIDAD URGENTE) -->
                 <button class="portal-action-card card-need" onclick="openNeedHelpModal()">
                     <div class="card-icon">🆘</div>
                     <div class="card-text">
@@ -94,7 +85,7 @@
                     <div class="card-arrow">➔</div>
                 </button>
 
-                <!-- BOTÓN 3: MAPA DE AYUDA -->
+                <!-- BOTÓN 2: MAPA DE AYUDA -->
                 <button class="portal-action-card card-map" onclick="enterDirectMap()">
                     <div class="card-icon">🗺️</div>
                     <div class="card-text">
@@ -104,11 +95,21 @@
                     <div class="card-arrow">➔</div>
                 </button>
 
-                <!-- BOTÓN DONACIONES -->
+                <!-- BOTÓN 3: QUIERO AYUDAR (COLOCADO ABAJO) -->
+                <button class="portal-action-card card-offer" onclick="openOfferHelpModal()">
+                    <div class="card-icon">💚</div>
+                    <div class="card-text">
+                        <h2>Quiero Ayudar</h2>
+                        <p>Registra qué insumos, refugio o apoyo ofreces a las víctimas.</p>
+                    </div>
+                    <div class="card-arrow">➔</div>
+                </button>
+
+                <!-- BOTÓN 4: DONACIONES -->
                 <button class="portal-action-card card-donate" onclick="openDonationHub()">
                     <div class="card-icon">💛</div>
                     <div class="card-text">
-                        <h2>Donaciones</h2>
+                        <h2>Donaciones (PayPal & Binance)</h2>
                         <p>Aportes directos en PayPal, Cripto Binance y cuentas institucionales.</p>
                     </div>
                     <div class="card-arrow">➔</div>
@@ -544,7 +545,7 @@
         <div id="toast-container"></div>
     </div>
 
-    <!-- MODAL 1: QUIERO AYUDAR (REGISTRO RÁPIDO DE OFERTA DE AYUDA) -->
+    <!-- MODAL 1: QUIERO AYUDAR -->
     <div id="modal-offer-help" class="modal hidden">
         <div class="modal-backdrop" onclick="closeModal('modal-offer-help')"></div>
         <div class="modal-content glass-panel">
@@ -587,7 +588,7 @@
         </div>
     </div>
 
-    <!-- MODAL 2: NECESITO AYUDA (SOLICITUD URGENTE DE AUXILIO) -->
+    <!-- MODAL 2: NECESITO AYUDA -->
     <div id="modal-need-help" class="modal hidden">
         <div class="modal-backdrop" onclick="closeModal('modal-need-help')"></div>
         <div class="modal-content glass-panel">
@@ -731,7 +732,7 @@
         </div>
     </div>
 
-    <!-- Image Modal for viewing selfie photo -->
+    <!-- Image Modal -->
     <div id="image-modal" class="modal hidden">
         <div class="modal-backdrop" onclick="closeImageModal()"></div>
         <div class="modal-content glass-panel" style="text-align:center;">
