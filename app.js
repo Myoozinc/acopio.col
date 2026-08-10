@@ -33,9 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const loader = document.getElementById('loading-screen');
         if (loader) {
             loader.classList.add('fade-out');
-            setTimeout(() => loader.remove(), 500);
+            setTimeout(() => loader.remove(), 400);
         }
-    }, 1000);
+    }, 800);
 });
 
 // --- Welcome Portal View Navigation ---
@@ -43,21 +43,31 @@ window.enterDirectMap = function() {
     document.getElementById('welcome-portal')?.classList.add('hidden');
     document.getElementById('app-container')?.classList.remove('hidden');
     
-    if (!map) {
-        initMap();
-        initUI();
-    }
-    
-    renderAll();
     setTimeout(() => {
-        if (map) map.invalidateSize();
-    }, 200);
+        if (!map) {
+            initMap();
+            initUI();
+        } else {
+            map.invalidateSize();
+        }
+
+        if (map && zonesLayerGroup && !map.hasLayer(zonesLayerGroup)) {
+            zonesLayerGroup.addTo(map);
+        }
+        if (map && markerClusterGroup && !map.hasLayer(markerClusterGroup)) {
+            markerClusterGroup.addTo(map);
+        }
+
+        renderAll();
+    }, 60);
 };
 
 window.enterDirectMapTab = function(tabName) {
     closeModal('modal-donations-hub');
     enterDirectMap();
-    document.querySelector(`[data-tab="${tabName}"]`)?.click();
+    setTimeout(() => {
+        document.querySelector(`[data-tab="${tabName}"]`)?.click();
+    }, 100);
 };
 
 window.returnToWelcomePortal = function() {
@@ -65,7 +75,7 @@ window.returnToWelcomePortal = function() {
     document.getElementById('welcome-portal')?.classList.remove('hidden');
 };
 
-// --- Modals Triggers for 3 Mobile Options ---
+// --- Modals Triggers ---
 window.openOfferHelpModal = function() {
     document.getElementById('modal-offer-help')?.classList.remove('hidden');
 };
@@ -158,9 +168,25 @@ function loadData() {
             db = JSON.parse(stored);
         } catch (e) {
             console.error('Error cargando datos locales:', e);
+            db = typeof initialData !== 'undefined' ? initialData : {};
         }
+    } else if (typeof initialData !== 'undefined') {
+        db = initialData;
+    }
+
+    // Always guarantee affected zones & epicenter presence
+    if (!db.affectedZones || db.affectedZones.length === 0) {
+        db.affectedZones = typeof initialData !== 'undefined' ? initialData.affectedZones : [];
+    }
+    if (!db.epicenter && typeof initialData !== 'undefined') {
+        db.epicenter = initialData.epicenter;
+    }
+    if (!db.hospitals || db.hospitals.length === 0) {
+        db.hospitals = typeof initialData !== 'undefined' ? initialData.hospitals : [];
     }
     if (!db.emergencyRequests) db.emergencyRequests = [];
+    if (!db.collectionCenters) db.collectionCenters = [];
+    if (!db.shelters) db.shelters = [];
 }
 
 function saveData() {
@@ -186,12 +212,12 @@ function updateDashboardStats() {
     const needElem = document.getElementById('stat-needs-count');
     if (needElem) needElem.textContent = needCount;
 
-    document.getElementById('stat-zones').textContent = db.affectedZones.length;
-    document.getElementById('stat-shelters').textContent = db.shelters.length;
-    document.getElementById('stat-centers').textContent = db.collectionCenters.length;
+    document.getElementById('stat-zones').textContent = (db.affectedZones || []).length;
+    document.getElementById('stat-shelters').textContent = (db.shelters || []).length;
+    document.getElementById('stat-centers').textContent = (db.collectionCenters || []).length;
 }
 
-// --- Export JSON Data for Offline Sharing ---
+// --- Export JSON Data ---
 window.exportDataJSON = function() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
     const downloadAnchor = document.createElement('a');
@@ -255,8 +281,8 @@ function initModalsAndForms() {
             id: 'off_' + Date.now(),
             name: `Oferta: ${name} (${category === 'collection' ? 'Centro Acopio' : category === 'shelter' ? 'Refugio' : 'Apoyo'})`,
             address: address,
-            lat: 4.5709 + (Math.random() - 0.5) * 2, // Approximate lat/lng if not specified
-            lng: -74.2973 + (Math.random() - 0.5) * 2,
+            lat: 4.5709 + (Math.random() - 0.5) * 1.5,
+            lng: -74.2973 + (Math.random() - 0.5) * 1.5,
             contactName: name,
             contact: phone,
             needs: details,
@@ -383,7 +409,7 @@ function initMap() {
     });
 }
 
-// --- Location Verification (Reverse Geocoding check for Colombia) ---
+// --- Location Verification ---
 function verifyCoordinatesLocation(lat, lng) {
     const statusBox = document.getElementById('geo-status-indicator');
     const statusText = document.getElementById('geo-status-text');
@@ -437,16 +463,26 @@ function verifyCoordinatesLocation(lat, lng) {
     }
 }
 
+// --- Render Map Markers & Affected Zones Circles ---
 function renderMapMarkers() {
+    if (!map || !markerClusterGroup || !zonesLayerGroup) return;
+
     markerClusterGroup.clearLayers();
     zonesLayerGroup.clearLayers();
 
-    // Epicenter
+    if (!map.hasLayer(zonesLayerGroup)) {
+        zonesLayerGroup.addTo(map);
+    }
+    if (!map.hasLayer(markerClusterGroup)) {
+        markerClusterGroup.addTo(map);
+    }
+
+    // Epicenter Marker (Pulsing Red Marker)
     if (db.epicenter) {
         const pulseIcon = L.divIcon({
             className: 'pulse-icon',
-            iconSize: [22, 22],
-            iconAnchor: [11, 11]
+            iconSize: [26, 26],
+            iconAnchor: [13, 13]
         });
         
         L.marker([db.epicenter.lat, db.epicenter.lng], { icon: pulseIcon, zIndexOffset: 2000 })
@@ -459,38 +495,40 @@ function renderMapMarkers() {
                     <p class="popup-detail" style="font-size:0.75rem;opacity:0.7;">Fuente: ${db.epicenter.source}</p>
                 </div>
             `)
-            .addTo(map);
+            .addTo(zonesLayerGroup);
     }
 
-    // Affected Zones
-    if (zonesVisible) {
+    // Affected Zones Circles (Risaralda, Caldas, Quindío, Cali, Quibdó, Cartago, Buenaventura, San José del Palmar)
+    if (zonesVisible && db.affectedZones && db.affectedZones.length > 0) {
         db.affectedZones.forEach(zone => {
             const colors = {
-                critical: { color: '#d92525', fill: 0.14 },
-                severe: { color: '#e67e22', fill: 0.12 },
-                moderate: { color: '#f39c12', fill: 0.10 }
+                critical: { color: '#d92525', fill: 0.18 },
+                severe: { color: '#e67e22', fill: 0.15 },
+                moderate: { color: '#f39c12', fill: 0.12 }
             };
             const c = colors[zone.severity] || colors.moderate;
             
-            L.circle([zone.lat, zone.lng], {
+            const circle = L.circle([zone.lat, zone.lng], {
                 color: c.color,
                 fillColor: c.color,
                 fillOpacity: c.fill,
-                weight: 2,
-                opacity: 0.6,
-                radius: zone.radius || 10000
+                weight: 2.5,
+                opacity: 0.8,
+                radius: zone.radius || 15000
             }).bindPopup(`
                 <div class="popup-content">
-                    <h3>${zone.name}, ${zone.department}</h3>
+                    <h3>📍 ${zone.name}, ${zone.department}</h3>
                     <p class="popup-detail">${zone.details}</p>
-                    <p class="popup-detail">Nivel: <strong style="color:${c.color}">${zone.severity.toUpperCase()}</strong></p>
+                    <p class="popup-detail">Nivel de Afectación: <strong style="color:${c.color}">${zone.severity.toUpperCase()}</strong></p>
                 </div>
-            `).addTo(zonesLayerGroup);
+            `);
+            
+            zonesLayerGroup.addLayer(circle);
         });
     }
 
     // Collection Centers
-    db.collectionCenters.forEach(item => {
+    (db.collectionCenters || []).forEach(item => {
         const icon = L.divIcon({
             className: 'custom-marker marker-collection',
             html: '<span>📦</span>',
@@ -502,7 +540,7 @@ function renderMapMarkers() {
     });
 
     // Shelters
-    db.shelters.forEach(item => {
+    (db.shelters || []).forEach(item => {
         const icon = L.divIcon({
             className: 'custom-marker marker-shelter',
             html: '<span>🏠</span>',
@@ -526,7 +564,7 @@ function renderMapMarkers() {
     });
 
     // Hospitals
-    db.hospitals.forEach(item => {
+    (db.hospitals || []).forEach(item => {
         const icon = L.divIcon({
             className: 'custom-marker marker-hospital',
             html: '<span>🏥</span>',
@@ -625,10 +663,10 @@ function initUI() {
     document.getElementById('btn-toggle-zones')?.addEventListener('click', () => {
         zonesVisible = !zonesVisible;
         if (zonesVisible) {
-            map.addLayer(zonesLayerGroup);
+            if (map && zonesLayerGroup) map.addLayer(zonesLayerGroup);
             showToast('🔴 Zonas sismicas visibles', 'info');
         } else {
-            map.removeLayer(zonesLayerGroup);
+            if (map && zonesLayerGroup) map.removeLayer(zonesLayerGroup);
             showToast('Zonas sismicas ocultas', 'info');
         }
         renderMapMarkers();
@@ -975,10 +1013,10 @@ function renderPlacesList() {
     const searchTxt = document.getElementById('search-input')?.value.toLowerCase().trim() || '';
     
     let items = [];
-    if (filterType === 'all' || filterType === 'collection') items = items.concat(db.collectionCenters.map(i => ({...i})));
-    if (filterType === 'all' || filterType === 'shelter') items = items.concat(db.shelters.map(i => ({...i})));
+    if (filterType === 'all' || filterType === 'collection') items = items.concat((db.collectionCenters || []).map(i => ({...i})));
+    if (filterType === 'all' || filterType === 'shelter') items = items.concat((db.shelters || []).map(i => ({...i})));
     if (filterType === 'all' || filterType === 'need') items = items.concat((db.emergencyRequests || []).map(i => ({...i})));
-    if (filterType === 'all' || filterType === 'hospital') items = items.concat(db.hospitals.map(i => ({...i})));
+    if (filterType === 'all' || filterType === 'hospital') items = items.concat((db.hospitals || []).map(i => ({...i})));
 
     if (searchTxt) {
         items = items.filter(item =>
@@ -1082,7 +1120,7 @@ function renderZonesList() {
     const container = document.getElementById('zones-list');
     if (!container) return;
     
-    container.innerHTML = db.affectedZones.map(zone => `
+    container.innerHTML = (db.affectedZones || []).map(zone => `
         <div class="zone-card ${zone.severity}" onclick="map.flyTo([${zone.lat}, ${zone.lng}], 12, {duration:1})">
             <h4>📍 ${zone.name}, ${zone.department}</h4>
             <p>${zone.details}</p>
