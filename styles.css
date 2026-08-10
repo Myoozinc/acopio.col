@@ -87,6 +87,52 @@ body.dark-mode #loading-screen { background: var(--bg-dark); }
 
 .loader-content { text-align: center; }
 
+.loader-logo-img {
+    width: 110px;
+    height: auto;
+    border-radius: 16px;
+    margin: 0 auto 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    display: block;
+}
+
+.welcome-logo-wrapper {
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: center;
+}
+
+.main-portal-logo {
+    width: 145px;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.15);
+    transition: transform 0.3s ease;
+}
+
+.main-portal-logo:hover {
+    transform: scale(1.04);
+}
+
+.sidebar-logo-img {
+    width: 46px;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.map-bar-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.map-bar-logo {
+    width: 28px;
+    height: auto;
+    border-radius: 6px;
+}
+
 .loader-flag {
     display: flex;
     width: 100px;

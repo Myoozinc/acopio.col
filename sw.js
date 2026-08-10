@@ -1,4 +1,4 @@
-const CACHE_NAME = 'acopio-col-v1';
+const CACHE_NAME = 'acopio-col-v2';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -6,6 +6,8 @@ const STATIC_ASSETS = [
   './app.js',
   './data.js',
   './manifest.json',
+  './logo.jpg',
+  './assets/logo.jpg',
   './banner.jpg',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',

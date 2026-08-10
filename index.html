@@ -3,24 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Acopio Colombia - Respuesta Terremoto 7.4 | 10 Agosto 2026</title>
+    <title>Acopio COL - Respuesta Terremoto 7.4 Colombia | 10 Agosto 2026</title>
     <meta name="description" content="Plataforma de auxilio sismico en Colombia. Necesito Ayuda, Mapa interactivo, Quiero Ayudar y Donaciones en PayPal y Binance.">
-    <meta name="keywords" content="terremoto colombia 2026, necesito ayuda terremoto, mapa ayuda, quiero ayudar colombia, donaciones paypal binance">
+    <meta name="keywords" content="terremoto colombia 2026, acopio col, necesito ayuda terremoto, mapa ayuda, quiero ayudar colombia, donaciones paypal binance">
     
     <!-- PWA & Mobile Web App Capabilities -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#003893">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Acopio Col">
+    <meta name="apple-mobile-web-app-title" content="Acopio COL">
     
-    <!-- Open Graph -->
-    <meta property="og:title" content="Acopio Colombia - Ayuda Terremoto 2026">
+    <!-- Open Graph & Meta Image -->
+    <meta property="og:title" content="Acopio COL - Ayuda Terremoto 2026">
     <meta property="og:description" content="Necesito Ayuda • Mapa de Emergencia • Quiero Ayudar • Donaciones PayPal & Binance">
+    <meta property="og:image" content="assets/logo.jpg">
     <meta property="og:type" content="website">
     
     <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇨🇴</text></svg>">
+    <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,12 +43,8 @@
     <!-- Loading Screen -->
     <div id="loading-screen">
         <div class="loader-content">
-            <div class="loader-flag">
-                <div class="flag-stripe yellow"></div>
-                <div class="flag-stripe blue"></div>
-                <div class="flag-stripe red"></div>
-            </div>
-            <h2>Acopio Colombia</h2>
+            <img src="assets/logo.jpg" alt="Acopio COL Logo" class="loader-logo-img">
+            <h2>Acopio COL</h2>
             <p>Cargando portal de auxilio...</p>
             <div class="loader-bar"><div class="loader-progress"></div></div>
         </div>
@@ -63,8 +60,11 @@
         <div class="welcome-portal-card-container glass-panel">
             
             <header class="welcome-header">
+                <div class="welcome-logo-wrapper">
+                    <img src="assets/logo.jpg" alt="Acopio COL Logo" class="main-portal-logo">
+                </div>
                 <div class="welcome-flag-badge">🇨🇴 Respuesta Terremoto Colombia</div>
-                <h1>Acopio Colombia</h1>
+                <h1>Acopio COL</h1>
                 <p class="welcome-subtitle">Sismo Mag. 7.4 • 10 de Agosto de 2026 (San José del Palmar, Chocó)</p>
                 <div class="welcome-emergency-call">
                     <span>🚨 Emergencias Vitales:</span>
@@ -72,7 +72,7 @@
                 </div>
             </header>
 
-            <!-- ACTION CARDS (RE-ORDERED: NECESITO AYUDA PRIMERO, QUIERO AYUDAR ABAJO) -->
+            <!-- ACTION CARDS (NECESITO AYUDA PRIMERO, QUIERO AYUDAR ABAJO) -->
             <main class="welcome-actions-grid">
                 
                 <!-- BOTÓN 1: NECESITO AYUDA (PRIORIDAD URGENTE) -->
@@ -95,7 +95,7 @@
                     <div class="card-arrow">➔</div>
                 </button>
 
-                <!-- BOTÓN 3: QUIERO AYUDAR (COLOCADO ABAJO) -->
+                <!-- BOTÓN 3: QUIERO AYUDAR -->
                 <button class="portal-action-card card-offer" onclick="openOfferHelpModal()">
                     <div class="card-icon">💚</div>
                     <div class="card-text">
@@ -129,7 +129,10 @@
         <!-- Top Navigation Bar for Map View -->
         <div class="map-top-bar glass-panel">
             <button class="home-btn" onclick="returnToWelcomePortal()">🏠 Inicio / Menú</button>
-            <div class="map-bar-title">🇨🇴 Acopio Colombia</div>
+            <div class="map-bar-title-group">
+                <img src="assets/logo.jpg" alt="Acopio COL" class="map-bar-logo">
+                <span class="map-bar-title">Acopio COL</span>
+            </div>
             <button id="theme-toggle" class="icon-btn" title="Cambiar Tema">🌙</button>
         </div>
 
@@ -138,9 +141,9 @@
             <header id="sidebar-header">
                 <div class="header-top">
                     <div class="logo-section">
-                        <span class="logo-icon">🇨🇴</span>
+                        <img src="assets/logo.jpg" alt="Acopio COL Logo" class="sidebar-logo-img">
                         <div>
-                            <h1>Acopio Colombia</h1>
+                            <h1>Acopio COL</h1>
                             <p class="subtitle">Sismo 7.4 • 10 Agosto 2026</p>
                         </div>
                     </div>
@@ -627,7 +630,7 @@
         </div>
     </div>
 
-    <!-- MODAL 3: DONACIONES PORTAL (PAYPAL & BINANCE) -->
+    <!-- MODAL 3: DONACIONES PORTAL -->
     <div id="modal-donations-hub" class="modal hidden">
         <div class="modal-backdrop" onclick="closeModal('modal-donations-hub')"></div>
         <div class="modal-content glass-panel">
@@ -745,7 +748,7 @@
 
     <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.js"></script>
     <script src="data.js"></script>
     <script src="app.js"></script>
 
