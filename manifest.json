@@ -1,0 +1,18 @@
+{
+  "name": "Acopio Colombia - Mapa de Ayuda Sismo 2026",
+  "short_name": "Acopio Col",
+  "description": "Mapa interactivo colaborativo y offline para respuesta a emergencias sismicas en Colombia",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#003893",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23003893'/><text y='.75em' x='15' font-size='70'>🇨🇴</text></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

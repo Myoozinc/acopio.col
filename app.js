@@ -1,6 +1,7 @@
 // ============================================
 // ACOPIO COLOMBIA - App Principal
 // Mapa de Ayuda Terremoto 7.4 - 10 Agosto 2026
+// PWA & Soporte Offline Incorporado
 // ============================================
 
 // --- Global State ---
@@ -18,6 +19,7 @@ let db = { affectedZones: [], collectionCenters: [], shelters: [], hospitals: []
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
     initTheme();
+    initOfflineDetection();
     initMap();
     initUI();
     initDonationFilters();
@@ -28,10 +30,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const loader = document.getElementById('loading-screen');
         if (loader) {
             loader.classList.add('fade-out');
-            setTimeout(() => loader.remove(), 600);
+            setTimeout(() => loader.remove(), 500);
         }
-    }, 2000);
+    }, 1500);
 });
+
+// --- Offline Status Detection ---
+function initOfflineDetection() {
+    const offlineBar = document.getElementById('offline-bar');
+    
+    function updateOnlineStatus() {
+        if (!navigator.onLine) {
+            if (offlineBar) offlineBar.classList.remove('hidden');
+            showToast('📶 Modo Sin Conexión activo', 'info');
+        } else {
+            if (offlineBar) offlineBar.classList.add('hidden');
+            showToast('🌐 Conexión a internet restablecida', 'success');
+        }
+    }
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    if (!navigator.onLine && offlineBar) {
+        offlineBar.classList.remove('hidden');
+    }
+}
 
 // --- Theme ---
 function initTheme() {
@@ -40,28 +64,34 @@ function initTheme() {
     
     if (savedTheme === 'dark') {
         document.body.classList.replace('light-mode', 'dark-mode');
-        toggleBtn.textContent = '☀️';
+        if (toggleBtn) toggleBtn.textContent = '☀️';
     }
 
-    toggleBtn.addEventListener('click', () => {
-        const isDark = document.body.classList.contains('dark-mode');
-        if (isDark) {
-            document.body.classList.replace('dark-mode', 'light-mode');
-            localStorage.setItem('theme', 'light');
-            toggleBtn.textContent = '🌙';
-        } else {
-            document.body.classList.replace('light-mode', 'dark-mode');
-            localStorage.setItem('theme', 'dark');
-            toggleBtn.textContent = '☀️';
-        }
-    });
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            const isDark = document.body.classList.contains('dark-mode');
+            if (isDark) {
+                document.body.classList.replace('dark-mode', 'light-mode');
+                localStorage.setItem('theme', 'light');
+                toggleBtn.textContent = '🌙';
+            } else {
+                document.body.classList.replace('light-mode', 'dark-mode');
+                localStorage.setItem('theme', 'dark');
+                toggleBtn.textContent = '☀️';
+            }
+        });
+    }
 }
 
 // --- Data Management ---
 function loadData() {
     const stored = localStorage.getItem('earthquake_data');
     if (stored) {
-        db = JSON.parse(stored);
+        try {
+            db = JSON.parse(stored);
+        } catch (e) {
+            console.error('Error cargando datos locales:', e);
+        }
     }
 }
 
@@ -82,37 +112,22 @@ function renderAll() {
 }
 
 function updateDashboardStats() {
-    const totalDeaths = db.affectedZones.reduce((s, z) => s + (z.deaths || 0), 0);
-    const totalInjured = db.affectedZones.reduce((s, z) => s + (z.injured || 0), 0);
-    const totalDisplaced = db.affectedZones.reduce((s, z) => s + (z.displaced || 0), 0);
-    
-    animateCounter('stat-deaths', totalDeaths);
-    animateCounter('stat-injured', totalInjured);
-    animateCounter('stat-displaced', totalDisplaced);
-    
     document.getElementById('stat-zones').textContent = db.affectedZones.length;
     document.getElementById('stat-shelters').textContent = db.shelters.length;
     document.getElementById('stat-centers').textContent = db.collectionCenters.length;
 }
 
-function animateCounter(id, target) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const current = parseInt(el.textContent) || 0;
-    if (current === target) return;
-    
-    const duration = 1200;
-    const start = performance.now();
-    
-    function step(now) {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
-        el.textContent = Math.floor(current + (target - current) * eased).toLocaleString('es-CO');
-        if (progress < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-}
+// --- Export JSON Data for Offline Sharing ---
+window.exportDataJSON = function() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `Acopio_Colombia_Reportes_${new Date().toISOString().slice(0,10)}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    showToast('💾 Copia de respaldo descargada (JSON)', 'success');
+};
 
 // --- Map Setup ---
 function initMap() {
@@ -125,7 +140,6 @@ function initMap() {
     
     L.control.zoom({ position: 'topleft' }).addTo(map);
 
-    // Dark tile layer
     const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap © CARTO'
@@ -141,7 +155,6 @@ function initMap() {
         attribution: '© Esri'
     });
 
-    // Use light tiles by default
     if (document.body.classList.contains('dark-mode')) {
         darkTiles.addTo(map);
     } else {
@@ -149,22 +162,20 @@ function initMap() {
     }
 
     L.control.layers({
-        'Oscuro': darkTiles,
         'Claro': lightTiles,
+        'Oscuro': darkTiles,
         'Satélite': satelliteTiles
     }, null, { position: 'topright' }).addTo(map);
 
-    // Marker cluster
     markerClusterGroup = L.markerClusterGroup({
         maxClusterRadius: 50,
         spiderfyOnMaxZoom: true,
         showCoverageOnHover: false,
         iconCreateFunction: (cluster) => {
             const count = cluster.getChildCount();
-            let size = count < 10 ? 'small' : count < 50 ? 'medium' : 'large';
             return L.divIcon({
                 html: `<div><span>${count}</span></div>`,
-                className: `marker-cluster marker-cluster-${size}`,
+                className: 'marker-cluster marker-cluster-small',
                 iconSize: L.point(40, 40)
             });
         }
@@ -173,13 +184,13 @@ function initMap() {
 
     zonesLayerGroup = L.layerGroup().addTo(map);
 
-    // Map click for adding coordinates
+    // Map click for selecting coordinates in form
     map.on('click', (e) => {
         const addTab = document.getElementById('tab-add');
         if (addTab && addTab.classList.contains('active')) {
             document.getElementById('add-lat').value = e.latlng.lat.toFixed(6);
             document.getElementById('add-lng').value = e.latlng.lng.toFixed(6);
-            showToast('📍 Coordenadas seleccionadas', 'success');
+            showToast('📍 Coordenadas fijadas en el formulario', 'success');
         }
     });
 }
@@ -199,11 +210,11 @@ function renderMapMarkers() {
         L.marker([db.epicenter.lat, db.epicenter.lng], { icon: pulseIcon, zIndexOffset: 2000 })
             .bindPopup(`
                 <div class="popup-content">
-                    <h3>⚠️ EPICENTRO</h3>
+                    <h3>⚠️ EPICENTRO SISMO MAG. ${db.epicenter.magnitude}</h3>
                     <p class="popup-detail"><strong>${db.epicenter.name}</strong></p>
-                    <p class="popup-detail">Magnitud: <strong>${db.epicenter.magnitude}</strong></p>
                     <p class="popup-detail">Hora: ${db.epicenter.time}</p>
                     <p class="popup-detail">Profundidad: ${db.epicenter.depth}</p>
+                    <p class="popup-detail" style="font-size:0.75rem;opacity:0.7;">Fuente: ${db.epicenter.source}</p>
                 </div>
             `)
             .addTo(map);
@@ -213,9 +224,9 @@ function renderMapMarkers() {
     if (zonesVisible) {
         db.affectedZones.forEach(zone => {
             const colors = {
-                critical: { color: '#ff3b3b', fill: 0.15 },
-                severe: { color: '#ff9f0a', fill: 0.12 },
-                moderate: { color: '#ffd60a', fill: 0.10 }
+                critical: { color: '#d92525', fill: 0.14 },
+                severe: { color: '#e67e22', fill: 0.12 },
+                moderate: { color: '#f39c12', fill: 0.10 }
             };
             const c = colors[zone.severity] || colors.moderate;
             
@@ -230,9 +241,7 @@ function renderMapMarkers() {
                 <div class="popup-content">
                     <h3>${zone.name}, ${zone.department}</h3>
                     <p class="popup-detail">${zone.details}</p>
-                    <p class="popup-detail">💔 Fallecidos: <strong>${zone.deaths}</strong> | 🤕 Heridos: <strong>${zone.injured}</strong></p>
-                    <p class="popup-detail">🏃 Desplazados: <strong>${zone.displaced?.toLocaleString('es-CO')}</strong></p>
-                    <p class="popup-detail">Severidad: <strong style="color:${c.color}">${zone.severity.toUpperCase()}</strong></p>
+                    <p class="popup-detail">Nivel: <strong style="color:${c.color}">${zone.severity.toUpperCase()}</strong></p>
                 </div>
             `).addTo(zonesLayerGroup);
         });
@@ -246,9 +255,7 @@ function renderMapMarkers() {
             iconSize: [32, 32],
             iconAnchor: [16, 16]
         });
-        
-        const marker = L.marker([item.lat, item.lng], { icon })
-            .bindPopup(createPopupContent(item));
+        const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
         markerClusterGroup.addLayer(marker);
     });
 
@@ -260,9 +267,7 @@ function renderMapMarkers() {
             iconSize: [32, 32],
             iconAnchor: [16, 16]
         });
-        
-        const marker = L.marker([item.lat, item.lng], { icon })
-            .bindPopup(createPopupContent(item));
+        const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
         markerClusterGroup.addLayer(marker);
     });
 
@@ -274,17 +279,14 @@ function renderMapMarkers() {
             iconSize: [32, 32],
             iconAnchor: [16, 16]
         });
-        
-        const marker = L.marker([item.lat, item.lng], { icon })
-            .bindPopup(createPopupContent(item));
+        const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
         markerClusterGroup.addLayer(marker);
     });
 }
 
 function createPopupContent(item) {
     let html = `<div class="popup-content">`;
-    
-    const typeNames = { collection: '📦 Centro de Acopio', shelter: '🏠 Refugio', hospital: '🏥 Hospital' };
+    const typeNames = { collection: '📦 Centro de Acopio', shelter: '🏠 Refugio / Albergue', hospital: '🏥 Hospital Público' };
     html += `<h3>${item.name}</h3>`;
     html += `<p class="popup-detail" style="opacity:0.6;font-size:0.75rem;">${typeNames[item.type]}</p>`;
     html += `<p class="popup-detail">📍 ${item.address || item.city || ''}</p>`;
@@ -294,28 +296,28 @@ function createPopupContent(item) {
     }
     
     if (item.type === 'collection') {
-        html += `<p class="popup-detail">📋 <strong>Necesitan:</strong> ${item.needs}</p>`;
-        html += `<p class="popup-detail">🕐 Horario: ${item.schedule}</p>`;
+        if (item.needs) html += `<p class="popup-detail">📋 <strong>Insumos:</strong> ${item.needs}</p>`;
+        if (item.schedule) html += `<p class="popup-detail">🕐 Horario: ${item.schedule}</p>`;
     }
     
     if (item.type === 'shelter') {
-        const pct = item.capacity > 0 ? Math.round((item.occupancy / item.capacity) * 100) : 0;
-        const barColor = pct > 90 ? '#ff3b3b' : pct > 70 ? '#ff9f0a' : '#30d158';
-        html += `<p class="popup-detail">👥 Ocupación: ${item.occupancy}/${item.capacity} (${pct}%)</p>`;
-        html += `<div style="height:4px;background:rgba(128,128,128,0.2);border-radius:2px;margin:4px 0;"><div style="height:100%;width:${pct}%;background:${barColor};border-radius:2px;"></div></div>`;
+        if (item.capacity) {
+            const pct = item.capacity > 0 ? Math.round(((item.occupancy || 0) / item.capacity) * 100) : 0;
+            html += `<p class="popup-detail">👥 Ocupación: ${item.occupancy || 0}/${item.capacity} (${pct}%)</p>`;
+        }
         if (item.amenities) {
             html += `<p class="popup-detail">🏷️ ${item.amenities}</p>`;
         }
     }
     
     if (item.type === 'hospital') {
-        const statusColors = { operational: '#30d158', damaged: '#ff9f0a', overwhelmed: '#ff3b3b' };
-        const statusNames = { operational: 'Operacional', damaged: 'Dañado', overwhelmed: 'Saturado' };
+        const statusColors = { operational: '#27ae60', damaged: '#e67e22', overwhelmed: '#d92525' };
+        const statusNames = { operational: 'Operacional', damaged: 'Instalaciones Afectadas', overwhelmed: 'Atención de Urgencias Saturada' };
         html += `<p class="popup-detail">Estado: <strong style="color:${statusColors[item.status]}">${statusNames[item.status]}</strong></p>`;
     }
     
     html += `<div class="popup-actions">`;
-    html += `<button class="popup-btn popup-btn-route" onclick="calculateRouteTo(${item.lat}, ${item.lng})">🗺️ Ir aquí</button>`;
+    html += `<button class="popup-btn popup-btn-route" onclick="calculateRouteTo(${item.lat}, ${item.lng})">🗺️ Calcular Ruta</button>`;
     
     if (item.type !== 'hospital') {
         html += `<button class="popup-btn popup-btn-edit" onclick="openEditModal('${item.id}', '${item.type}')">✏️ Editar</button>`;
@@ -326,9 +328,8 @@ function createPopupContent(item) {
     return html;
 }
 
-// --- UI Initialization ---
+// --- UI Actions ---
 function initUI() {
-    // Tabs
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const target = e.currentTarget;
@@ -340,58 +341,46 @@ function initUI() {
         });
     });
 
-    // Add form type toggle
     const typeSelect = document.getElementById('add-type');
-    typeSelect.addEventListener('change', (e) => {
-        document.getElementById('dynamic-fields-collection').classList.toggle('hidden', e.target.value !== 'collection');
-        document.getElementById('dynamic-fields-shelter').classList.toggle('hidden', e.target.value !== 'shelter');
-    });
+    if (typeSelect) {
+        typeSelect.addEventListener('change', (e) => {
+            document.getElementById('dynamic-fields-collection').classList.toggle('hidden', e.target.value !== 'collection');
+            document.getElementById('dynamic-fields-shelter').classList.toggle('hidden', e.target.value !== 'shelter');
+        });
+    }
 
-    // Use My Location
-    document.getElementById('btn-use-location').addEventListener('click', getAndSetLocation);
+    document.getElementById('btn-use-location')?.addEventListener('click', getAndSetLocation);
+    document.getElementById('add-place-form')?.addEventListener('submit', handleAddPlace);
+    document.getElementById('edit-form')?.addEventListener('submit', handleEditPlace);
+    document.getElementById('btn-geolocate')?.addEventListener('click', geolocateUser);
 
-    // Add Form Submit
-    document.getElementById('add-place-form').addEventListener('submit', handleAddPlace);
-
-    // Edit Form Submit
-    document.getElementById('edit-form').addEventListener('submit', handleEditPlace);
-
-    // Geolocate FAB
-    document.getElementById('btn-geolocate').addEventListener('click', geolocateUser);
-
-    // Toggle Zones
-    document.getElementById('btn-toggle-zones').addEventListener('click', () => {
+    document.getElementById('btn-toggle-zones')?.addEventListener('click', () => {
         zonesVisible = !zonesVisible;
         if (zonesVisible) {
             map.addLayer(zonesLayerGroup);
-            showToast('🔴 Zonas afectadas visibles', 'info');
+            showToast('🔴 Zonas sismicas visibles', 'info');
         } else {
             map.removeLayer(zonesLayerGroup);
-            showToast('Zonas afectadas ocultas', 'info');
+            showToast('Zonas sismicas ocultas', 'info');
         }
         renderMapMarkers();
     });
 
-    // Toggle Legend
-    document.getElementById('btn-toggle-legend').addEventListener('click', () => {
+    document.getElementById('btn-toggle-legend')?.addEventListener('click', () => {
         const legend = document.getElementById('map-legend');
         legendVisible = !legendVisible;
-        legend.classList.toggle('hidden', !legendVisible);
+        if (legend) legend.classList.toggle('hidden', !legendVisible);
     });
 
-    // Route Panel Close
-    document.getElementById('close-route').addEventListener('click', clearRoute);
+    document.getElementById('close-route')?.addEventListener('click', clearRoute);
     document.getElementById('btn-clear-route')?.addEventListener('click', clearRoute);
 
-    // List Filters
-    document.getElementById('filter-type').addEventListener('change', renderPlacesList);
-    document.getElementById('search-input').addEventListener('input', renderPlacesList);
+    document.getElementById('filter-type')?.addEventListener('change', renderPlacesList);
+    document.getElementById('search-input')?.addEventListener('input', renderPlacesList);
 
-    // Missing persons form
-    document.getElementById('missing-person-form').addEventListener('submit', handleAddMissingPerson);
+    document.getElementById('missing-person-form')?.addEventListener('submit', handleAddMissingPerson);
     document.getElementById('search-missing')?.addEventListener('input', renderMissingPersonsList);
 
-    // Mobile menu
     document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
         document.getElementById('sidebar').classList.add('open');
     });
@@ -404,18 +393,18 @@ function initUI() {
 // --- Geolocation ---
 function getAndSetLocation() {
     if (!navigator.geolocation) {
-        showToast('⚠️ Geolocalización no soportada', 'error');
+        showToast('⚠️ Geolocalización no soportada en este navegador', 'error');
         return;
     }
     
-    showToast('📍 Obteniendo ubicación...', 'info');
+    showToast('📍 Obteniendo coordenadas GPS...', 'info');
     navigator.geolocation.getCurrentPosition(
         pos => {
             document.getElementById('add-lat').value = pos.coords.latitude.toFixed(6);
             document.getElementById('add-lng').value = pos.coords.longitude.toFixed(6);
-            showToast('✅ Ubicación obtenida', 'success');
+            showToast('✅ Coordenadas GPS fijadas', 'success');
         },
-        () => showToast('❌ Error al obtener ubicación', 'error'),
+        () => showToast('❌ active el GPS en su dispositivo', 'error'),
         { enableHighAccuracy: true, timeout: 10000 }
     );
 }
@@ -431,13 +420,13 @@ function geolocateUser() {
     navigator.geolocation.getCurrentPosition(
         pos => {
             userLocation = [pos.coords.latitude, pos.coords.longitude];
-            map.flyTo(userLocation, 14, { duration: 1.5 });
+            map.flyTo(userLocation, 14, { duration: 1.2 });
             
             if (userLocationMarker) map.removeLayer(userLocationMarker);
             
             userLocationMarker = L.marker(userLocation, {
                 icon: L.divIcon({
-                    html: '<div style="width:16px;height:16px;background:#0a84ff;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(10,132,255,0.5);"></div>',
+                    html: '<div style="width:16px;height:16px;background:#003893;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,56,147,0.5);"></div>',
                     className: '',
                     iconSize: [16, 16],
                     iconAnchor: [8, 8]
@@ -445,9 +434,9 @@ function geolocateUser() {
                 zIndexOffset: 3000
             }).addTo(map).bindPopup('📍 Tu ubicación actual').openPopup();
             
-            showToast('✅ Ubicación encontrada', 'success');
+            showToast('✅ Ubicación localizada', 'success');
         },
-        () => showToast('❌ No se pudo obtener la ubicación. Habilite el GPS.', 'error'),
+        () => showToast('❌ Habilite el permiso de GPS', 'error'),
         { enableHighAccuracy: true, timeout: 10000 }
     );
 }
@@ -455,11 +444,11 @@ function geolocateUser() {
 // --- Routing ---
 window.calculateRouteTo = function(destLat, destLng) {
     if (!navigator.geolocation) {
-        showToast('⚠️ Geolocalización no soportada', 'error');
+        showToast('⚠️ Geolocalización no disponible', 'error');
         return;
     }
     
-    showToast('🗺️ Calculando ruta...', 'info');
+    showToast('🗺️ Calculando ruta vial...', 'info');
     map.closePopup();
     
     navigator.geolocation.getCurrentPosition(
@@ -481,29 +470,28 @@ window.calculateRouteTo = function(destLat, destLng) {
                         routePolyline = L.polyline(coords, {
                             color: '#003893',
                             weight: 5,
-                            opacity: 0.8,
-                            dashArray: '10 6',
-                            lineCap: 'round'
+                            opacity: 0.85,
+                            dashArray: '8 6'
                         }).addTo(map);
                         
-                        map.fitBounds(routePolyline.getBounds(), { padding: [60, 60] });
+                        map.fitBounds(routePolyline.getBounds(), { padding: [50, 50] });
                         
                         const distKm = (route.distance / 1000).toFixed(1);
                         const timeMin = Math.ceil(route.duration / 60);
-                        const timeStr = timeMin >= 60 ? `${Math.floor(timeMin/60)}h ${timeMin%60}min` : `${timeMin} min`;
+                        const timeStr = timeMin >= 60 ? `${Math.floor(timeMin/60)}h ${timeMin%60}m` : `${timeMin} min`;
                         
                         document.getElementById('route-panel').classList.remove('hidden');
                         document.getElementById('route-distance').textContent = `${distKm} km`;
                         document.getElementById('route-time').textContent = timeStr;
                         
-                        showToast(`✅ Ruta: ${distKm} km, ~${timeStr}`, 'success');
+                        showToast(`✅ Ruta: ${distKm} km (~${timeStr})`, 'success');
                     } else {
-                        showToast('❌ No se pudo calcular la ruta', 'error');
+                        showToast('❌ No se encontró ruta terrestre', 'error');
                     }
                 })
-                .catch(() => showToast('❌ Error de conexión al calcular ruta', 'error'));
+                .catch(() => showToast('⚠️ Sin conexión a servidor de navegación. Verifique internet.', 'error'));
         },
-        () => showToast('📍 Habilite su ubicación para calcular rutas', 'error'),
+        () => showToast('📍 Active el GPS para trazar la ruta', 'error'),
         { enableHighAccuracy: true, timeout: 10000 }
     );
 };
@@ -514,7 +502,7 @@ function clearRoute(hidePanel = true) {
         routePolyline = null;
     }
     if (hidePanel !== false) {
-        document.getElementById('route-panel').classList.add('hidden');
+        document.getElementById('route-panel')?.classList.add('hidden');
     }
 }
 
@@ -527,12 +515,12 @@ function handleAddPlace(e) {
     const lng = parseFloat(document.getElementById('add-lng').value);
     
     if (isNaN(lat) || isNaN(lng)) {
-        showToast('⚠️ Seleccione una ubicación en el mapa', 'error');
+        showToast('⚠️ Fije la ubicación en el mapa o use GPS', 'error');
         return;
     }
     
     const newItem = {
-        id: 'user_' + Date.now(),
+        id: 'usr_' + Date.now(),
         name: document.getElementById('add-name').value.trim(),
         address: document.getElementById('add-address').value.trim(),
         lat, lng,
@@ -552,13 +540,10 @@ function handleAddPlace(e) {
     }
 
     saveData();
-    showToast('✅ Lugar guardado exitosamente', 'success');
+    showToast('✅ Punto guardado y publicado en la red comunitaria', 'success');
     e.target.reset();
     
-    // Switch to list tab
-    document.querySelector('[data-tab="list"]').click();
-    
-    // Fly to new marker
+    document.querySelector('[data-tab="list"]')?.click();
     map.flyTo([lat, lng], 14, { duration: 1 });
 }
 
@@ -581,8 +566,8 @@ window.openEditModal = function(id, type) {
     document.getElementById('edit-address').value = item.address || '';
     document.getElementById('edit-contact').value = item.contact || '';
     
-    const typeNames = { collection: '📦 Editar Centro de Acopio', shelter: '🏠 Editar Refugio' };
-    document.getElementById('edit-modal-title').textContent = typeNames[item.type] || 'Editar Lugar';
+    const typeNames = { collection: '📦 Editar Centro de Acopio', shelter: '🏠 Editar Refugio / Albergue' };
+    document.getElementById('edit-modal-title').textContent = typeNames[item.type] || 'Editar Punto';
     
     if (item.type === 'collection') {
         document.getElementById('edit-collection-fields').classList.remove('hidden');
@@ -628,14 +613,14 @@ function handleEditPlace(e) {
     
     closeEditModal();
     saveData();
-    showToast('✅ Lugar actualizado', 'success');
+    showToast('✅ Información del punto actualizada', 'success');
 }
 
 window.deleteFromModal = function() {
     const id = document.getElementById('edit-id').value;
     const type = document.getElementById('edit-type-hidden').value;
     
-    if (confirm('¿Está seguro de que desea eliminar este registro?')) {
+    if (confirm('¿Confirma eliminar este registro comunitario?')) {
         if (type === 'collection') {
             db.collectionCenters = db.collectionCenters.filter(i => i.id !== id);
         } else {
@@ -643,13 +628,12 @@ window.deleteFromModal = function() {
         }
         closeEditModal();
         saveData();
-        showToast('🗑️ Registro eliminado', 'info');
+        showToast('🗑️ Punto eliminado', 'info');
     }
 };
 
-// --- Delete Item ---
 window.deleteItem = function(id, type) {
-    if (confirm('¿Seguro que desea eliminar este registro?')) {
+    if (confirm('¿Confirma eliminar este punto del mapa?')) {
         if (type === 'collection') {
             db.collectionCenters = db.collectionCenters.filter(i => i.id !== id);
         } else if (type === 'shelter') {
@@ -665,10 +649,12 @@ window.deleteItem = function(id, type) {
 function renderPlacesList() {
     const list = document.getElementById('places-list');
     const countEl = document.getElementById('list-count');
+    if (!list) return;
+    
     list.innerHTML = '';
     
-    const filterType = document.getElementById('filter-type').value;
-    const searchTxt = document.getElementById('search-input').value.toLowerCase().trim();
+    const filterType = document.getElementById('filter-type')?.value || 'all';
+    const searchTxt = document.getElementById('search-input')?.value.toLowerCase().trim() || '';
     
     let items = [];
     if (filterType === 'all' || filterType === 'collection') items = items.concat(db.collectionCenters.map(i => ({...i})));
@@ -683,7 +669,12 @@ function renderPlacesList() {
         );
     }
 
-    countEl.textContent = `${items.length} resultado${items.length !== 1 ? 's' : ''}`;
+    if (countEl) countEl.textContent = `${items.length} lugar${items.length !== 1 ? 'es' : ''} visible${items.length !== 1 ? 's' : ''}`;
+
+    if (items.length === 0) {
+        list.innerHTML = `<li style="text-align:center;padding:20px;opacity:0.6;font-size:0.85rem;">No hay puntos registrados aún. Use la pestaña <strong>"Añadir"</strong> para reportar centros o refugios activos.</li>`;
+        return;
+    }
 
     items.forEach(item => {
         const li = document.createElement('li');
@@ -691,25 +682,25 @@ function renderPlacesList() {
         
         const colors = { collection: 'var(--color-success)', shelter: 'var(--color-shelter)', hospital: 'var(--color-hospital)' };
         const icons = { collection: '📦', shelter: '🏠', hospital: '🏥' };
-        const typeLabels = { collection: 'Centro de Acopio', shelter: 'Refugio', hospital: 'Hospital' };
+        const typeLabels = { collection: 'Centro de Acopio', shelter: 'Refugio / Albergue', hospital: 'Hospital Público' };
         
         li.style.borderLeftColor = colors[item.type];
         
         let extraInfo = '';
         if (item.type === 'shelter' && item.capacity) {
-            const pct = Math.round((item.occupancy / item.capacity) * 100);
+            const pct = Math.round(((item.occupancy || 0) / item.capacity) * 100);
             const barColor = pct > 90 ? 'var(--color-critical)' : pct > 70 ? 'var(--color-severe)' : 'var(--color-success)';
-            extraInfo = `<div class="occupancy-bar"><div class="occupancy-fill" style="width:${pct}%;background:${barColor}"></div></div><p style="font-size:0.75rem;opacity:0.5;">Ocupación: ${item.occupancy}/${item.capacity} (${pct}%)</p>`;
+            extraInfo = `<div class="occupancy-bar"><div class="occupancy-fill" style="width:${pct}%;background:${barColor}"></div></div><p style="font-size:0.75rem;opacity:0.75;">Ocupación: ${item.occupancy || 0}/${item.capacity} (${pct}%)</p>`;
         }
         if (item.type === 'hospital') {
             const statusClasses = { operational: 'status-operational', damaged: 'status-damaged', overwhelmed: 'status-overwhelmed' };
-            const statusLabels = { operational: 'Operacional', damaged: 'Dañado', overwhelmed: 'Saturado' };
+            const statusLabels = { operational: 'Operacional', damaged: 'Instalaciones Afectadas', overwhelmed: 'Urgencias Saturadas' };
             extraInfo = `<span class="status-badge ${statusClasses[item.status]}">${statusLabels[item.status]}</span>`;
         }
         
         li.innerHTML = `
             <h4>${icons[item.type]} ${item.name} <span class="type-badge">${typeLabels[item.type]}</span></h4>
-            <p>${item.address || item.city || ''}</p>
+            <p>📍 ${item.address || item.city || ''}</p>
             ${extraInfo}
             ${item.type !== 'hospital' ? `
             <div class="place-actions">
@@ -720,9 +711,8 @@ function renderPlacesList() {
         
         li.addEventListener('click', () => {
             map.flyTo([item.lat, item.lng], 15, { duration: 1 });
-            // Close sidebar on mobile
             if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('sidebar')?.classList.remove('open');
             }
         });
         
@@ -735,13 +725,13 @@ function renderEmergencyContacts() {
     if (!container || !db.emergencyContacts?.national) return;
     
     container.innerHTML = db.emergencyContacts.national.map(c => `
-        <div class="contact-item" onclick="showToast('📞 Llame al ${c.number}', 'info')">
+        <a href="tel:${c.number}" class="contact-item">
             <span class="contact-icon">${c.icon}</span>
             <div>
                 <div class="contact-name">${c.name}</div>
                 <div class="contact-number">${c.number}</div>
             </div>
-        </div>
+        </a>
     `).join('');
 }
 
@@ -758,13 +748,8 @@ function renderZonesList() {
     
     container.innerHTML = db.affectedZones.map(zone => `
         <div class="zone-card ${zone.severity}" onclick="map.flyTo([${zone.lat}, ${zone.lng}], 12, {duration:1})">
-            <h4>${zone.name}, ${zone.department}</h4>
-            <p>${zone.details.substring(0, 80)}...</p>
-            <div class="zone-stats">
-                <span class="zone-stat-item deaths">💔 ${zone.deaths}</span>
-                <span class="zone-stat-item injured">🤕 ${zone.injured}</span>
-                <span class="zone-stat-item displaced">🏃 ${zone.displaced?.toLocaleString('es-CO')}</span>
-            </div>
+            <h4>📍 ${zone.name}, ${zone.department}</h4>
+            <p>${zone.details}</p>
         </div>
     `).join('');
 }
@@ -790,9 +775,10 @@ function renderDonationsList(filter = 'all') {
         <div class="donation-card">
             <h4>${d.name}</h4>
             <p class="donation-desc">${d.description}</p>
-            <div class="donation-account">${d.account}</div>
+            <div class="donation-account">🏛️ ${d.account}</div>
+            ${d.officialPhone ? `<p class="donation-desc" style="font-weight:600;">📞 ${d.officialPhone}</p>` : ''}
             <div class="donation-links">
-                <a href="${d.website}" target="_blank" rel="noopener">🌐 Sitio Web</a>
+                <a href="${d.website}" target="_blank" rel="noopener">🌐 Sitio Oficial de Donación</a>
             </div>
         </div>
     `).join('');
@@ -809,15 +795,14 @@ function handleAddMissingPerson(e) {
         city: document.getElementById('missing-city').value.trim(),
         description: document.getElementById('missing-description').value.trim(),
         contact: document.getElementById('missing-contact').value.trim(),
-        date: new Date().toLocaleString('es-CO'),
-        found: false
+        date: new Date().toLocaleString('es-CO')
     };
     
     if (!db.missingPersons) db.missingPersons = [];
     db.missingPersons.unshift(person);
     
     saveData();
-    showToast('📋 Persona registrada. Esperamos encontrarla pronto.', 'info');
+    showToast('📋 Reporte registrado en el sistema local', 'info');
     e.target.reset();
 }
 
@@ -833,7 +818,7 @@ function renderMissingPersonsList() {
     }
     
     if (persons.length === 0) {
-        container.innerHTML = `<p style="text-align:center;opacity:0.5;padding:20px;font-size:0.85rem;">No hay registros${searchTxt ? ' que coincidan' : ''}. Registre personas desaparecidas usando el formulario.</p>`;
+        container.innerHTML = `<p style="text-align:center;opacity:0.6;padding:16px;font-size:0.82rem;">No hay reportes de personas ingresadas${searchTxt ? ' con esa búsqueda' : ''}.</p>`;
         return;
     }
     
@@ -844,9 +829,9 @@ function renderMissingPersonsList() {
             <div class="missing-meta">
                 ${p.age ? `<span>Edad: ${p.age}</span>` : ''}
                 ${p.city ? `<span>📍 ${p.city}</span>` : ''}
-                ${p.contact ? `<span>📞 ${p.contact}</span>` : ''}
+                ${p.contact ? `<span>📞 Contacto: ${p.contact}</span>` : ''}
             </div>
-            <div class="missing-meta"><span>Registrado: ${p.date}</span></div>
+            <div class="missing-meta"><span>Fecha registro: ${p.date}</span></div>
         </div>
     `).join('');
 }
@@ -854,39 +839,35 @@ function renderMissingPersonsList() {
 // --- Collapsible Sections ---
 window.toggleSection = function(header) {
     const section = header.closest('.section');
-    section.classList.toggle('collapsed');
+    if (section) section.classList.toggle('collapsed');
 };
 
 // --- Social Sharing ---
 window.shareOnWhatsApp = function() {
-    const text = '🆘 Terremoto 7.4 en Colombia — Mapa de Ayuda con centros de acopio, refugios y hospitales. ¡Comparte para ayudar! 🇨🇴';
+    const text = '🆘 Mapa de Ayuda Sismo 7.4 Colombia (Offline & Colaborativo) — Reporta e identifica centros de acopio y refugios:';
     const url = window.location.href;
     window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
 };
 
 window.shareOnTwitter = function() {
-    const text = '🆘 Terremoto 7.4 en Colombia — Mapa de Ayuda: centros de acopio, refugios, hospitales. ¡Ayúdanos a difundir! 🇨🇴 #TerremotoColombia #SismoCol #FuerzaColombia';
+    const text = '🆘 Mapa de Ayuda Terremoto Colombia 7.4 — Centros de acopio, refugios y hospitales: #SismoColombia #TerremotoColombia';
     const url = window.location.href;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
-};
-
-window.shareOnFacebook = function() {
-    const url = window.location.href;
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
 };
 
 window.copyShareLink = function() {
     const url = window.location.href;
     navigator.clipboard.writeText(`🆘 Mapa de Ayuda Terremoto Colombia 7.4: ${url}`).then(() => {
-        showToast('✅ Link copiado al portapapeles', 'success');
+        showToast('✅ Enlace copiado al portapapeles', 'success');
     }).catch(() => {
-        showToast('❌ Error al copiar', 'error');
+        showToast('📋 Copie la dirección URL del navegador', 'info');
     });
 };
 
 // --- Toast Notifications ---
 function showToast(msg, type = '') {
     const container = document.getElementById('toast-container');
+    if (!container) return;
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.textContent = msg;
@@ -894,5 +875,5 @@ function showToast(msg, type = '') {
     
     setTimeout(() => {
         if (container.contains(toast)) container.removeChild(toast);
-    }, 3200);
+    }, 3000);
 }
