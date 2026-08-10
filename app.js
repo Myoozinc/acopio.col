@@ -1,7 +1,7 @@
 // ============================================
 // ACOPIO COLOMBIA - App Principal
 // Mapa de Ayuda Terremoto 7.4 - 10 Agosto 2026
-// PWA, Soporte Offline & Verificación Estricta
+// PWA, Portal Inicial Móvil, PayPal & Binance
 // ============================================
 
 // --- Global State ---
@@ -17,18 +17,16 @@ let currentUploadedPhotoBase64 = null;
 let isGeoVerifiedColombia = false;
 let verifiedAddressDetails = null;
 
-let db = { affectedZones: [], collectionCenters: [], shelters: [], hospitals: [], epicenter: null, donations: [], emergencyContacts: {}, missingPersons: [] };
+let db = { affectedZones: [], collectionCenters: [], shelters: [], emergencyRequests: [], hospitals: [], epicenter: null, donations: [], emergencyContacts: {}, missingPersons: [] };
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
     initTheme();
     initOfflineDetection();
-    initMap();
-    initUI();
     initPhotoUploadHandler();
+    initModalsAndForms();
     initDonationFilters();
-    renderAll();
     
     // Hide loading screen
     setTimeout(() => {
@@ -37,8 +35,72 @@ document.addEventListener('DOMContentLoaded', () => {
             loader.classList.add('fade-out');
             setTimeout(() => loader.remove(), 500);
         }
-    }, 1200);
+    }, 1000);
 });
+
+// --- Welcome Portal View Navigation ---
+window.enterDirectMap = function() {
+    document.getElementById('welcome-portal')?.classList.add('hidden');
+    document.getElementById('app-container')?.classList.remove('hidden');
+    
+    if (!map) {
+        initMap();
+        initUI();
+    }
+    
+    renderAll();
+    setTimeout(() => {
+        if (map) map.invalidateSize();
+    }, 200);
+};
+
+window.enterDirectMapTab = function(tabName) {
+    closeModal('modal-donations-hub');
+    enterDirectMap();
+    document.querySelector(`[data-tab="${tabName}"]`)?.click();
+};
+
+window.returnToWelcomePortal = function() {
+    document.getElementById('app-container')?.classList.add('hidden');
+    document.getElementById('welcome-portal')?.classList.remove('hidden');
+};
+
+// --- Modals Triggers for 3 Mobile Options ---
+window.openOfferHelpModal = function() {
+    document.getElementById('modal-offer-help')?.classList.remove('hidden');
+};
+
+window.openNeedHelpModal = function() {
+    document.getElementById('modal-need-help')?.classList.remove('hidden');
+};
+
+window.openDonationHub = function() {
+    document.getElementById('modal-donations-hub')?.classList.remove('hidden');
+};
+
+window.closeModal = function(modalId) {
+    document.getElementById(modalId)?.classList.add('hidden');
+};
+
+// --- Copy Text Utility ---
+window.copyText = function(text, msg = '📋 Copiado al portapapeles') {
+    navigator.clipboard.writeText(text).then(() => {
+        showToast(msg, 'success');
+    }).catch(() => {
+        showToast('📋 Copiado: ' + text, 'info');
+    });
+};
+
+window.toggleThemeGlobal = function() {
+    const isDark = document.body.classList.contains('dark-mode');
+    if (isDark) {
+        document.body.classList.replace('dark-mode', 'light-mode');
+        localStorage.setItem('theme', 'light');
+    } else {
+        document.body.classList.replace('light-mode', 'dark-mode');
+        localStorage.setItem('theme', 'dark');
+    }
+};
 
 // --- Offline Status Detection ---
 function initOfflineDetection() {
@@ -98,11 +160,14 @@ function loadData() {
             console.error('Error cargando datos locales:', e);
         }
     }
+    if (!db.emergencyRequests) db.emergencyRequests = [];
 }
 
 function saveData() {
     localStorage.setItem('earthquake_data', JSON.stringify(db));
-    renderAll();
+    if (document.getElementById('app-container') && !document.getElementById('app-container').classList.contains('hidden')) {
+        renderAll();
+    }
 }
 
 function renderAll() {
@@ -117,6 +182,10 @@ function renderAll() {
 }
 
 function updateDashboardStats() {
+    const needCount = (db.emergencyRequests || []).length;
+    const needElem = document.getElementById('stat-needs-count');
+    if (needElem) needElem.textContent = needCount;
+
     document.getElementById('stat-zones').textContent = db.affectedZones.length;
     document.getElementById('stat-shelters').textContent = db.shelters.length;
     document.getElementById('stat-centers').textContent = db.collectionCenters.length;
@@ -162,6 +231,87 @@ function initPhotoUploadHandler() {
             showToast('📸 Foto de verificación cargada', 'success');
         };
         reader.readAsDataURL(file);
+    });
+}
+
+// --- Init Modals & Forms Handlers ---
+function initModalsAndForms() {
+    // Form 1: "Quiero Ayudar"
+    document.getElementById('form-offer-help')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const category = document.getElementById('offer-category').value;
+        const name = document.getElementById('offer-name').value.trim();
+        const phone = document.getElementById('offer-phone').value.trim();
+        const address = document.getElementById('offer-address').value.trim();
+        const details = document.getElementById('offer-details').value.trim();
+        
+        const coPhoneRegex = /^(\+?57)?\s?(3\d{2}|60\d{1})\s?\d{3}\s?\d{4}$/;
+        if (!coPhoneRegex.test(phone)) {
+            showToast('⚠️ Ingrese un teléfono de Colombia válido (Móvil 3XX o Fijo 60X)', 'error');
+            return;
+        }
+
+        const newItem = {
+            id: 'off_' + Date.now(),
+            name: `Oferta: ${name} (${category === 'collection' ? 'Centro Acopio' : category === 'shelter' ? 'Refugio' : 'Apoyo'})`,
+            address: address,
+            lat: 4.5709 + (Math.random() - 0.5) * 2, // Approximate lat/lng if not specified
+            lng: -74.2973 + (Math.random() - 0.5) * 2,
+            contactName: name,
+            contact: phone,
+            needs: details,
+            type: category === 'shelter' ? 'shelter' : 'collection',
+            verified: true,
+            dateAdded: new Date().toLocaleString('es-CO')
+        };
+
+        if (newItem.type === 'shelter') {
+            db.shelters.push(newItem);
+        } else {
+            db.collectionCenters.push(newItem);
+        }
+
+        saveData();
+        closeModal('modal-offer-help');
+        showToast('💚 ¡Gracias! Tu ayuda ha sido registrada.', 'success');
+        enterDirectMap();
+    });
+
+    // Form 2: "Necesito Ayuda"
+    document.getElementById('form-need-help')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const category = document.getElementById('need-category').value;
+        const name = document.getElementById('need-name').value.trim();
+        const phone = document.getElementById('need-phone').value.trim();
+        const address = document.getElementById('need-address').value.trim();
+        const details = document.getElementById('need-details').value.trim();
+
+        const coPhoneRegex = /^(\+?57)?\s?(3\d{2}|60\d{1})\s?\d{3}\s?\d{4}$/;
+        if (!coPhoneRegex.test(phone)) {
+            showToast('⚠️ Ingrese un teléfono de Colombia válido', 'error');
+            return;
+        }
+
+        const newNeed = {
+            id: 'sos_' + Date.now(),
+            name: `🆘 PEDIDO URGENTE: ${name}`,
+            address: address,
+            lat: 4.5709 + (Math.random() - 0.5) * 1.5,
+            lng: -74.2973 + (Math.random() - 0.5) * 1.5,
+            contactName: name,
+            contact: phone,
+            details: `[${category.toUpperCase()}] ${details}`,
+            type: 'need',
+            dateAdded: new Date().toLocaleString('es-CO')
+        };
+
+        if (!db.emergencyRequests) db.emergencyRequests = [];
+        db.emergencyRequests.unshift(newNeed);
+
+        saveData();
+        closeModal('modal-need-help');
+        showToast('🆘 Solicitud registrada. Visible en el mapa de auxilio.', 'success');
+        enterDirectMap();
     });
 }
 
@@ -244,7 +394,6 @@ function verifyCoordinatesLocation(lat, lng) {
     statusText.textContent = '🔍 Verificando territorio colombiano...';
     isGeoVerifiedColombia = false;
 
-    // Boundary check for Colombia lat [ -4.2 , 13.5 ], lng [ -82.0 , -66.5 ]
     if (lat < -4.3 || lat > 13.8 || lng < -82.5 || lng > -66.0) {
         statusBox.className = 'geo-status-box error';
         statusText.textContent = '❌ Ubicación fuera de Colombia. Seleccione un punto dentro del país.';
@@ -252,7 +401,6 @@ function verifyCoordinatesLocation(lat, lng) {
         return;
     }
 
-    // Try reverse geocoding API if online
     if (navigator.onLine) {
         fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10`)
             .then(res => res.json())
@@ -267,7 +415,6 @@ function verifyCoordinatesLocation(lat, lng) {
                     statusBox.className = 'geo-status-box success';
                     statusText.textContent = `✅ Ubicación Verificada en Colombia (${verifiedAddressDetails || 'Territorio CO'})`;
                     
-                    // Auto-fill address if empty
                     const addrInput = document.getElementById('add-address');
                     if (addrInput && !addrInput.value.trim() && verifiedAddressDetails) {
                         addrInput.value = verifiedAddressDetails;
@@ -279,13 +426,11 @@ function verifyCoordinatesLocation(lat, lng) {
                 }
             })
             .catch(() => {
-                // Fallback to lat/lng bounding box check if API is rate limited
                 isGeoVerifiedColombia = true;
                 statusBox.className = 'geo-status-box success';
                 statusText.textContent = '✅ Coordenadas dentro de límites sismológicos de Colombia.';
             });
     } else {
-        // Offline boundary check
         isGeoVerifiedColombia = true;
         statusBox.className = 'geo-status-box success';
         statusText.textContent = '✅ Coordenadas en límites geográficos de Colombia (Offline)';
@@ -368,6 +513,18 @@ function renderMapMarkers() {
         markerClusterGroup.addLayer(marker);
     });
 
+    // Emergency Needs Requests (🆘)
+    (db.emergencyRequests || []).forEach(item => {
+        const icon = L.divIcon({
+            className: 'custom-marker marker-need',
+            html: '<span>🆘</span>',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+        const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
+        markerClusterGroup.addLayer(marker);
+    });
+
     // Hospitals
     db.hospitals.forEach(item => {
         const icon = L.divIcon({
@@ -383,7 +540,7 @@ function renderMapMarkers() {
 
 function createPopupContent(item) {
     let html = `<div class="popup-content">`;
-    const typeNames = { collection: '📦 Centro de Acopio', shelter: '🏠 Refugio / Albergue', hospital: '🏥 Hospital Público' };
+    const typeNames = { collection: '📦 Centro de Acopio', shelter: '🏠 Refugio / Albergue', need: '🆘 Solicitud de Ayuda Urgente', hospital: '🏥 Hospital Público' };
     
     html += `<h3>${item.name}</h3>`;
     html += `<p class="popup-detail" style="opacity:0.6;font-size:0.75rem;">${typeNames[item.type]}</p>`;
@@ -399,11 +556,15 @@ function createPopupContent(item) {
     html += `<p class="popup-detail">📍 ${item.address || item.city || ''}</p>`;
     
     if (item.contactName) {
-        html += `<p class="popup-detail">👤 <strong>Responsable:</strong> ${item.contactName}</p>`;
+        html += `<p class="popup-detail">👤 <strong>Contacto:</strong> ${item.contactName}</p>`;
     }
 
     if (item.contact || item.phone) {
         html += `<p class="popup-detail">📞 <a href="tel:${item.contact || item.phone}">${item.contact || item.phone}</a></p>`;
+    }
+
+    if (item.type === 'need') {
+        html += `<p class="popup-detail" style="color:#d92525;"><strong>Detalle:</strong> ${item.details}</p>`;
     }
     
     if (item.type === 'collection') {
@@ -415,9 +576,6 @@ function createPopupContent(item) {
         if (item.capacity) {
             const pct = item.capacity > 0 ? Math.round(((item.occupancy || 0) / item.capacity) * 100) : 0;
             html += `<p class="popup-detail">👥 Ocupación: ${item.occupancy || 0}/${item.capacity} (${pct}%)</p>`;
-        }
-        if (item.amenities) {
-            html += `<p class="popup-detail">🏷️ ${item.amenities}</p>`;
         }
     }
     
@@ -431,7 +589,6 @@ function createPopupContent(item) {
     html += `<button class="popup-btn popup-btn-route" onclick="calculateRouteTo(${item.lat}, ${item.lng})">🗺️ Calcular Ruta</button>`;
     
     if (item.type !== 'hospital') {
-        html += `<button class="popup-btn popup-btn-edit" onclick="openEditModal('${item.id}', '${item.type}')">✏️ Editar</button>`;
         html += `<button class="popup-btn popup-btn-delete" onclick="deleteItem('${item.id}', '${item.type}')">🗑️</button>`;
     }
     
@@ -603,7 +760,7 @@ window.calculateRouteTo = function(destLat, destLng) {
                         showToast('❌ No se encontró ruta terrestre', 'error');
                     }
                 })
-                .catch(() => showToast('⚠️ Sin conexión a servidor de navegación. Verifique internet.', 'error'));
+                .catch(() => showToast('⚠️ Sin conexión a servidor de navegación.', 'error'));
         },
         () => showToast('📍 Active el GPS para trazar la ruta', 'error'),
         { enableHighAccuracy: true, timeout: 10000 }
@@ -631,34 +788,30 @@ function handleAddPlace(e) {
     const phone = document.getElementById('add-phone').value.trim();
     const address = document.getElementById('add-address').value.trim();
     
-    // Strict Colombian Phone Validation regex (+57 3XX XXX XXXX, 3XXXXXXXXX, 60XXXXXXXX)
     const coPhoneRegex = /^(\+?57)?\s?(3\d{2}|60\d{1})\s?\d{3}\s?\d{4}$/;
 
     if (!contactName || contactName.length < 5) {
-        showToast('⚠️ Ingrese el nombre completo del responsable (Mínimo 5 caracteres)', 'error');
-        document.getElementById('add-contact-name').focus();
+        showToast('⚠️ Ingrese el nombre del responsable', 'error');
         return;
     }
 
     if (!coPhoneRegex.test(phone)) {
-        showToast('⚠️ Ingrese un número de teléfono válido de Colombia (Móvil 3XX... o Fijo 60X...)', 'error');
-        document.getElementById('add-phone').focus();
+        showToast('⚠️ Ingrese un teléfono válido de Colombia', 'error');
         return;
     }
 
     if (!currentUploadedPhotoBase64) {
-        showToast('⚠️ Es obligatorio cargar/tomar una foto/selfie de verificación', 'error');
-        document.getElementById('add-photo').focus();
+        showToast('⚠️ Tome/suba una foto de verificación', 'error');
         return;
     }
 
     if (isNaN(lat) || isNaN(lng)) {
-        showToast('⚠️ Fije la ubicación exacta en el mapa o mediante GPS', 'error');
+        showToast('⚠️ Fije la ubicación en el mapa o mediante GPS', 'error');
         return;
     }
 
     if (!isGeoVerifiedColombia && (lat < -4.3 || lat > 13.8 || lng < -82.5 || lng > -66.0)) {
-        showToast('❌ La ubicación debe estar dentro del territorio colombiano', 'error');
+        showToast('❌ La ubicación debe estar dentro de Colombia', 'error');
         return;
     }
     
@@ -689,7 +842,6 @@ function handleAddPlace(e) {
     saveData();
     showToast('🛡️ Centro registrado y verificado exitosamente', 'success');
 
-    // Reset form and upload preview
     e.target.reset();
     currentUploadedPhotoBase64 = null;
     document.getElementById('photo-preview-container')?.classList.add('hidden');
@@ -702,14 +854,12 @@ function handleAddPlace(e) {
 // --- Edit Modal ---
 window.openEditModal = function(id, type) {
     map.closePopup();
-    
     let item;
     if (type === 'collection') {
         item = db.collectionCenters.find(i => i.id === id);
     } else if (type === 'shelter') {
         item = db.shelters.find(i => i.id === id);
     }
-    
     if (!item) return;
     
     document.getElementById('edit-id').value = item.id;
@@ -719,7 +869,7 @@ window.openEditModal = function(id, type) {
     document.getElementById('edit-contact-name').value = item.contactName || '';
     document.getElementById('edit-phone').value = item.contact || '';
     
-    const typeNames = { collection: '📦 Editar Centro de Acopio', shelter: '🏠 Editar Refugio / Albergue' };
+    const typeNames = { collection: '📦 Editar Centro de Acopio', shelter: '🏠 Editar Refugio' };
     document.getElementById('edit-modal-title').textContent = typeNames[item.type] || 'Editar Punto';
     
     if (item.type === 'collection') {
@@ -743,13 +893,10 @@ window.closeEditModal = function() {
 
 function handleEditPlace(e) {
     e.preventDefault();
-    
     const id = document.getElementById('edit-id').value;
     const type = document.getElementById('edit-type-hidden').value;
-    
     let list = type === 'collection' ? db.collectionCenters : db.shelters;
     const idx = list.findIndex(i => i.id === id);
-    
     if (idx === -1) return;
     
     list[idx].name = document.getElementById('edit-name').value.trim();
@@ -767,13 +914,12 @@ function handleEditPlace(e) {
     
     closeEditModal();
     saveData();
-    showToast('✅ Información del punto actualizada', 'success');
+    showToast('✅ Punto actualizado', 'success');
 }
 
 window.deleteFromModal = function() {
     const id = document.getElementById('edit-id').value;
     const type = document.getElementById('edit-type-hidden').value;
-    
     if (confirm('¿Confirma eliminar este registro?')) {
         if (type === 'collection') {
             db.collectionCenters = db.collectionCenters.filter(i => i.id !== id);
@@ -792,6 +938,8 @@ window.deleteItem = function(id, type) {
             db.collectionCenters = db.collectionCenters.filter(i => i.id !== id);
         } else if (type === 'shelter') {
             db.shelters = db.shelters.filter(i => i.id !== id);
+        } else if (type === 'need') {
+            db.emergencyRequests = db.emergencyRequests.filter(i => i.id !== id);
         }
         map.closePopup();
         saveData();
@@ -807,7 +955,7 @@ window.openImageModal = function(src, title) {
     if (!modal || !img) return;
 
     img.src = src;
-    if (caption) caption.textContent = title ? `Centro: ${title}` : 'Foto de Verificación';
+    if (caption) caption.textContent = title ? `Punto: ${title}` : 'Foto de Verificación';
     modal.classList.remove('hidden');
 };
 
@@ -829,6 +977,7 @@ function renderPlacesList() {
     let items = [];
     if (filterType === 'all' || filterType === 'collection') items = items.concat(db.collectionCenters.map(i => ({...i})));
     if (filterType === 'all' || filterType === 'shelter') items = items.concat(db.shelters.map(i => ({...i})));
+    if (filterType === 'all' || filterType === 'need') items = items.concat((db.emergencyRequests || []).map(i => ({...i})));
     if (filterType === 'all' || filterType === 'hospital') items = items.concat(db.hospitals.map(i => ({...i})));
 
     if (searchTxt) {
@@ -840,10 +989,10 @@ function renderPlacesList() {
         );
     }
 
-    if (countEl) countEl.textContent = `${items.length} lugar${items.length !== 1 ? 'es' : ''} visible${items.length !== 1 ? 's' : ''}`;
+    if (countEl) countEl.textContent = `${items.length} punto${items.length !== 1 ? 's' : ''} visible${items.length !== 1 ? 's' : ''}`;
 
     if (items.length === 0) {
-        list.innerHTML = `<li style="text-align:center;padding:20px;opacity:0.6;font-size:0.85rem;">No hay puntos registrados aún. Use la pestaña <strong>"Añadir"</strong> para reportar centros o refugios activos en su zona.</li>`;
+        list.innerHTML = `<li style="text-align:center;padding:20px;opacity:0.6;font-size:0.85rem;">No hay puntos registrados en esta categoría. Use las opciones del menú principal para registrar una oferta o pedido de ayuda.</li>`;
         return;
     }
 
@@ -851,18 +1000,22 @@ function renderPlacesList() {
         const li = document.createElement('li');
         li.className = 'place-card';
         
-        const colors = { collection: 'var(--color-success)', shelter: 'var(--color-shelter)', hospital: 'var(--color-hospital)' };
-        const icons = { collection: '📦', shelter: '🏠', hospital: '🏥' };
-        const typeLabels = { collection: 'Centro de Acopio', shelter: 'Refugio / Albergue', hospital: 'Hospital Público' };
+        const colors = { collection: 'var(--color-success)', shelter: 'var(--color-shelter)', need: 'var(--color-critical)', hospital: 'var(--color-hospital)' };
+        const icons = { collection: '📦', shelter: '🏠', need: '🆘', hospital: '🏥' };
+        const typeLabels = { collection: 'Centro de Acopio', shelter: 'Refugio', need: 'Pedido de Ayuda', hospital: 'Hospital Público' };
         
         li.style.borderLeftColor = colors[item.type];
         
-        let verifiedHTML = item.verified ? `<span class="verified-badge">🛡️ Verificado CO</span>` : '';
+        let verifiedHTML = item.verified ? `<span class="verified-badge">🛡️ Verificado</span>` : '';
         let photoHTML = item.photo ? `<img src="${item.photo}" class="center-thumb-img" alt="Foto" onclick="event.stopPropagation(); openImageModal('${item.photo}', '${item.name}')">` : '';
         
         let extraInfo = '';
         if (item.contactName) {
-            extraInfo += `<p style="font-size:0.76rem;margin-top:2px;">👤 Resp: <strong>${item.contactName}</strong> ${item.contact ? `(📞 ${item.contact})` : ''}</p>`;
+            extraInfo += `<p style="font-size:0.76rem;margin-top:2px;">👤 Contacto: <strong>${item.contactName}</strong> ${item.contact ? `(📞 ${item.contact})` : ''}</p>`;
+        }
+
+        if (item.type === 'need') {
+            extraInfo += `<p style="font-size:0.78rem;color:#d92525;margin-top:2px;">${item.details}</p>`;
         }
 
         if (item.type === 'shelter' && item.capacity) {
@@ -888,7 +1041,6 @@ function renderPlacesList() {
             </div>
             ${item.type !== 'hospital' ? `
             <div class="place-actions">
-                <button class="place-action-btn" onclick="event.stopPropagation(); openEditModal('${item.id}', '${item.type}')" title="Editar">✏️</button>
                 <button class="place-action-btn" onclick="event.stopPropagation(); deleteItem('${item.id}', '${item.type}')" title="Eliminar">🗑️</button>
             </div>` : ''}
         `;
@@ -977,7 +1129,6 @@ function handleAddMissingPerson(e) {
 
     if (!coPhoneRegex.test(phone)) {
         showToast('⚠️ Ingrese un teléfono de contacto válido de Colombia', 'error');
-        document.getElementById('missing-contact').focus();
         return;
     }
 
@@ -1037,13 +1188,13 @@ window.toggleSection = function(header) {
 
 // --- Social Sharing ---
 window.shareOnWhatsApp = function() {
-    const text = '🆘 Mapa de Ayuda Sismo 7.4 Colombia (Verificado & Colaborativo) — Registre y consulte centros de acopio y refugios:';
+    const text = '🆘 Mapa de Ayuda Sismo 7.4 Colombia — Quiero Ayudar / Necesito Ayuda / Donaciones PayPal y Binance:';
     const url = window.location.href;
     window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
 };
 
 window.shareOnTwitter = function() {
-    const text = '🆘 Mapa de Ayuda Terremoto Colombia 7.4 — Centros de acopio verificados, refugios y hospitales: #SismoColombia #TerremotoColombia';
+    const text = '🆘 Mapa de Ayuda Terremoto Colombia 7.4 — Registra ayuda, pide auxilio o dona en PayPal/Binance: #SismoColombia #TerremotoColombia';
     const url = window.location.href;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
 };

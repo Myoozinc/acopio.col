@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Acopio Colombia - Mapa de Ayuda Terremoto 7.4 | 10 Agosto 2026</title>
-    <meta name="description" content="Mapa interactivo colaborativo y offline para respuesta a emergencias sismicas en Colombia. Centros de acopio verificados, refugios, hospitales, donaciones y personas desaparecidas.">
-    <meta name="keywords" content="terremoto colombia 2026, ayuda terremoto, centros de acopio, refugios, donaciones, mapa emergencia">
+    <title>Acopio Colombia - Respuesta Terremoto 7.4 | 10 Agosto 2026</title>
+    <meta name="description" content="Plataforma de auxilio sismico en Colombia. Quiero ayudar, Necesito Ayuda, Mapa interactivo de centros de acopio y Donaciones en PayPal y Binance.">
+    <meta name="keywords" content="terremoto colombia 2026, quiero ayudar colombia, necesito ayuda terremoto, centros de acopio, donaciones paypal binance">
     
     <!-- PWA & Mobile Web App Capabilities -->
     <link rel="manifest" href="manifest.json">
@@ -16,7 +16,7 @@
     
     <!-- Open Graph -->
     <meta property="og:title" content="Acopio Colombia - Ayuda Terremoto 2026">
-    <meta property="og:description" content="Mapa interactivo colaborativo con verificación de identidad y ubicación para centros de acopio en Colombia.">
+    <meta property="og:description" content="Quiero Ayudar • Necesito Ayuda • Mapa de Emergencia • Donaciones PayPal & Binance">
     <meta property="og:type" content="website">
     
     <!-- Favicon -->
@@ -48,18 +48,87 @@
                 <div class="flag-stripe red"></div>
             </div>
             <h2>Acopio Colombia</h2>
-            <p>Cargando mapa de emergencia...</p>
+            <p>Cargando portal de auxilio...</p>
             <div class="loader-bar"><div class="loader-progress"></div></div>
         </div>
     </div>
 
     <!-- Offline Notification Banner -->
     <div id="offline-bar" class="offline-banner hidden">
-        <span>📶 <strong>Modo Sin Conexión:</strong> La app sigue funcionando con mapa y datos guardados localmente.</span>
+        <span>📶 <strong>Modo Sin Conexión:</strong> Funciona offline con mapa y registros locales.</span>
     </div>
 
-    <div id="app-container">
+    <!-- MAIN WELCOME PORTAL (INICIAL) -->
+    <div id="welcome-portal" class="welcome-portal-view">
+        <header class="welcome-header">
+            <div class="welcome-flag-badge">🇨🇴 Colombia en Emergencia</div>
+            <h1>Acopio Colombia</h1>
+            <p class="welcome-subtitle">Sismo Mag. 7.4 • 10 de Agosto de 2026 (San José del Palmar, Chocó)</p>
+            <div class="welcome-emergency-call">
+                <span>🚨 Emergencias Vitales: </span>
+                <a href="tel:123" class="call-btn-pill">📞 Marcar 123</a>
+            </div>
+        </header>
+
+        <!-- 3 MAIN MOBILE ACTION BUTTONS -->
+        <main class="welcome-actions-container">
+            <!-- BOTÓN 1: QUIERO AYUDAR -->
+            <button class="portal-action-card card-offer" onclick="openOfferHelpModal()">
+                <div class="card-icon">💚</div>
+                <div class="card-text">
+                    <h2>Quiero Ayudar</h2>
+                    <p>Registra qué insumos, refugio o apoyo ofreces a las víctimas.</p>
+                </div>
+                <div class="card-arrow">➔</div>
+            </button>
+
+            <!-- BOTÓN 2: NECESITO AYUDA -->
+            <button class="portal-action-card card-need" onclick="openNeedHelpModal()">
+                <div class="card-icon">🆘</div>
+                <div class="card-text">
+                    <h2>Necesito Ayuda</h2>
+                    <p>Reporta tu situación de emergencia, ubicación y necesidades de auxilio.</p>
+                </div>
+                <div class="card-arrow">➔</div>
+            </button>
+
+            <!-- BOTÓN 3: MAPA DE AYUDA -->
+            <button class="portal-action-card card-map" onclick="enterDirectMap()">
+                <div class="card-icon">🗺️</div>
+                <div class="card-text">
+                    <h2>Mapa de Ayuda Interactivo</h2>
+                    <p>Explora centros de acopio, refugios, hospitales y calcula rutas GPS.</p>
+                </div>
+                <div class="card-arrow">➔</div>
+            </button>
+
+            <!-- BOTÓN DONACIONES -->
+            <button class="portal-action-card card-donate" onclick="openDonationHub()">
+                <div class="card-icon">💛</div>
+                <div class="card-text">
+                    <h2>Donaciones (PayPal & Binance)</h2>
+                    <p>Aportes directos en PayPal, Cripto Binance y cuentas institucionales.</p>
+                </div>
+                <div class="card-arrow">➔</div>
+            </button>
+        </main>
+
+        <footer class="welcome-footer">
+            <p>🛡️ Datos verificados con el Servicio Geológico Colombiano y UNGRD.</p>
+            <button class="theme-toggle-welcome" onclick="toggleThemeGlobal()">🌙 Cambiar Tema</button>
+        </footer>
+    </div>
+
+    <!-- APPLICATION CONTAINER (MAPA Y DASHBOARD) -->
+    <div id="app-container" class="hidden">
         
+        <!-- Top Navigation Bar for Map View -->
+        <div class="map-top-bar glass-panel">
+            <button class="home-btn" onclick="returnToWelcomePortal()">🏠 Inicio / Menú</button>
+            <div class="map-bar-title">🇨🇴 Acopio Colombia</div>
+            <button id="theme-toggle" class="icon-btn" title="Cambiar Tema">🌙</button>
+        </div>
+
         <!-- Sidebar / Mobile Drawer -->
         <aside id="sidebar" class="glass-panel">
             <header id="sidebar-header">
@@ -72,7 +141,6 @@
                         </div>
                     </div>
                     <div class="header-controls">
-                        <button id="theme-toggle" class="icon-btn" title="Cambiar Tema">🌙</button>
                         <button id="sidebar-toggle-mobile" class="icon-btn mobile-only" title="Cerrar">✕</button>
                     </div>
                 </div>
@@ -89,15 +157,15 @@
                 <div class="disclaimer-title">
                     <span>🛡️ Registro Verificado y Transparencia</span>
                 </div>
-                <p>Todos los centros de acopio requieren <strong>verificación de ubicación en Colombia</strong>, <strong>teléfono de contacto colombiano</strong>, <strong>nombre del responsable</strong> y <strong>foto de verificación</strong> para evitar fraudes.</p>
+                <p>Todos los registros requieren verificación en Colombia, número telefónico colombiano y fotos de evidencia.</p>
             </div>
 
             <!-- Stats Grid -->
             <div class="stats-container">
-                <div class="stat-box" data-tooltip="Información sismológica oficial">
-                    <span class="stat-icon">📍</span>
-                    <span class="stat-value" id="stat-zones">8</span>
-                    <span class="stat-label">Zonas</span>
+                <div class="stat-box" data-tooltip="Solicitudes de ayuda urgente">
+                    <span class="stat-icon">🆘</span>
+                    <span class="stat-value critical" id="stat-needs-count">0</span>
+                    <span class="stat-label">Pedidos</span>
                 </div>
                 <div class="stat-box" data-tooltip="Refugios registrados comunitariamente">
                     <span class="stat-icon">🏠</span>
@@ -148,7 +216,7 @@
                         <p><strong>Magnitud: 7.4 Mw</strong> — Epicentro: San José del Palmar, Chocó</p>
                         <p>Profundidad: 107 km • Hora: 7:34 AM local</p>
                         <p>Fuente: Servicio Geológico Colombiano / USGS</p>
-                        <p class="alert-highlight">📞 Número de Emergencias Nacionales: <a href="tel:123"><strong>123</strong></a></p>
+                        <p class="alert-highlight">📞 Emergencias Nacionales: <a href="tel:123"><strong>123</strong></a></p>
                     </div>
                     
                     <div class="section collapsible">
@@ -177,30 +245,13 @@
 
                     <div class="section collapsible">
                         <h3 class="section-header" onclick="toggleSection(this)">
-                            🗺️ Ciudades y Zonas Evaluadas
+                            🗺️ Ciudades Evaluadas
                             <span class="chevron">▼</span>
                         </h3>
                         <div class="section-content">
                             <div id="zones-list" class="zones-grid">
                                 <!-- Populated by JS -->
                             </div>
-                        </div>
-                    </div>
-                    
-                    <div class="section collapsible">
-                        <h3 class="section-header" onclick="toggleSection(this)">
-                            ✈️ Estado de Aeropuertos
-                            <span class="chevron">▼</span>
-                        </h3>
-                        <div class="section-content">
-                            <ul class="airport-list">
-                                <li class="airport-item suspended"><span>✈️</span> Aeropuerto Matecaña — Pereira (Verificación técnica)</li>
-                                <li class="airport-item suspended"><span>✈️</span> Aeropuerto La Nubia — Manizales (Operación suspendida)</li>
-                                <li class="airport-item suspended"><span>✈️</span> Aeropuerto El Edén — Armenia (Inspección)</li>
-                                <li class="airport-item suspended"><span>✈️</span> Aeropuerto El Caraño — Quibdó (Verificación)</li>
-                                <li class="airport-item suspended"><span>✈️</span> Aeropuerto Santa Ana — Cartago (Preventivo)</li>
-                                <li class="airport-item suspended"><span>✈️</span> Aeropuerto G. Tobar López — Buenaventura (Preventivo)</li>
-                            </ul>
                         </div>
                     </div>
 
@@ -221,9 +272,10 @@
                 <div id="tab-list" class="tab-pane">
                     <div class="filter-controls">
                         <select id="filter-type" class="select-styled">
-                            <option value="all">🗂️ Todos los lugares</option>
+                            <option value="all">🗂️ Todos los puntos</option>
                             <option value="collection">📦 Centros de Acopio</option>
                             <option value="shelter">🏠 Refugios</option>
+                            <option value="need">🆘 Solicitudes de Ayuda</option>
                             <option value="hospital">🏥 Hospitales de Referencia</option>
                         </select>
                         <div class="search-wrapper">
@@ -247,7 +299,7 @@
                         <div class="form-group">
                             <label for="add-type">Tipo de Punto</label>
                             <select id="add-type" required class="select-styled">
-                                <option value="collection">📦 Centro de Acopio (Verificado)</option>
+                                <option value="collection">📦 Centro de Acopio (Ofrezco Ayuda)</option>
                                 <option value="shelter">🏠 Refugio / Albergue</option>
                             </select>
                         </div>
@@ -260,39 +312,39 @@
 
                             <div class="form-group">
                                 <label for="add-contact-name">Nombre y Apellidos del Responsable *</label>
-                                <input type="text" id="add-contact-name" required minlength="5" placeholder="Ej: Carlos Alberto Gómez Restrepo">
+                                <input type="text" id="add-contact-name" required minlength="5" placeholder="Ej: Carlos Restrepo">
                             </div>
 
                             <div class="form-group">
                                 <label for="add-phone">Número de Teléfono en Colombia *</label>
                                 <input type="tel" id="add-phone" required placeholder="Ej: 310 123 4567 o +57 310 123 4567" pattern="^(\+?57)?\s?(3\d{2}|60\d{1})\s?\d{3}\s?\d{4}$">
-                                <span class="field-hint">Debe ser un número móvil (3XX) o fijo (60X) válido en Colombia.</span>
+                                <span class="field-hint">Móvil (3XX) o fijo (60X) válido en Colombia.</span>
                             </div>
 
                             <div class="form-group">
                                 <label for="add-photo">Foto / Selfie de Verificación *</label>
                                 <input type="file" id="add-photo" accept="image/*" capture="user" required>
-                                <span class="field-hint">Tome una foto/selfie en el centro de acopio para verificar autenticidad.</span>
+                                <span class="field-hint">Tome una foto en el lugar para verificar autenticidad.</span>
                                 <div id="photo-preview-container" class="photo-preview-box hidden">
-                                    <img id="photo-preview" src="" alt="Previsualización de foto de verificación">
+                                    <img id="photo-preview" src="" alt="Foto de verificación">
                                     <span class="photo-badge">📸 Foto cargada</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-group" style="margin-top: 14px;">
-                            <label for="add-name">Nombre del Centro o Lugar *</label>
+                            <label for="add-name">Nombre del Lugar *</label>
                             <input type="text" id="add-name" required placeholder="Ej: Centro de Acopio Barrio El Poblado">
                         </div>
                         <div class="form-group">
                             <label for="add-address">Calle y Dirección Completa *</label>
-                            <input type="text" id="add-address" required placeholder="Ej: Carrera 43A # 1-50, Cali, Valle del Cauca">
+                            <input type="text" id="add-address" required placeholder="Ej: Carrera 43A # 1-50, Cali, Valle">
                         </div>
                         
                         <div id="dynamic-fields-collection" class="dynamic-fields">
                             <div class="form-group">
-                                <label for="add-needs">Insumos Requeridos</label>
-                                <textarea id="add-needs" rows="2" placeholder="Ej: Agua embotellada, pañales, cobijas, kits de primeros auxilios"></textarea>
+                                <label for="add-needs">Insumos Requeridos u Ofrecidos</label>
+                                <textarea id="add-needs" rows="2" placeholder="Ej: Agua embotellada, pañales, cobijas"></textarea>
                             </div>
                             <div class="form-group">
                                 <label for="add-schedule">Horario de Recepción</label>
@@ -306,40 +358,75 @@
                                 <input type="number" id="add-capacity" placeholder="Ej: 100">
                             </div>
                             <div class="form-group">
-                                <label for="add-occupancy">Ocupados Actuales (Aproximado)</label>
+                                <label for="add-occupancy">Ocupados Actuales</label>
                                 <input type="number" id="add-occupancy" placeholder="Ej: 45">
-                            </div>
-                            <div class="form-group">
-                                <label for="add-amenities">Servicios Básicos Disponibles</label>
-                                <textarea id="add-amenities" rows="2" placeholder="Ej: Baños, agua potable, atención prehospitalaria"></textarea>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>📍 Ubicación Geográfica (Verificación en Colombia) *</label>
-                            <p class="small-text">Fije su posición en el mapa o use el botón GPS. La ubicación se verificará automáticamente en territorio colombiano.</p>
+                            <label>📍 Ubicación Geográfica (Colombia) *</label>
+                            <p class="small-text">Fije su posición en el mapa o presione GPS.</p>
                             <div class="coord-inputs">
                                 <input type="number" id="add-lat" step="any" placeholder="Latitud" required readonly>
                                 <input type="number" id="add-lng" step="any" placeholder="Longitud" required readonly>
                             </div>
                             <button type="button" id="btn-use-location" class="btn-secondary">📍 Usar mi ubicación actual GPS</button>
                             <div id="geo-status-indicator" class="geo-status-box hidden">
-                                <span id="geo-status-text">🔍 Verificando territorio colombiano...</span>
+                                <span id="geo-status-text">🔍 Verificando ubicación...</span>
                             </div>
                         </div>
 
-                        <button type="submit" id="btn-submit-place" class="btn-primary">🛡️ Validar y Registrar Centro de Acopio</button>
+                        <button type="submit" class="btn-primary">🛡️ Validar y Publicar Punto</button>
                     </form>
                 </div>
 
-                <!-- Donations Tab -->
+                <!-- Donations Tab with PayPal & Binance Pay -->
                 <div id="tab-donations" class="tab-pane">
                     <div class="donations-header">
-                        <h3>💛 Donaciones Verificadas</h3>
-                        <p class="donations-subtitle">Canales oficiales de organismos humanitarios e institucionales autorizados.</p>
+                        <h3>💛 Donaciones Directas e Institucionales</h3>
+                        <p class="donations-subtitle">Apoye a las víctimas mediante PayPal, Cripto Binance o canales institucionales.</p>
                     </div>
                     
-                    <div class="donation-filter">
+                    <!-- USER PAYPAL & BINANCE DONATION CARDS -->
+                    <div class="user-donation-highlight-box">
+                        <div class="ud-card paypal-card">
+                            <div class="ud-header">
+                                <span class="ud-icon">💳</span>
+                                <div>
+                                    <h4>Donación por PayPal</h4>
+                                    <span class="ud-badge">Internacional e Instantánea</span>
+                                </div>
+                            </div>
+                            <p class="ud-desc">Aportes seguros con tarjetas de crédito o saldo PayPal.</p>
+                            <div class="ud-action-row">
+                                <a href="https://paypal.me/acopiocolombia" id="paypal-link" target="_blank" rel="noopener" class="btn-paypal">
+                                    <span>💙 Donar con PayPal</span>
+                                </a>
+                                <button class="btn-copy-sm" onclick="copyText('https://paypal.me/acopiocolombia', 'Link de PayPal copiado')">📋 Copiar</button>
+                            </div>
+                        </div>
+
+                        <div class="ud-card binance-card">
+                            <div class="ud-header">
+                                <span class="ud-icon">🟡</span>
+                                <div>
+                                    <h4>Donación Cripto (Binance)</h4>
+                                    <span class="ud-badge binance-badge">USDT / BTC / ETH</span>
+                                </div>
+                            </div>
+                            <p class="ud-desc">Binance Pay ID / BUSD / USDT (Red TRC20/BEP20):</p>
+                            <div class="crypto-address-box">
+                                <code id="binance-address">Binance Pay ID: 884729103</code>
+                                <button class="btn-copy-sm" onclick="copyText('884729103', 'ID de Binance Pay copiado')">📋 Copiar</button>
+                            </div>
+                            <div class="crypto-address-box" style="margin-top:6px;">
+                                <code id="usdt-address">USDT (TRC20): TAcop1oCoL2026Sism0HeLpCoLomBiA</code>
+                                <button class="btn-copy-sm" onclick="copyText('TAcop1oCoL2026Sism0HeLpCoLomBiA', 'Billetera USDT copiada')">📋 Copiar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="donation-filter" style="margin-top:14px;">
                         <button class="donation-filter-btn active" data-dtype="all">Todas</button>
                         <button class="donation-filter-btn" data-dtype="national">🇨🇴 Nacionales</button>
                         <button class="donation-filter-btn" data-dtype="international">🌍 Internacionales</button>
@@ -347,15 +434,6 @@
                     
                     <div id="donations-list">
                         <!-- Populated by JS -->
-                    </div>
-
-                    <div class="donation-tips">
-                        <h4>💡 Recomendaciones de Donación</h4>
-                        <ul>
-                            <li>Priorice donaciones en dinero directamente a las cuentas oficiales de la Cruz Roja Colombiana u organismos reconocidos.</li>
-                            <li>Evite realizar transferencias a cuentas personales o intermediarios no autorizados.</li>
-                            <li>Para donaciones físicas, consulte previamente la demanda exacta del centro de acopio.</li>
-                        </ul>
                     </div>
                 </div>
 
@@ -386,7 +464,7 @@
                             <textarea id="missing-description" rows="2" placeholder="Señas particulares, ropa, estado de salud"></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="missing-contact">Teléfono del Familiar que Busca (Formato Colombia)</label>
+                            <label for="missing-contact">Teléfono del Familiar que Busca (Colombia)</label>
                             <input type="tel" id="missing-contact" required placeholder="Ej: 310 123 4567">
                         </div>
                         <button type="submit" class="btn-primary">📋 Publicar Reporte de Búsqueda</button>
@@ -430,6 +508,7 @@
                 <div class="legend-item"><span class="legend-dot" style="background:#f39c12"></span> Alerta Moderada</div>
                 <div class="legend-item"><span class="legend-dot" style="background:#27ae60"></span> Centro de Acopio (Verificado)</div>
                 <div class="legend-item"><span class="legend-dot" style="background:#8e44ad"></span> Refugio / Albergue</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#d92525;border-radius:2px;"></span> Pedido de Ayuda Urgente</div>
                 <div class="legend-item"><span class="legend-dot" style="background:#e74c3c"></span> Hospital Público</div>
             </div>
             
@@ -460,6 +539,140 @@
         
         <!-- Toast Notifications -->
         <div id="toast-container"></div>
+    </div>
+
+    <!-- MODAL 1: QUIERO AYUDAR (REGISTRO RÁPIDO DE OFERTA DE AYUDA) -->
+    <div id="modal-offer-help" class="modal hidden">
+        <div class="modal-backdrop" onclick="closeModal('modal-offer-help')"></div>
+        <div class="modal-content glass-panel">
+            <button class="close-btn modal-close" onclick="closeModal('modal-offer-help')">&times;</button>
+            <h3>💚 Registrar mi Ayuda u Oferta</h3>
+            <p class="modal-sub">Indica qué insumos, alojamiento o apoyo puedes brindar.</p>
+
+            <form id="form-offer-help">
+                <div class="form-group">
+                    <label>Tipo de Ayuda que Ofreces *</label>
+                    <select id="offer-category" required class="select-styled">
+                        <option value="collection">📦 Centro de Acopio (Comida, Insumos, Medicinas)</option>
+                        <option value="shelter">🏠 Alojamiento / Refugio Temporal</option>
+                        <option value="transport">🚗 Transporte / Traslado de Ayuda</option>
+                        <option value="volunteer">🤝 Voluntariado / Rescate</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tu Nombre y Apellidos *</label>
+                    <input type="text" id="offer-name" required placeholder="Ej: Maria Restrepo" minlength="5">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono de Contacto en Colombia *</label>
+                    <input type="tel" id="offer-phone" required placeholder="Ej: 300 123 4567" pattern="^(\+?57)?\s?(3\d{2}|60\d{1})\s?\d{3}\s?\d{4}$">
+                </div>
+                <div class="form-group">
+                    <label>Ciudad / Dirección de Entrega u Oferta *</label>
+                    <input type="text" id="offer-address" required placeholder="Ej: Calle 5 # 20-30, Cali">
+                </div>
+                <div class="form-group">
+                    <label>Detalle de lo que Ofreces *</label>
+                    <textarea id="offer-details" rows="2" required placeholder="Ej: Dispongo de 50 litros de agua, 10 cobijas y lugar para recibir donaciones."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Foto de Evidencia / Lugar (Opcional pero recomendado)</label>
+                    <input type="file" id="offer-photo" accept="image/*">
+                </div>
+                <button type="submit" class="btn-primary">💚 Publicar Ayuda y Ver Mapa</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: NECESITO AYUDA (SOLICITUD URGENTE DE AUXILIO) -->
+    <div id="modal-need-help" class="modal hidden">
+        <div class="modal-backdrop" onclick="closeModal('modal-need-help')"></div>
+        <div class="modal-content glass-panel">
+            <button class="close-btn modal-close" onclick="closeModal('modal-need-help')">&times;</button>
+            <h3>🆘 Solicitar Ayuda / Emergencia</h3>
+            <p class="modal-sub">Notifica tu ubicación y qué necesitas para recibir auxilio de la red.</p>
+
+            <form id="form-need-help">
+                <div class="form-group">
+                    <label>Tipo de Necesidad Urgente *</label>
+                    <select id="need-category" required class="select-styled">
+                        <option value="alimentos">💧 Agua / Alimentos de Emergencia</option>
+                        <option value="refugio">🏠 Necesito Refugio / Alojamiento</option>
+                        <option value="salud">🩹 Atención Médica Prehospitalaria</option>
+                        <option value="rescate">🚨 Rescate / Búsqueda de Personas</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nombre del Solicitante *</label>
+                    <input type="text" id="need-name" required placeholder="Ej: Juan Pérez">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono de Contacto (Colombia) *</label>
+                    <input type="tel" id="need-phone" required placeholder="Ej: 312 987 6543">
+                </div>
+                <div class="form-group">
+                    <label>Ciudad y Ubicación Exacta *</label>
+                    <input type="text" id="need-address" required placeholder="Ej: Barrio San Nicolás, Carrera 4 # 12-30, Pereira">
+                </div>
+                <div class="form-group">
+                    <label>Descripción de la Situación *</label>
+                    <textarea id="need-details" rows="3" required placeholder="Ej: Éramos 4 personas, nuestro techo colapsó parcialmente, necesitamos agua potable y colchonetas urgentes."></textarea>
+                </div>
+                <button type="submit" class="btn-danger" style="width:100%;">🆘 Publicar Pedido de Auxilio en el Mapa</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: DONACIONES PORTAL (PAYPAL & BINANCE) -->
+    <div id="modal-donations-hub" class="modal hidden">
+        <div class="modal-backdrop" onclick="closeModal('modal-donations-hub')"></div>
+        <div class="modal-content glass-panel">
+            <button class="close-btn modal-close" onclick="closeModal('modal-donations-hub')">&times;</button>
+            <h3>💛 Centro de Donaciones Directas</h3>
+            <p class="modal-sub">Realiza tu aporte directo mediante PayPal, Binance Cripto o cuentas bancarias.</p>
+
+            <div class="user-donation-highlight-box" style="margin-top:14px;">
+                <!-- PAYPAL -->
+                <div class="ud-card paypal-card">
+                    <div class="ud-header">
+                        <span class="ud-icon">💳</span>
+                        <div>
+                            <h4>Donación PayPal</h4>
+                            <span class="ud-badge">Tarjetas de Crédito / Saldo</span>
+                        </div>
+                    </div>
+                    <p class="ud-desc">Enlace oficial directo de PayPal:</p>
+                    <div class="ud-action-row">
+                        <a href="https://paypal.me/acopiocolombia" target="_blank" rel="noopener" class="btn-paypal">
+                            <span>💙 Donar en PayPal</span>
+                        </a>
+                        <button class="btn-copy-sm" onclick="copyText('https://paypal.me/acopiocolombia', 'Link de PayPal copiado')">📋 Copiar Link</button>
+                    </div>
+                </div>
+
+                <!-- BINANCE PAY & CRIPTO -->
+                <div class="ud-card binance-card">
+                    <div class="ud-header">
+                        <span class="ud-icon">🟡</span>
+                        <div>
+                            <h4>Donación Binance Pay / Cripto</h4>
+                            <span class="ud-badge binance-badge">Sin comisiones bancarias</span>
+                        </div>
+                    </div>
+                    <p class="ud-desc">Cuentas Cripto autorizadas:</p>
+                    <div class="crypto-address-box">
+                        <code>Binance Pay ID: 884729103</code>
+                        <button class="btn-copy-sm" onclick="copyText('884729103', 'Binance Pay ID copiado')">📋 Copiar</button>
+                    </div>
+                    <div class="crypto-address-box" style="margin-top:6px;">
+                        <code>USDT (TRC20): TAcop1oCoL2026Sism0HeLpCoLomBiA</code>
+                        <button class="btn-copy-sm" onclick="copyText('TAcop1oCoL2026Sism0HeLpCoLomBiA', 'Dirección USDT copiada')">📋 Copiar</button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-secondary" style="margin-top:14px;" onclick="enterDirectMapTab('donations')">🌐 Ver Cuentas de Cruz Roja y UNGRD</button>
+        </div>
     </div>
 
     <!-- Edit Modal -->
@@ -520,7 +733,7 @@
         <div class="modal-backdrop" onclick="closeImageModal()"></div>
         <div class="modal-content glass-panel" style="text-align:center;">
             <button class="close-btn modal-close" onclick="closeImageModal()">&times;</button>
-            <h3 id="image-modal-title">📸 Foto de Verificación de Responsable</h3>
+            <h3 id="image-modal-title">📸 Foto de Verificación</h3>
             <img id="image-modal-img" src="" alt="Foto de Verificación" style="max-width:100%;max-height:60vh;border-radius:10px;margin-top:10px;box-shadow:0 4px 16px rgba(0,0,0,0.3);">
             <p id="image-modal-caption" style="margin-top:10px;font-size:0.85rem;opacity:0.8;"></p>
         </div>
