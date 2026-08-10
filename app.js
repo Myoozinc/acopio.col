@@ -19,7 +19,7 @@ let isGeoVerifiedColombia = false;
 let verifiedAddressDetails = null;
 let isAdminAuthenticated = false;
 
-const DATA_KEY_APP = 'earthquake_data_v2026_colombia';
+const DATA_KEY_APP = 'earthquake_data_v2026_colombia_v3';
 const ADMIN_LOGS_KEY = 'acopio_admin_telemetry_logs';
 
 let db = { affectedZones: [], collectionCenters: [], shelters: [], emergencyRequests: [], hospitals: [], epicenter: null, donations: [], emergencyContacts: {}, missingPersons: [] };
@@ -281,6 +281,28 @@ function loadData() {
         }
     } else if (typeof initialData !== 'undefined') {
         db = initialData;
+    }
+
+    if (typeof initialData !== 'undefined') {
+        if (!db.collectionCenters || db.collectionCenters.length === 0) {
+            db.collectionCenters = [...initialData.collectionCenters];
+        } else {
+            initialData.collectionCenters.forEach(item => {
+                if (!db.collectionCenters.some(c => c.id === item.id)) {
+                    db.collectionCenters.push(item);
+                }
+            });
+        }
+
+        if (!db.shelters || db.shelters.length === 0) {
+            db.shelters = [...initialData.shelters];
+        } else {
+            initialData.shelters.forEach(item => {
+                if (!db.shelters.some(s => s.id === item.id)) {
+                    db.shelters.push(item);
+                }
+            });
+        }
     }
 
     if (!db.affectedZones || db.affectedZones.length === 0) {
