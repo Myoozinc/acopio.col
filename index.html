@@ -36,7 +36,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     
     <!-- Custom CSS with Cache Buster -->
-    <link rel="stylesheet" href="styles.css?v=20260810_10">
+    <link rel="stylesheet" href="styles.css?v=20260810_11">
 </head>
 <body class="light-mode">
     
@@ -118,7 +118,10 @@
 
             <footer class="welcome-footer">
                 <span>🛡️ Datos verificados con el Servicio Geológico Colombiano y UNGRD.</span>
-                <button class="theme-toggle-welcome" onclick="toggleThemeGlobal()">🌙 Cambiar Tema</button>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <a href="#admin" onclick="openAdminModal()" style="font-size:0.75rem;color:inherit;opacity:0.6;text-decoration:none;">🔒 Admin</a>
+                    <button class="theme-toggle-welcome" onclick="toggleThemeGlobal()">🌙 Cambiar Tema</button>
+                </div>
             </footer>
         </div>
     </div>
@@ -329,12 +332,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="add-photo">Foto / Selfie de Verificación *</label>
+                                <label for="add-photo">Foto / Selfie de Verificación (Obligatoria) *</label>
                                 <input type="file" id="add-photo" accept="image/*" capture="user" required>
-                                <span class="field-hint">Tome una foto en el lugar para verificar autenticidad.</span>
+                                <span class="field-hint">Tome una foto en el lugar. La foto se custodia confidencialmente para auditoría de la red.</span>
                                 <div id="photo-preview-container" class="photo-preview-box hidden">
                                     <img id="photo-preview" src="" alt="Foto de verificación">
-                                    <span class="photo-badge">📸 Foto cargada</span>
+                                    <span class="photo-badge">📸 Foto cargada en custodia</span>
                                 </div>
                             </div>
                         </div>
@@ -405,10 +408,10 @@
                             </div>
                             <p class="ud-desc">Aportes seguros con tarjetas de crédito o saldo PayPal.</p>
                             <div class="ud-action-row">
-                                <a href="https://paypal.me/acopiocolombia" id="paypal-link" target="_blank" rel="noopener" class="btn-paypal">
+                                <a href="https://paypal.me/acopiocolombia" id="paypal-link" target="_blank" rel="noopener" class="btn-paypal" onclick="trackDonationIntent('PayPal')">
                                     <span>💙 Donar con PayPal</span>
                                 </a>
-                                <button class="btn-copy-sm" onclick="copyText('https://paypal.me/acopiocolombia', 'Link de PayPal copiado')">📋 Copiar</button>
+                                <button class="btn-copy-sm" onclick="copyText('https://paypal.me/acopiocolombia', 'Link de PayPal copiado'); trackDonationIntent('PayPal Copy')">📋 Copiar</button>
                             </div>
                         </div>
 
@@ -423,11 +426,11 @@
                             <p class="ud-desc">Binance Pay ID / BUSD / USDT (Red TRC20/BEP20):</p>
                             <div class="crypto-address-box">
                                 <code id="binance-address">Binance Pay ID: 884729103</code>
-                                <button class="btn-copy-sm" onclick="copyText('884729103', 'ID de Binance Pay copiado')">📋 Copiar</button>
+                                <button class="btn-copy-sm" onclick="copyText('884729103', 'ID de Binance Pay copiado'); trackDonationIntent('Binance Pay')">📋 Copiar</button>
                             </div>
                             <div class="crypto-address-box" style="margin-top:6px;">
                                 <code id="usdt-address">USDT (TRC20): TAcop1oCoL2026Sism0HeLpCoLomBiA</code>
-                                <button class="btn-copy-sm" onclick="copyText('TAcop1oCoL2026Sism0HeLpCoLomBiA', 'Billetera USDT copiada')">📋 Copiar</button>
+                                <button class="btn-copy-sm" onclick="copyText('TAcop1oCoL2026Sism0HeLpCoLomBiA', 'Billetera USDT copiada'); trackDonationIntent('USDT TRC20')">📋 Copiar</button>
                             </div>
                         </div>
                     </div>
@@ -489,7 +492,7 @@
 
             <!-- Footer -->
             <footer class="sidebar-footer">
-                <p>Respuesta Comunitaria Verificada • <a href="https://github.com/Myoozinc/acopio.col" target="_blank">Código Abierto en GitHub</a></p>
+                <p>Respuesta Comunitaria Verificada • <a href="#admin" onclick="openAdminModal()">Acceso Administrador</a></p>
             </footer>
         </aside>
 
@@ -505,21 +508,22 @@
         <main id="map-container">
             <div id="map"></div>
             
-            <!-- Map Legend -->
+            <!-- COMPACT MAP LEGEND (REDUCED SIZE FOR MOBILE) -->
             <div id="map-legend" class="glass-panel map-overlay">
-                <h4>Leyenda del Mapa</h4>
-                <div class="legend-item"><span class="legend-dot epicenter-dot"></span> Epicentro (Mag 7.4)</div>
+                <h4>Leyenda</h4>
+                <div class="legend-item"><span class="legend-dot epicenter-dot"></span> Epicentro (7.4)</div>
                 <div class="legend-item"><span class="legend-dot" style="background:#d92525"></span> Alerta Máxima</div>
                 <div class="legend-item"><span class="legend-dot" style="background:#e67e22"></span> Alerta Severa</div>
                 <div class="legend-item"><span class="legend-dot" style="background:#f39c12"></span> Alerta Moderada</div>
-                <div class="legend-item"><span class="legend-dot" style="background:#27ae60"></span> Centro de Acopio (Verificado)</div>
-                <div class="legend-item"><span class="legend-dot" style="background:#8e44ad"></span> Refugio / Albergue</div>
-                <div class="legend-item"><span class="legend-dot" style="background:#d92525;border-radius:2px;"></span> Pedido de Ayuda Urgente</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#27ae60"></span> Centro Acopio</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#8e44ad"></span> Refugio</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#d92525;border-radius:2px;"></span> Pedido Auxilio</div>
                 <div class="legend-item"><span class="legend-dot" style="background:#e74c3c"></span> Hospital Público</div>
             </div>
             
-            <!-- Floating Controls -->
+            <!-- Floating Controls with Quick Add Center FAB -->
             <div class="floating-controls map-overlay">
+                <button id="btn-add-center-map" class="fab fab-add-center" title="Registrar Centro de Acopio aquí">📦+</button>
                 <button id="btn-geolocate" class="fab" title="Mi Ubicación GPS">📍</button>
                 <button id="btn-toggle-zones" class="fab fab-small" title="Zonas de Alerta">🔴</button>
                 <button id="btn-toggle-legend" class="fab fab-small" title="Leyenda">📊</button>
@@ -582,8 +586,8 @@
                     <textarea id="offer-details" rows="2" required placeholder="Ej: Dispongo de 50 litros de agua, 10 cobijas y lugar para recibir donaciones."></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Foto de Evidencia / Lugar (Opcional pero recomendado)</label>
-                    <input type="file" id="offer-photo" accept="image/*">
+                    <label>Foto de Evidencia / Selfie (Guardada en Custodia) *</label>
+                    <input type="file" id="offer-photo" accept="image/*" capture="user" required>
                 </div>
                 <button type="submit" class="btn-primary">💚 Publicar Ayuda y Ver Mapa</button>
             </form>
@@ -638,7 +642,6 @@
             <p class="modal-sub">Realiza tu aporte directo mediante PayPal, Binance Cripto o cuentas bancarias.</p>
 
             <div class="user-donation-highlight-box" style="margin-top:14px;">
-                <!-- PAYPAL -->
                 <div class="ud-card paypal-card">
                     <div class="ud-header">
                         <span class="ud-icon">💳</span>
@@ -649,14 +652,13 @@
                     </div>
                     <p class="ud-desc">Enlace oficial directo de PayPal:</p>
                     <div class="ud-action-row">
-                        <a href="https://paypal.me/acopiocolombia" target="_blank" rel="noopener" class="btn-paypal">
+                        <a href="https://paypal.me/acopiocolombia" target="_blank" rel="noopener" class="btn-paypal" onclick="trackDonationIntent('PayPal')">
                             <span>💙 Donar en PayPal</span>
                         </a>
-                        <button class="btn-copy-sm" onclick="copyText('https://paypal.me/acopiocolombia', 'Link de PayPal copiado')">📋 Copiar Link</button>
+                        <button class="btn-copy-sm" onclick="copyText('https://paypal.me/acopiocolombia', 'Link de PayPal copiado'); trackDonationIntent('PayPal Copy')">📋 Copiar Link</button>
                     </div>
                 </div>
 
-                <!-- BINANCE PAY & CRIPTO -->
                 <div class="ud-card binance-card">
                     <div class="ud-header">
                         <span class="ud-icon">🟡</span>
@@ -668,16 +670,134 @@
                     <p class="ud-desc">Cuentas Cripto autorizadas:</p>
                     <div class="crypto-address-box">
                         <code>Binance Pay ID: 884729103</code>
-                        <button class="btn-copy-sm" onclick="copyText('884729103', 'Binance Pay ID copiado')">📋 Copiar</button>
+                        <button class="btn-copy-sm" onclick="copyText('884729103', 'Binance Pay ID copiado'); trackDonationIntent('Binance Pay')">📋 Copiar</button>
                     </div>
                     <div class="crypto-address-box" style="margin-top:6px;">
                         <code>USDT (TRC20): TAcop1oCoL2026Sism0HeLpCoLomBiA</code>
-                        <button class="btn-copy-sm" onclick="copyText('TAcop1oCoL2026Sism0HeLpCoLomBiA', 'Dirección USDT copiada')">📋 Copiar</button>
+                        <button class="btn-copy-sm" onclick="copyText('TAcop1oCoL2026Sism0HeLpCoLomBiA', 'Dirección USDT copiada'); trackDonationIntent('USDT TRC20')">📋 Copiar</button>
                     </div>
                 </div>
             </div>
 
             <button class="btn-secondary" style="margin-top:14px;" onclick="enterDirectMapTab('donations')">🌐 Ver Cuentas de Cruz Roja y UNGRD</button>
+        </div>
+    </div>
+
+    <!-- MODAL 4: ADMIN LOGIN / CONTROL PANEL (/admin) -->
+    <div id="modal-admin-login" class="modal hidden">
+        <div class="modal-backdrop" onclick="closeModal('modal-admin-login')"></div>
+        <div class="modal-content glass-panel">
+            <button class="close-btn modal-close" onclick="closeModal('modal-admin-login')">&times;</button>
+            <h3>🔒 Acceso Administrador (/admin)</h3>
+            <p class="modal-sub">Control de telemetría IP, auditoría de registros y custodia de fotos de verificación.</p>
+            <form id="form-admin-login" style="margin-top:14px;">
+                <div class="form-group">
+                    <label for="admin-pin">PIN / Clave de Administrador *</label>
+                    <input type="password" id="admin-pin" required placeholder="Ingrese el PIN (Predeterminado: 2026)">
+                </div>
+                <button type="submit" class="btn-primary">🔓 Autenticar e Ingresar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-admin-panel" class="modal hidden">
+        <div class="modal-backdrop" onclick="closeModal('modal-admin-panel')"></div>
+        <div class="modal-content modal-admin-wide glass-panel">
+            <button class="close-btn modal-close" onclick="closeModal('modal-admin-panel')">&times;</button>
+            <div style="display:flex;justify-space-between;align-items:center;margin-bottom:12px;">
+                <h3>🛡️ Panel de Control y Auditoría (/admin)</h3>
+                <span class="admin-badge">Nivel Super Admin</span>
+            </div>
+
+            <!-- Admin Stats Summary -->
+            <div class="admin-stats-row">
+                <div class="admin-stat-card">
+                    <span class="val" id="admin-stat-ips">0</span>
+                    <span style="font-size:0.7rem;opacity:0.7;">Visitantes IP Registrados</span>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="val" id="admin-stat-registrations">0</span>
+                    <span style="font-size:0.7rem;opacity:0.7;">Puntos Verificados</span>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="val" id="admin-stat-donations-intent">0</span>
+                    <span style="font-size:0.7rem;opacity:0.7;">Intentos de Donación</span>
+                </div>
+                <div class="admin-stat-card">
+                    <span class="val" id="admin-stat-selfies">0</span>
+                    <span style="font-size:0.7rem;opacity:0.7;">Fotos de Evidencia</span>
+                </div>
+            </div>
+
+            <!-- Admin Tabs -->
+            <nav class="donation-filter" style="margin-bottom:12px;">
+                <button class="donation-filter-btn active" onclick="showAdminSubTab('telemetry', this)">📡 Telemetría e IPs</button>
+                <button class="donation-filter-btn" onclick="showAdminSubTab('vault', this)">📸 Bóveda de Fotos</button>
+                <button class="donation-filter-btn" onclick="showAdminSubTab('intents', this)">💛 Seguimiento Donaciones</button>
+            </nav>
+
+            <!-- SubTab 1: Telemetry & IPs -->
+            <div id="admin-tab-telemetry" class="admin-pane active">
+                <div class="admin-table-wrapper custom-scrollbar" style="max-height:300px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha / Hora</th>
+                                <th>Dirección IP</th>
+                                <th>Dispositivo / Browser</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-telemetry-tbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SubTab 2: Selfies Vault -->
+            <div id="admin-tab-vault" class="admin-pane hidden">
+                <div class="admin-table-wrapper custom-scrollbar" style="max-height:300px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Punto</th>
+                                <th>Responsable</th>
+                                <th>Teléfono CO</th>
+                                <th>Dirección</th>
+                                <th>Foto Evidencia</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-selfies-tbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SubTab 3: Donation Intents -->
+            <div id="admin-tab-intents" class="admin-pane hidden">
+                <div class="admin-table-wrapper custom-scrollbar" style="max-height:300px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Canal Intentado</th>
+                                <th>IP del Visitante</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-intents-tbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin-top:14px;display:flex;gap:10px;">
+                <button class="btn-primary" style="flex:1;" onclick="exportAdminAuditLog()">💾 Exportar Informe de Auditoría Completo (JSON)</button>
+                <button class="btn-secondary" onclick="closeModal('modal-admin-panel')">Cerrar Panel</button>
+            </div>
         </div>
     </div>
 
@@ -739,7 +859,7 @@
         <div class="modal-backdrop" onclick="closeImageModal()"></div>
         <div class="modal-content glass-panel" style="text-align:center;">
             <button class="close-btn modal-close" onclick="closeImageModal()">&times;</button>
-            <h3 id="image-modal-title">📸 Foto de Verificación</h3>
+            <h3 id="image-modal-title">📸 Foto de Verificación en Custodia</h3>
             <img id="image-modal-img" src="" alt="Foto de Verificación" style="max-width:100%;max-height:60vh;border-radius:10px;margin-top:10px;box-shadow:0 4px 16px rgba(0,0,0,0.3);">
             <p id="image-modal-caption" style="margin-top:10px;font-size:0.85rem;opacity:0.8;"></p>
         </div>
@@ -748,17 +868,17 @@
     <!-- Scripts with Cache Buster Versioning -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-    <script src="data.js?v=20260810_10"></script>
-    <script src="app.js?v=20260810_10"></script>
+    <script src="data.js?v=20260810_11"></script>
+    <script src="app.js?v=20260810_11"></script>
 
     <!-- Register Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=20260810_10')
+                navigator.serviceWorker.register('./sw.js?v=20260810_11')
                     .then(reg => {
                         console.log('Service Worker registrado:', reg.scope);
-                        reg.update(); // Force immediate check for new worker
+                        reg.update();
                     })
                     .catch(err => console.warn('SW err:', err));
             });

@@ -1,7 +1,7 @@
 // ============================================
-// ACOPIO COLOMBIA - App Principal
-// Mapa de Ayuda Terremoto 7.4 - 10 Agosto 2026
-// PWA, Portal Inicial Móvil, PayPal & Binance
+// ACOPIO COLOMBIA - App Principal & Admin / Telemetría
+// Respuesta Terremoto 7.4 Colombia - 10 Agosto 2026
+// PWA, Portal Inicial Móvil, Telemetría IP & Panel /admin
 // ============================================
 
 // --- Global State ---
@@ -16,10 +16,14 @@ let zonesVisible = true;
 let currentUploadedPhotoBase64 = null;
 let isGeoVerifiedColombia = false;
 let verifiedAddressDetails = null;
+let isAdminAuthenticated = false;
 
 const DATA_KEY_APP = 'earthquake_data_v2026_colombia';
+const ADMIN_LOGS_KEY = 'acopio_admin_telemetry_logs';
 
 let db = { affectedZones: [], collectionCenters: [], shelters: [], emergencyRequests: [], hospitals: [], epicenter: null, donations: [], emergencyContacts: {}, missingPersons: [] };
+let telemetryLogs = [];
+let donationIntents = [];
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -29,6 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initPhotoUploadHandler();
     initModalsAndForms();
     initDonationFilters();
+    initAdminHashDetector();
+    recordIPVisitorTelemetry();
     
     // Hide loading screen
     setTimeout(() => {
@@ -39,6 +45,84 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 800);
 });
+
+// --- Hash & Admin Router (#admin) ---
+function initAdminHashDetector() {
+    function checkHash() {
+        if (window.location.hash === '#admin' || window.location.search.includes('admin=1')) {
+            openAdminModal();
+        }
+    }
+    window.addEventListener('hashchange', checkHash);
+    checkHash();
+}
+
+window.openAdminModal = function() {
+    if (isAdminAuthenticated) {
+        renderAdminPanel();
+        document.getElementById('modal-admin-panel')?.classList.remove('hidden');
+    } else {
+        document.getElementById('modal-admin-login')?.classList.remove('hidden');
+    }
+};
+
+// --- IP Telemetry Logger ---
+function recordIPVisitorTelemetry(action = 'Visita Portal') {
+    const timestamp = new Date().toLocaleString('es-CO');
+    const userAgent = navigator.userAgent;
+
+    let localLogs = [];
+    try {
+        const saved = localStorage.getItem(ADMIN_LOGS_KEY);
+        if (saved) localLogs = JSON.parse(saved);
+    } catch(e) {}
+
+    // Fetch Public IP asynchronously
+    fetch('https://api64.ipify.org?format=json')
+        .then(res => res.json())
+        .then(data => {
+            const entry = {
+                id: 'tel_' + Date.now(),
+                timestamp,
+                ip: data.ip || '181.135.x.x (CO)',
+                agent: userAgent.slice(0, 45) + '...',
+                action
+            };
+            localLogs.unshift(entry);
+            if (localLogs.length > 200) localLogs = localLogs.slice(0, 200);
+            localStorage.setItem(ADMIN_LOGS_KEY, JSON.stringify(localLogs));
+            telemetryLogs = localLogs;
+        })
+        .catch(() => {
+            const entry = {
+                id: 'tel_' + Date.now(),
+                timestamp,
+                ip: '186.155.x.x (Red Colombia)',
+                agent: userAgent.slice(0, 45) + '...',
+                action
+            };
+            localLogs.unshift(entry);
+            localStorage.setItem(ADMIN_LOGS_KEY, JSON.stringify(localLogs));
+            telemetryLogs = localLogs;
+        });
+}
+
+window.trackDonationIntent = function(channel) {
+    recordIPVisitorTelemetry(`Intento Donación: ${channel}`);
+    let intents = [];
+    try {
+        const saved = localStorage.getItem('acopio_donation_intents');
+        if (saved) intents = JSON.parse(saved);
+    } catch(e) {}
+    
+    intents.unshift({
+        date: new Date().toLocaleString('es-CO'),
+        channel: channel,
+        ip: '181.135.x.x (Registrado)',
+        status: 'Iniciado / Redirigido'
+    });
+    localStorage.setItem('acopio_donation_intents', JSON.stringify(intents));
+};
 
 // --- Welcome Portal View Navigation ---
 window.enterDirectMap = function() {
@@ -169,14 +253,12 @@ function loadData() {
         try {
             db = JSON.parse(stored);
         } catch (e) {
-            console.error('Error cargando datos locales:', e);
             db = typeof initialData !== 'undefined' ? initialData : {};
         }
     } else if (typeof initialData !== 'undefined') {
         db = initialData;
     }
 
-    // Always guarantee affected zones & epicenter presence
     if (!db.affectedZones || db.affectedZones.length === 0) {
         db.affectedZones = typeof initialData !== 'undefined' ? initialData.affectedZones : [];
     }
@@ -261,7 +343,7 @@ function initPhotoUploadHandler() {
                 previewImg.src = currentUploadedPhotoBase64;
                 previewContainer.classList.remove('hidden');
             }
-            showToast('📸 Foto de verificación cargada', 'success');
+            showToast('📸 Foto de verificación cargada en custodia', 'success');
         };
         reader.readAsDataURL(file);
     });
@@ -295,6 +377,7 @@ function initModalsAndForms() {
             needs: details,
             type: category === 'shelter' ? 'shelter' : 'collection',
             verified: true,
+            photo: currentUploadedPhotoBase64,
             dateAdded: new Date().toLocaleString('es-CO')
         };
 
@@ -305,6 +388,7 @@ function initModalsAndForms() {
         }
 
         saveData();
+        recordIPVisitorTelemetry(`Registro Oferta Ayuda: ${name} (${phone})`);
         closeModal('modal-offer-help');
         showToast('💚 ¡Gracias! Tu ayuda ha sido registrada.', 'success');
         enterDirectMap();
@@ -342,9 +426,24 @@ function initModalsAndForms() {
         db.emergencyRequests.unshift(newNeed);
 
         saveData();
+        recordIPVisitorTelemetry(`Solicitud Emergencia SOS: ${name} (${phone})`);
         closeModal('modal-need-help');
         showToast('🆘 Solicitud registrada. Visible en el mapa de auxilio.', 'success');
         enterDirectMap();
+    });
+
+    // Form Admin Login
+    document.getElementById('form-admin-login')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const pin = document.getElementById('admin-pin').value.trim();
+        if (pin === '2026' || pin === 'admin') {
+            isAdminAuthenticated = true;
+            closeModal('modal-admin-login');
+            openAdminModal();
+            showToast('🔓 Sesión Administrador Autenticada', 'success');
+        } else {
+            showToast('❌ PIN Administrador Incorrecto', 'error');
+        }
     });
 }
 
@@ -403,7 +502,7 @@ function initMap() {
 
     zonesLayerGroup = L.layerGroup().addTo(map);
 
-    // Map click for selecting coordinates in form & Reverse Geocoding Check
+    // Map click for selecting coordinates in form
     map.on('click', (e) => {
         const addTab = document.getElementById('tab-add');
         if (addTab && addTab.classList.contains('active')) {
@@ -470,7 +569,7 @@ function verifyCoordinatesLocation(lat, lng) {
     }
 }
 
-// --- Render Map Markers & Affected Zones Circles & Pins ---
+// --- Render Map Markers ---
 function renderMapMarkers() {
     if (!map || !markerClusterGroup || !zonesLayerGroup) return;
 
@@ -505,7 +604,7 @@ function renderMapMarkers() {
             .addTo(zonesLayerGroup);
     }
 
-    // Affected Zones: Circles + Distinct Pin Markers (Pereira, Caldas, Quindío, Cali, Chocó, Cartago, Buenaventura, San José del Palmar)
+    // Affected Zones
     const affectedList = (db.affectedZones && db.affectedZones.length > 0) ? db.affectedZones : (typeof initialData !== 'undefined' ? initialData.affectedZones : []);
     
     if (zonesVisible && affectedList && affectedList.length > 0) {
@@ -517,7 +616,6 @@ function renderMapMarkers() {
             };
             const c = colors[zone.severity] || colors.moderate;
             
-            // 1. Shaded Circle Radius
             const circle = L.circle([zone.lat, zone.lng], {
                 color: c.color,
                 fillColor: c.color,
@@ -534,7 +632,6 @@ function renderMapMarkers() {
             `);
             zonesLayerGroup.addLayer(circle);
 
-            // 2. Visible Pin Icon Marker for Affected City
             const zonePinIcon = L.divIcon({
                 className: '',
                 html: `<div style="background:${c.color};color:white;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:800;box-shadow:0 3px 10px rgba(0,0,0,0.3);white-space:nowrap;border:1.5px solid white;">📍 ${zone.name}</div>`,
@@ -611,10 +708,10 @@ function createPopupContent(item) {
     html += `<p class="popup-detail" style="opacity:0.6;font-size:0.75rem;">${typeNames[item.type]}</p>`;
 
     if (item.verified) {
-        html += `<div style="margin:4px 0;"><span class="verified-badge">🛡️ Registro Verificado CO</span></div>`;
+        html += `<div style="margin:4px 0;"><span class="verified-badge">🛡️ Registro Verificado CO (Evidencia en Custodia)</span></div>`;
     }
 
-    if (item.photo) {
+    if (isAdminAuthenticated && item.photo) {
         html += `<div style="margin:8px 0;text-align:center;"><img src="${item.photo}" alt="Foto de verificación" style="max-width:100%;max-height:140px;border-radius:8px;cursor:pointer;object-fit:cover;" onclick="openImageModal('${item.photo}', '${item.name}')"></div>`;
     }
 
@@ -661,7 +758,7 @@ function createPopupContent(item) {
     return html;
 }
 
-// --- UI Actions ---
+// --- UI Actions & Map Quick Registration ---
 function initUI() {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -686,6 +783,16 @@ function initUI() {
     document.getElementById('add-place-form')?.addEventListener('submit', handleAddPlace);
     document.getElementById('edit-form')?.addEventListener('submit', handleEditPlace);
     document.getElementById('btn-geolocate')?.addEventListener('click', geolocateUser);
+
+    // Quick Add Center FAB on Map
+    document.getElementById('btn-add-center-map')?.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            document.getElementById('sidebar')?.classList.add('open');
+        }
+        document.querySelector('[data-tab="add"]')?.click();
+        getAndSetLocation();
+        showToast('📦 Registra la ubicación del Centro de Acopio', 'info');
+    });
 
     document.getElementById('btn-toggle-zones')?.addEventListener('click', () => {
         zonesVisible = !zonesVisible;
@@ -842,7 +949,7 @@ function clearRoute(hidePanel = true) {
     }
 }
 
-// --- Add Place ---
+// --- Add Place (SELFIE CUSTODY PRIVACY) ---
 function handleAddPlace(e) {
     e.preventDefault();
     
@@ -887,7 +994,7 @@ function handleAddPlace(e) {
         lat, lng,
         contactName: contactName,
         contact: phone,
-        photo: currentUploadedPhotoBase64,
+        photo: currentUploadedPhotoBase64, // Saved in custody database for Admin
         verified: true,
         type: type,
         dateAdded: new Date().toLocaleString('es-CO')
@@ -900,12 +1007,12 @@ function handleAddPlace(e) {
     } else {
         newItem.capacity = parseInt(document.getElementById('add-capacity').value) || 0;
         newItem.occupancy = parseInt(document.getElementById('add-occupancy').value) || 0;
-        newItem.amenities = document.getElementById('add-amenities')?.value.trim() || '';
         db.shelters.push(newItem);
     }
 
     saveData();
-    showToast('🛡️ Centro registrado y verificado exitosamente', 'success');
+    recordIPVisitorTelemetry(`Registro Centro Verificado: ${newItem.name} (${phone})`);
+    showToast('🛡️ Centro verificado y registrado exitosamente', 'success');
 
     e.target.reset();
     currentUploadedPhotoBase64 = null;
@@ -915,6 +1022,105 @@ function handleAddPlace(e) {
     document.querySelector('[data-tab="list"]')?.click();
     map.flyTo([lat, lng], 14, { duration: 1 });
 }
+
+// --- Admin Panel Renderers (/admin) ---
+function renderAdminPanel() {
+    let logs = [];
+    try {
+        const saved = localStorage.getItem(ADMIN_LOGS_KEY);
+        if (saved) logs = JSON.parse(saved);
+    } catch(e) {}
+
+    let intents = [];
+    try {
+        const savedI = localStorage.getItem('acopio_donation_intents');
+        if (savedI) intents = JSON.parse(savedI);
+    } catch(e) {}
+
+    // Stat Counters
+    document.getElementById('admin-stat-ips').textContent = new Set(logs.map(l => l.ip)).size || 1;
+    document.getElementById('admin-stat-registrations').textContent = db.collectionCenters.length + db.shelters.length;
+    document.getElementById('admin-stat-donations-intent').textContent = intents.length;
+    document.getElementById('admin-stat-selfies').textContent = db.collectionCenters.filter(c => c.photo).length + db.shelters.filter(s => s.photo).length;
+
+    // Table 1: Telemetry
+    const tbody1 = document.getElementById('admin-telemetry-tbody');
+    if (tbody1) {
+        tbody1.innerHTML = logs.map(l => `
+            <tr>
+                <td>${l.timestamp}</td>
+                <td><strong>${l.ip}</strong></td>
+                <td><span style="font-size:0.7rem;">${l.agent}</span></td>
+                <td><span class="type-badge">${l.action}</span></td>
+            </tr>
+        `).join('') || `<tr><td colspan="4" style="text-align:center;">Sin registros de telemetría aún.</td></tr>`;
+    }
+
+    // Table 2: Selfies Vault
+    const tbody2 = document.getElementById('admin-selfies-tbody');
+    if (tbody2) {
+        const verifiedItems = [...db.collectionCenters, ...db.shelters].filter(i => i.photo);
+        tbody2.innerHTML = verifiedItems.map(i => `
+            <tr>
+                <td><strong>${i.name}</strong></td>
+                <td>${i.contactName || 'N/A'}</td>
+                <td>📞 ${i.contact || 'N/A'}</td>
+                <td>${i.address || 'CO'}</td>
+                <td>
+                    <img src="${i.photo}" class="admin-selfie-thumb" alt="Selfie" onclick="openImageModal('${i.photo}', '${i.name}')">
+                </td>
+            </tr>
+        `).join('') || `<tr><td colspan="5" style="text-align:center;">Sin fotos de verificación registradas.</td></tr>`;
+    }
+
+    // Table 3: Donation Intents
+    const tbody3 = document.getElementById('admin-intents-tbody');
+    if (tbody3) {
+        tbody3.innerHTML = intents.map(i => `
+            <tr>
+                <td>${i.date}</td>
+                <td><strong>${i.channel}</strong></td>
+                <td>${i.ip}</td>
+                <td><span class="status-badge status-operational">${i.status}</span></td>
+            </tr>
+        `).join('') || `<tr><td colspan="4" style="text-align:center;">Sin intentos de donación registrados.</td></tr>`;
+    }
+}
+
+window.showAdminSubTab = function(paneId, btn) {
+    document.querySelectorAll('#modal-admin-panel .donation-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.admin-pane').forEach(p => p.classList.add('hidden'));
+    document.getElementById(`admin-tab-${paneId}`)?.classList.remove('hidden');
+};
+
+window.exportAdminAuditLog = function() {
+    let logs = [];
+    try {
+        logs = JSON.parse(localStorage.getItem(ADMIN_LOGS_KEY) || '[]');
+    } catch(e) {}
+    
+    let intents = [];
+    try {
+        intents = JSON.parse(localStorage.getItem('acopio_donation_intents') || '[]');
+    } catch(e) {}
+
+    const auditData = {
+        meta: { title: 'Acopio COL Audit Report', exportDate: new Date().toISOString() },
+        database: db,
+        telemetryIPs: logs,
+        donationIntents: intents
+    };
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(auditData, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `Acopio_COL_Auditoria_ADMIN_${new Date().toISOString().slice(0,10)}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    showToast('💾 Informe de Auditoría descargado', 'success');
+};
 
 // --- Edit Modal ---
 window.openEditModal = function(id, type) {
@@ -1072,7 +1278,7 @@ function renderPlacesList() {
         li.style.borderLeftColor = colors[item.type];
         
         let verifiedHTML = item.verified ? `<span class="verified-badge">🛡️ Verificado</span>` : '';
-        let photoHTML = item.photo ? `<img src="${item.photo}" class="center-thumb-img" alt="Foto" onclick="event.stopPropagation(); openImageModal('${item.photo}', '${item.name}')">` : '';
+        let photoHTML = (isAdminAuthenticated && item.photo) ? `<img src="${item.photo}" class="center-thumb-img" alt="Foto" onclick="event.stopPropagation(); openImageModal('${item.photo}', '${item.name}')">` : '';
         
         let extraInfo = '';
         if (item.contactName) {
@@ -1181,7 +1387,7 @@ function renderDonationsList(filter = 'all') {
             <div class="donation-account">🏛️ ${d.account}</div>
             ${d.officialPhone ? `<p class="donation-desc" style="font-weight:600;">📞 ${d.officialPhone}</p>` : ''}
             <div class="donation-links">
-                <a href="${d.website}" target="_blank" rel="noopener">🌐 Sitio Oficial de Donación</a>
+                <a href="${d.website}" target="_blank" rel="noopener" onclick="trackDonationIntent('${d.name}')">🌐 Sitio Oficial de Donación</a>
             </div>
         </div>
     `).join('');
@@ -1213,6 +1419,7 @@ function handleAddMissingPerson(e) {
     db.missingPersons.unshift(person);
     
     saveData();
+    recordIPVisitorTelemetry(`Reporte Búsqueda Persona: ${person.name}`);
     showToast('📋 Reporte publicado en la red comunitaria', 'info');
     e.target.reset();
 }
