@@ -36,7 +36,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     
     <!-- Custom CSS with Cache Buster -->
-    <link rel="stylesheet" href="styles.css?v=20260810_11">
+    <link rel="stylesheet" href="styles.css?v=20260810_12">
 </head>
 <body class="light-mode">
     
@@ -119,7 +119,7 @@
             <footer class="welcome-footer">
                 <span>🛡️ Datos verificados con el Servicio Geológico Colombiano y UNGRD.</span>
                 <div style="display:flex;gap:10px;align-items:center;">
-                    <a href="#admin" onclick="openAdminModal()" style="font-size:0.75rem;color:inherit;opacity:0.6;text-decoration:none;">🔒 Admin</a>
+                    <a href="#admin" onclick="openAdminModal()" style="font-size:0.75rem;color:inherit;opacity:0.6;text-decoration:none;">🔒 Admin (Gingerboy)</a>
                     <button class="theme-toggle-welcome" onclick="toggleThemeGlobal()">🌙 Cambiar Tema</button>
                 </div>
             </footer>
@@ -375,12 +375,15 @@
 
                         <div class="form-group">
                             <label>📍 Ubicación Geográfica (Colombia) *</label>
-                            <p class="small-text">Fije su posición en el mapa o presione GPS.</p>
+                            <p class="small-text">Toque en el mapa o presione las opciones abajo.</p>
                             <div class="coord-inputs">
                                 <input type="number" id="add-lat" step="any" placeholder="Latitud" required readonly>
                                 <input type="number" id="add-lng" step="any" placeholder="Longitud" required readonly>
                             </div>
-                            <button type="button" id="btn-use-location" class="btn-secondary">📍 Usar mi ubicación actual GPS</button>
+                            <div style="display:flex;gap:8px;">
+                                <button type="button" id="btn-use-location" class="btn-secondary" style="flex:1;">📍 Usar GPS Actual</button>
+                                <button type="button" class="btn-secondary" style="flex:1;" onclick="enableMapPickMode()">🗺️ Tocar en Mapa</button>
+                            </div>
                             <div id="geo-status-indicator" class="geo-status-box hidden">
                                 <span id="geo-status-text">🔍 Verificando ubicación...</span>
                             </div>
@@ -406,7 +409,7 @@
                                     <span class="ud-badge">Internacional e Instantánea</span>
                                 </div>
                             </div>
-                            <p class="ud-desc">Aportes seguros con tarjetas de crédito o saldo PayPal.</p>
+                            <p class="ud-desc">Enlace oficial directo de PayPal:</p>
                             <div class="ud-action-row">
                                 <a href="https://paypal.me/acopiocolombia" id="paypal-link" target="_blank" rel="noopener" class="btn-paypal" onclick="trackDonationIntent('PayPal')">
                                     <span>💙 Donar con PayPal</span>
@@ -492,7 +495,7 @@
 
             <!-- Footer -->
             <footer class="sidebar-footer">
-                <p>Respuesta Comunitaria Verificada • <a href="#admin" onclick="openAdminModal()">Acceso Administrador</a></p>
+                <p>Respuesta Comunitaria Verificada • <a href="#admin" onclick="openAdminModal()">Acceso Administrador (Gingerboy)</a></p>
             </footer>
         </aside>
 
@@ -508,7 +511,7 @@
         <main id="map-container">
             <div id="map"></div>
             
-            <!-- COMPACT MAP LEGEND (REDUCED SIZE FOR MOBILE) -->
+            <!-- COMPACT MAP LEGEND -->
             <div id="map-legend" class="glass-panel map-overlay">
                 <h4>Leyenda</h4>
                 <div class="legend-item"><span class="legend-dot epicenter-dot"></span> Epicentro (7.4)</div>
@@ -647,7 +650,7 @@
                         <span class="ud-icon">💳</span>
                         <div>
                             <h4>Donación PayPal</h4>
-                            <span class="ud-badge">Tarjetas de Crédito / Saldo</span>
+                            <span class="ud-badge">Internacional e Instantánea</span>
                         </div>
                     </div>
                     <p class="ud-desc">Enlace oficial directo de PayPal:</p>
@@ -683,7 +686,7 @@
         </div>
     </div>
 
-    <!-- MODAL 4: ADMIN LOGIN / CONTROL PANEL (/admin) -->
+    <!-- MODAL 4: ADMIN LOGIN (USUARIO: Gingerboy, PASS: Rona12345) -->
     <div id="modal-admin-login" class="modal hidden">
         <div class="modal-backdrop" onclick="closeModal('modal-admin-login')"></div>
         <div class="modal-content glass-panel">
@@ -692,21 +695,26 @@
             <p class="modal-sub">Control de telemetría IP, auditoría de registros y custodia de fotos de verificación.</p>
             <form id="form-admin-login" style="margin-top:14px;">
                 <div class="form-group">
-                    <label for="admin-pin">PIN / Clave de Administrador *</label>
-                    <input type="password" id="admin-pin" required placeholder="Ingrese el PIN (Predeterminado: 2026)">
+                    <label for="admin-user">Usuario Administrador *</label>
+                    <input type="text" id="admin-user" required placeholder="Usuario (Ej: Gingerboy)">
+                </div>
+                <div class="form-group">
+                    <label for="admin-pass">Contraseña *</label>
+                    <input type="password" id="admin-pass" required placeholder="Contraseña de Administrador">
                 </div>
                 <button type="submit" class="btn-primary">🔓 Autenticar e Ingresar</button>
             </form>
         </div>
     </div>
 
+    <!-- MODAL 5: ADMIN PANEL -->
     <div id="modal-admin-panel" class="modal hidden">
         <div class="modal-backdrop" onclick="closeModal('modal-admin-panel')"></div>
         <div class="modal-content modal-admin-wide glass-panel">
             <button class="close-btn modal-close" onclick="closeModal('modal-admin-panel')">&times;</button>
-            <div style="display:flex;justify-space-between;align-items:center;margin-bottom:12px;">
-                <h3>🛡️ Panel de Control y Auditoría (/admin)</h3>
-                <span class="admin-badge">Nivel Super Admin</span>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <h3>🛡️ Panel de Control Administrador: <strong style="color:var(--col-blue);">Gingerboy</strong></h3>
+                <span class="admin-badge">Super Admin</span>
             </div>
 
             <!-- Admin Stats Summary -->
@@ -867,15 +875,15 @@
 
     <!-- Scripts with Cache Buster Versioning -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-    <script src="data.js?v=20260810_11"></script>
-    <script src="app.js?v=20260810_11"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.js"></script>
+    <script src="data.js?v=20260810_12"></script>
+    <script src="app.js?v=20260810_12"></script>
 
     <!-- Register Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=20260810_11')
+                navigator.serviceWorker.register('./sw.js?v=20260810_12')
                     .then(reg => {
                         console.log('Service Worker registrado:', reg.scope);
                         reg.update();

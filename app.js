@@ -1,13 +1,14 @@
 // ============================================
 // ACOPIO COLOMBIA - App Principal & Admin / Telemetría
 // Respuesta Terremoto 7.4 Colombia - 10 Agosto 2026
-// PWA, Portal Inicial Móvil, Telemetría IP & Panel /admin
+// PWA, Portal Inicial Móvil, Telemetría IP & Panel /admin (Gingerboy / Rona12345)
 // ============================================
 
 // --- Global State ---
 let map;
 let routePolyline = null;
 let userLocationMarker = null;
+let tempPickMarker = null;
 let userLocation = null;
 let markerClusterGroup;
 let zonesLayerGroup;
@@ -23,7 +24,6 @@ const ADMIN_LOGS_KEY = 'acopio_admin_telemetry_logs';
 
 let db = { affectedZones: [], collectionCenters: [], shelters: [], emergencyRequests: [], hospitals: [], epicenter: null, donations: [], emergencyContacts: {}, missingPersons: [] };
 let telemetryLogs = [];
-let donationIntents = [];
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -77,7 +77,6 @@ function recordIPVisitorTelemetry(action = 'Visita Portal') {
         if (saved) localLogs = JSON.parse(saved);
     } catch(e) {}
 
-    // Fetch Public IP asynchronously
     fetch('https://api64.ipify.org?format=json')
         .then(res => res.json())
         .then(data => {
@@ -124,7 +123,7 @@ window.trackDonationIntent = function(channel) {
     localStorage.setItem('acopio_donation_intents', JSON.stringify(intents));
 };
 
-// --- Welcome Portal View Navigation ---
+// --- Welcome Portal Navigation ---
 window.enterDirectMap = function() {
     document.getElementById('welcome-portal')?.classList.add('hidden');
     document.getElementById('app-container')?.classList.remove('hidden');
@@ -349,7 +348,7 @@ function initPhotoUploadHandler() {
     });
 }
 
-// --- Init Modals & Forms Handlers ---
+// --- Init Modals & Forms Handlers (Admin: Gingerboy / Rona12345) ---
 function initModalsAndForms() {
     // Form 1: "Quiero Ayudar"
     document.getElementById('form-offer-help')?.addEventListener('submit', (e) => {
@@ -432,22 +431,26 @@ function initModalsAndForms() {
         enterDirectMap();
     });
 
-    // Form Admin Login
+    // Form Admin Login (Gingerboy / Rona12345)
     document.getElementById('form-admin-login')?.addEventListener('submit', (e) => {
         e.preventDefault();
-        const pin = document.getElementById('admin-pin').value.trim();
-        if (pin === '2026' || pin === 'admin') {
+        const user = document.getElementById('admin-user').value.trim();
+        const pass = document.getElementById('admin-pass').value.trim();
+        
+        if (user === 'Gingerboy' && pass === 'Rona12345') {
             isAdminAuthenticated = true;
             closeModal('modal-admin-login');
             openAdminModal();
-            showToast('🔓 Sesión Administrador Autenticada', 'success');
+            recordIPVisitorTelemetry('Acceso Admin Concedido: Gingerboy');
+            showToast('🔓 Sesión de Administrador Concedida (Gingerboy)', 'success');
         } else {
-            showToast('❌ PIN Administrador Incorrecto', 'error');
+            recordIPVisitorTelemetry(`Intento Fallido Admin: ${user}`);
+            showToast('❌ Usuario o Contraseña Administrador Incorrecto', 'error');
         }
     });
 }
 
-// --- Map Setup ---
+// --- Map Setup & Pointer Picker ---
 function initMap() {
     const center = db.epicenter ? [db.epicenter.lat, db.epicenter.lng] : [4.5709, -74.2973];
 
@@ -502,18 +505,65 @@ function initMap() {
 
     zonesLayerGroup = L.layerGroup().addTo(map);
 
-    // Map click for selecting coordinates in form
+    // INTERACTIVE MAP POINTER: CLICK ANYWHERE TO REGISTER A POINT
     map.on('click', (e) => {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+
+        if (tempPickMarker) {
+            map.removeLayer(tempPickMarker);
+        }
+
+        const pickIcon = L.divIcon({
+            html: '<div style="background:#27ae60;color:white;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 16px rgba(39,174,96,0.6);border:2px solid white;animation:pulseMarker 1.5s infinite;">📦</div>',
+            className: '',
+            iconSize: [34, 34],
+            iconAnchor: [17, 17]
+        });
+
+        tempPickMarker = L.marker([lat, lng], { icon: pickIcon, zIndexOffset: 2500 }).addTo(map);
+
+        tempPickMarker.bindPopup(`
+            <div class="popup-content" style="text-align:center;">
+                <h3>📦 Ubicación Seleccionada</h3>
+                <p class="popup-detail">Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}</p>
+                <button class="btn-primary" style="margin-top:6px;padding:8px 12px;font-size:0.82rem;" onclick="openAddFormWithCoords(${lat}, ${lng})">
+                    ➕ Registrar Centro / Refugio Aquí
+                </button>
+            </div>
+        `).openPopup();
+
+        // Also if add form is open, fill coordinates automatically
         const addTab = document.getElementById('tab-add');
-        if (addTab && addTab.classList.contains('active')) {
-            const lat = e.latlng.lat;
-            const lng = e.latlng.lng;
+        if (addTab) {
             document.getElementById('add-lat').value = lat.toFixed(6);
             document.getElementById('add-lng').value = lng.toFixed(6);
             verifyCoordinatesLocation(lat, lng);
         }
     });
 }
+
+window.enableMapPickMode = function() {
+    if (window.innerWidth <= 768) {
+        document.getElementById('sidebar')?.classList.remove('open');
+    }
+    showToast('🗺️ Toca en cualquier lugar del mapa para fijar el punto', 'info');
+};
+
+window.openAddFormWithCoords = function(lat, lng) {
+    if (tempPickMarker) {
+        map.closePopup();
+    }
+    document.getElementById('add-lat').value = lat.toFixed(6);
+    document.getElementById('add-lng').value = lng.toFixed(6);
+    verifyCoordinatesLocation(lat, lng);
+
+    if (window.innerWidth <= 768) {
+        document.getElementById('sidebar')?.classList.add('open');
+    }
+    document.querySelector('[data-tab="add"]')?.click();
+    showToast('📦 Coordenadas del mapa cargadas en el formulario', 'success');
+};
 
 // --- Location Verification ---
 function verifyCoordinatesLocation(lat, lng) {
@@ -784,7 +834,6 @@ function initUI() {
     document.getElementById('edit-form')?.addEventListener('submit', handleEditPlace);
     document.getElementById('btn-geolocate')?.addEventListener('click', geolocateUser);
 
-    // Quick Add Center FAB on Map
     document.getElementById('btn-add-center-map')?.addEventListener('click', () => {
         if (window.innerWidth <= 768) {
             document.getElementById('sidebar')?.classList.add('open');
@@ -949,7 +998,7 @@ function clearRoute(hidePanel = true) {
     }
 }
 
-// --- Add Place (SELFIE CUSTODY PRIVACY) ---
+// --- Add Place ---
 function handleAddPlace(e) {
     e.preventDefault();
     
@@ -994,7 +1043,7 @@ function handleAddPlace(e) {
         lat, lng,
         contactName: contactName,
         contact: phone,
-        photo: currentUploadedPhotoBase64, // Saved in custody database for Admin
+        photo: currentUploadedPhotoBase64,
         verified: true,
         type: type,
         dateAdded: new Date().toLocaleString('es-CO')
@@ -1106,7 +1155,7 @@ window.exportAdminAuditLog = function() {
     } catch(e) {}
 
     const auditData = {
-        meta: { title: 'Acopio COL Audit Report', exportDate: new Date().toISOString() },
+        meta: { title: 'Acopio COL Audit Report', adminUser: 'Gingerboy', exportDate: new Date().toISOString() },
         database: db,
         telemetryIPs: logs,
         donationIntents: intents
@@ -1115,11 +1164,11 @@ window.exportAdminAuditLog = function() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(auditData, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `Acopio_COL_Auditoria_ADMIN_${new Date().toISOString().slice(0,10)}.json`);
+    downloadAnchor.setAttribute("download", `Acopio_COL_Auditoria_Gingerboy_${new Date().toISOString().slice(0,10)}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
-    showToast('💾 Informe de Auditoría descargado', 'success');
+    showToast('💾 Informe de Auditoría descargado por Gingerboy', 'success');
 };
 
 // --- Edit Modal ---
