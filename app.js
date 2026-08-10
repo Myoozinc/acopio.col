@@ -1,7 +1,7 @@
 // ============================================
 // ACOPIO COLOMBIA - App Principal & Admin / Telemetría
 // Respuesta Terremoto 7.4 Colombia - 10 Agosto 2026
-// PWA, Portal Inicial Móvil, Telemetría IP & Panel /admin (Gingerboy / Rona12345)
+// PWA, Portal Inicial Móvil, Telemetría IP & Panel /admin (Oculto - Gingerboy / Rona12345)
 // ============================================
 
 // --- Global State ---
@@ -46,15 +46,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 800);
 });
 
-// --- Hash & Admin Router (#admin) ---
+// --- Hash & Admin Stealth Router (Accesible solo por /admin o #admin) ---
 function initAdminHashDetector() {
-    function checkHash() {
-        if (window.location.hash === '#admin' || window.location.search.includes('admin=1')) {
+    function checkAdminRoute() {
+        const path = window.location.pathname;
+        const hash = window.location.hash;
+        const search = window.location.search;
+
+        if (hash === '#admin' || search.includes('admin') || path.endsWith('/admin')) {
             openAdminModal();
         }
     }
-    window.addEventListener('hashchange', checkHash);
-    checkHash();
+    window.addEventListener('hashchange', checkAdminRoute);
+    window.addEventListener('popstate', checkAdminRoute);
+    checkAdminRoute();
 }
 
 window.openAdminModal = function() {
@@ -533,7 +538,6 @@ function initMap() {
             </div>
         `).openPopup();
 
-        // Also if add form is open, fill coordinates automatically
         const addTab = document.getElementById('tab-add');
         if (addTab) {
             document.getElementById('add-lat').value = lat.toFixed(6);

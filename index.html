@@ -36,7 +36,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     
     <!-- Custom CSS with Cache Buster -->
-    <link rel="stylesheet" href="styles.css?v=20260810_12">
+    <link rel="stylesheet" href="styles.css?v=20260810_13">
 </head>
 <body class="light-mode">
     
@@ -118,10 +118,7 @@
 
             <footer class="welcome-footer">
                 <span>🛡️ Datos verificados con el Servicio Geológico Colombiano y UNGRD.</span>
-                <div style="display:flex;gap:10px;align-items:center;">
-                    <a href="#admin" onclick="openAdminModal()" style="font-size:0.75rem;color:inherit;opacity:0.6;text-decoration:none;">🔒 Admin (Gingerboy)</a>
-                    <button class="theme-toggle-welcome" onclick="toggleThemeGlobal()">🌙 Cambiar Tema</button>
-                </div>
+                <button class="theme-toggle-welcome" onclick="toggleThemeGlobal()">🌙 Cambiar Tema</button>
             </footer>
         </div>
     </div>
@@ -495,7 +492,7 @@
 
             <!-- Footer -->
             <footer class="sidebar-footer">
-                <p>Respuesta Comunitaria Verificada • <a href="#admin" onclick="openAdminModal()">Acceso Administrador (Gingerboy)</a></p>
+                <p>Respuesta Comunitaria Verificada • Acopio COL 2026</p>
             </footer>
         </aside>
 
@@ -875,15 +872,15 @@
 
     <!-- Scripts with Cache Buster Versioning -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.js"></script>
-    <script src="data.js?v=20260810_12"></script>
-    <script src="app.js?v=20260810_12"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="data.js?v=20260810_13"></script>
+    <script src="app.js?v=20260810_13"></script>
 
     <!-- Register Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=20260810_12')
+                navigator.serviceWorker.register('./sw.js?v=20260810_13')
                     .then(reg => {
                         console.log('Service Worker registrado:', reg.scope);
                         reg.update();
