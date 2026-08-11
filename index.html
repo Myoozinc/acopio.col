@@ -171,13 +171,13 @@
             </div>
 
             <!-- Stats Grid -->
-            <div class="stats-container">
+            <div class="stats-container stats-grid-7">
                 <div class="stat-box" data-tooltip="Solicitudes de ayuda urgente">
                     <span class="stat-icon">🆘</span>
                     <span class="stat-value critical" id="stat-needs-count">0</span>
                     <span class="stat-label">Pedidos</span>
                 </div>
-                <div class="stat-box" data-tooltip="Refugios registrados comunitariamente">
+                <div class="stat-box" data-tooltip="Refugios y albergues temporales">
                     <span class="stat-icon">🏠</span>
                     <span class="stat-value shelter-color" id="stat-shelters">0</span>
                     <span class="stat-label">Refugios</span>
@@ -185,7 +185,27 @@
                 <div class="stat-box" data-tooltip="Centros de Acopio activos">
                     <span class="stat-icon">📦</span>
                     <span class="stat-value success" id="stat-centers">0</span>
-                    <span class="stat-label">Centros</span>
+                    <span class="stat-label">Acopios</span>
+                </div>
+                <div class="stat-box" data-tooltip="Comedores de ayuda y ollas comunitarias">
+                    <span class="stat-icon">🍲</span>
+                    <span class="stat-value kitchen-color" id="stat-kitchens">0</span>
+                    <span class="stat-label">Comedores</span>
+                </div>
+                <div class="stat-box" data-tooltip="Hospitales y bancos de sangre">
+                    <span class="stat-icon">🏥</span>
+                    <span class="stat-value hospital-color" id="stat-hospitals">0</span>
+                    <span class="stat-label">Salud</span>
+                </div>
+                <div class="stat-box" data-tooltip="Refugios y acopio para mascotas">
+                    <span class="stat-icon">🐾</span>
+                    <span class="stat-value pet-color" id="stat-pets">0</span>
+                    <span class="stat-label">Mascotas</span>
+                </div>
+                <div class="stat-box" data-tooltip="Puntos de voluntariado activo">
+                    <span class="stat-icon">🤝</span>
+                    <span class="stat-value volunteer-color" id="stat-volunteers">0</span>
+                    <span class="stat-label">Voluntarios</span>
                 </div>
             </div>
 
@@ -284,9 +304,12 @@
                         <select id="filter-type" class="select-styled">
                             <option value="all">🗂️ Todos los puntos</option>
                             <option value="collection">📦 Centros de Acopio</option>
-                            <option value="shelter">🏠 Refugios</option>
-                            <option value="need">🆘 Solicitudes de Ayuda</option>
-                            <option value="hospital">🏥 Hospitales de Referencia</option>
+                            <option value="shelter">🏠 Refugios y Albergues</option>
+                            <option value="kitchen">🍲 Comedores de Ayuda</option>
+                            <option value="hospital">🏥 Hospitales y Bancos Sangre</option>
+                            <option value="pet">🐾 Mascotas y Animales</option>
+                            <option value="volunteer">🤝 Puntos de Voluntariado</option>
+                            <option value="need">🆘 Solicitudes de Ayuda Urgente</option>
                         </select>
                         <div class="search-wrapper">
                             <span class="search-icon">🔍</span>
@@ -302,15 +325,19 @@
                 <!-- Add Tab -->
                 <div id="tab-add" class="tab-pane">
                     <div class="form-header">
-                        <h3>➕ Registrar Centro de Acopio / Refugio</h3>
+                        <h3>➕ Registrar Espacio de Auxilio / Apoyo</h3>
                         <p class="form-subtitle">Para garantizar la seguridad de la ayuda, todos los campos de verificación son <strong>obligatorios</strong>.</p>
                     </div>
                     <form id="add-place-form">
                         <div class="form-group">
-                            <label for="add-type">Tipo de Punto</label>
+                            <label for="add-type">Tipo de Espacio a Registrar</label>
                             <select id="add-type" required class="select-styled">
-                                <option value="collection">📦 Centro de Acopio (Ofrezco Ayuda)</option>
-                                <option value="shelter">🏠 Refugio / Albergue</option>
+                                <option value="collection">📦 Centro de Acopio (Insumos / Donaciones)</option>
+                                <option value="shelter">🏠 Refugio / Albergue Temporal</option>
+                                <option value="kitchen">🍲 Comedor de Ayuda / Olla Comunitaria</option>
+                                <option value="hospital">🏥 Hospital / Punto Médico / Banco de Sangre</option>
+                                <option value="pet">🐾 Refugio / Acopio para Mascotas</option>
+                                <option value="volunteer">🤝 Punto de Voluntariado / Apoyo Logístico</option>
                             </select>
                         </div>
 
@@ -357,7 +384,7 @@
                                 <textarea id="add-needs" rows="2" placeholder="Ej: Agua embotellada, pañales, cobijas"></textarea>
                             </div>
                             <div class="form-group">
-                                <label for="add-schedule">Horario de Recepción</label>
+                                <label for="add-schedule">Horario de Atención / Recepción</label>
                                 <input type="text" id="add-schedule" placeholder="Ej: 24 Horas / 8:00 AM - 6:00 PM">
                             </div>
                         </div>
@@ -370,6 +397,54 @@
                             <div class="form-group">
                                 <label for="add-occupancy">Ocupados Actuales</label>
                                 <input type="number" id="add-occupancy" placeholder="Ej: 45">
+                            </div>
+                        </div>
+
+                        <div id="dynamic-fields-kitchen" class="dynamic-fields hidden">
+                            <div class="form-group">
+                                <label for="add-kitchen-meals">Raciones Diarias Estimadas de Comida</label>
+                                <input type="number" id="add-kitchen-meals" placeholder="Ej: 500 raciones/día">
+                            </div>
+                            <div class="form-group">
+                                <label for="add-kitchen-needs">Insumos de Cocina Requeridos</label>
+                                <input type="text" id="add-kitchen-needs" placeholder="Ej: Granos, verduras, empaques desecharles, botellas de agua">
+                            </div>
+                        </div>
+
+                        <div id="dynamic-fields-hospital" class="dynamic-fields hidden">
+                            <div class="form-group">
+                                <label for="add-hospital-status">Estado Operativo</label>
+                                <select id="add-hospital-status" class="select-styled">
+                                    <option value="operational">🟢 Operacional (Recibiendo donación de sangre / Urgencias)</option>
+                                    <option value="overwhelmed">🔴 Urgencias Saturadas (Atención crítica)</option>
+                                    <option value="damaged">🟠 Instalaciones Afectadas</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="add-hospital-needs">Especialidades o Requerimientos (Ej. Donación de Sangre)</label>
+                                <input type="text" id="add-hospital-needs" placeholder="Ej: Donación de sangre O-, O+, A+, atención de trauma">
+                            </div>
+                        </div>
+
+                        <div id="dynamic-fields-pet" class="dynamic-fields hidden">
+                            <div class="form-group">
+                                <label for="add-pet-capacity">Capacidad Estimada de Mascotas</label>
+                                <input type="number" id="add-pet-capacity" placeholder="Ej: 50">
+                            </div>
+                            <div class="form-group">
+                                <label for="add-pet-types">Tipos de Mascotas Aceptadas e Insumos Vet</label>
+                                <input type="text" id="add-pet-types" placeholder="Ej: Perros, gatos, concentrado, cobijas, guacales">
+                            </div>
+                        </div>
+
+                        <div id="dynamic-fields-volunteer" class="dynamic-fields hidden">
+                            <div class="form-group">
+                                <label for="add-volunteer-roles">Tareas y Roles de Voluntariado Requeridos</label>
+                                <input type="text" id="add-volunteer-roles" placeholder="Ej: Empaque de mercados, remoción de escombros, apoyo médico">
+                            </div>
+                            <div class="form-group">
+                                <label for="add-volunteer-shifts">Turnos y Horarios Disponibles</label>
+                                <input type="text" id="add-volunteer-shifts" placeholder="Ej: Mañanas 8:00 AM - 1:00 PM / Tardes 1:00 PM - 6:00 PM">
                             </div>
                         </div>
 

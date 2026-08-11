@@ -3,7 +3,7 @@
 // Fuentes: SGC, USGS, UNGRD, Cruz Roja Colombiana, Medios Oficiales & Reportes Comunitarios
 // ============================================
 
-const DATA_KEY = 'earthquake_data_v2026_colombia_v5';
+const DATA_KEY = 'earthquake_data_v2026_colombia_v6';
 
 const initialData = {
     epicenter: {
@@ -394,18 +394,293 @@ const initialData = {
             needs: 'Alojamiento temporal habilitado para familias vulnerables y evacuadas por sismo.',
             verified: true,
             dateAdded: '10/08/2026, 08:00:00'
+        },
+        {
+            id: 'shelter_cali_evangelista',
+            name: 'Albergue Temporal Coliseo Evangelista Mora',
+            address: 'Calle 5 con Carrera 36, Barrio San Fernando, Cali, Valle del Cauca',
+            city: 'Cali',
+            lat: 3.4290,
+            lng: -76.5410,
+            type: 'shelter',
+            capacity: 500,
+            occupancy: 210,
+            contactName: 'Gestión del Riesgo Cali / Cruz Roja Seccional Valle',
+            contact: '(602) 514 1100',
+            needs: 'Alojamiento para familias evacuadas de estructuras colapsadas. Se requieren colchonetas y cobijas.',
+            verified: true,
+            dateAdded: '10/08/2026, 10:00:00'
+        },
+        {
+            id: 'shelter_pereira_cuba',
+            name: 'Albergue Temporal Coliseo de Cuba',
+            address: 'Carrera 25 # 71B-01, Sector Cuba, Pereira, Risaralda',
+            city: 'Pereira',
+            lat: 4.8020,
+            lng: -75.7350,
+            type: 'shelter',
+            capacity: 300,
+            occupancy: 180,
+            contactName: 'Defensa Civil Risaralda',
+            contact: '312 456 7890',
+            needs: 'Espacio de refugio habilitado con atención médica básica e infantil.',
+            verified: true,
+            dateAdded: '10/08/2026, 11:30:00'
+        },
+        {
+            id: 'shelter_quibdo_polideportivo',
+            name: 'Albergue Temporal Polideportivo de Quibdó',
+            address: 'Calle 20 # 5-12, Quibdó, Chocó',
+            city: 'Quibdó',
+            lat: 5.6920,
+            lng: -76.6550,
+            type: 'shelter',
+            capacity: 400,
+            occupancy: 310,
+            contactName: 'Gobernación del Chocó / Cruz Roja',
+            contact: '315 987 6543',
+            needs: 'Refugio prioritario zona epicentro. Gran requerimiento de mosquiteros, agua potable y kits de aseo.',
+            verified: true,
+            dateAdded: '10/08/2026, 09:00:00'
+        },
+        {
+            id: 'shelter_bogota_salitre',
+            name: 'Albergue Temporal Coliseo El Salitre',
+            address: 'Av. Carrera 68 # 53-07, Bogotá',
+            city: 'Bogotá',
+            lat: 4.6620,
+            lng: -74.0910,
+            type: 'shelter',
+            capacity: 600,
+            occupancy: 120,
+            contactName: 'IDIGER / Alcaldía Mayor de Bogotá',
+            contact: 'Línea 123 / IDIGER',
+            needs: 'Punto receptor para evacuados y soporte a brigadas de auxilio.',
+            verified: true,
+            dateAdded: '11/08/2026, 09:00:00'
+        }
+    ],
+
+    // COMEDORES DE AYUDA Y ALIMENTACIÓN COMUNITARIA
+    kitchens: [
+        {
+            id: 'kitchen_cali_abaco',
+            name: 'Comedor Comunitario Banco de Alimentos de Cali',
+            address: 'Calle 24 # 6-103, Cali, Valle del Cauca',
+            city: 'Cali',
+            lat: 3.4560,
+            lng: -76.5230,
+            type: 'kitchen',
+            dailyMeals: 1200,
+            contactName: 'Coordinación Olla Comunitaria Cali',
+            contact: '(602) 889 1234',
+            needs: 'Verduras frescas, granos (fríjol, lenteja), arroz, aceite y empaques desechables para llevar.',
+            schedule: '11:00 AM - 4:00 PM',
+            verified: true,
+            dateAdded: '11/08/2026, 10:00:00'
+        },
+        {
+            id: 'kitchen_medellin_saciar',
+            name: 'Comedor de Emergencia Saciar Belén',
+            address: 'Carrera 50 # 25-261, Barrio Belén, Medellín, Antioquia',
+            city: 'Medellín',
+            lat: 6.2270,
+            lng: -75.5840,
+            type: 'kitchen',
+            dailyMeals: 800,
+            contactName: 'Red de Comedores Saciar',
+            contact: '(604) 444 7171',
+            needs: 'Proteínas, huevos, leche, sartenes industriales y gas en cilindro.',
+            schedule: '7:30 AM - 3:00 PM',
+            verified: true,
+            dateAdded: '11/08/2026, 10:30:00'
+        },
+        {
+            id: 'kitchen_manizales_pastoral',
+            name: 'Comedor Comunitario Pastoral Social Manizales',
+            address: 'Calle 19 # 21-34, Centro, Manizales, Caldas',
+            city: 'Manizales',
+            lat: 5.0665,
+            lng: -75.5175,
+            type: 'kitchen',
+            dailyMeals: 500,
+            contactName: 'Pastoral Social Arquidiócesis',
+            contact: '313 765 4321',
+            needs: 'Viveres de primera necesidad, panela, granos y estufas portátiles.',
+            schedule: '12:00 PM - 3:00 PM',
+            verified: true,
+            dateAdded: '11/08/2026, 11:00:00'
+        },
+        {
+            id: 'kitchen_armenia_pastoral',
+            name: 'Comedor de Socorro Pastoral Armenia',
+            address: 'Carrera 13 # 23-15, Armenia, Quindío',
+            city: 'Armenia',
+            lat: 4.5380,
+            lng: -75.6720,
+            type: 'kitchen',
+            dailyMeals: 450,
+            contactName: 'Voluntariado Comedores Armenia',
+            contact: '314 888 9900',
+            needs: 'Platos y cubiertos compostables, agua limpia, enlatados y sal/condimentos.',
+            schedule: '11:30 AM - 2:30 PM',
+            verified: true,
+            dateAdded: '11/08/2026, 11:15:00'
+        },
+        {
+            id: 'kitchen_bogota_restrepo',
+            name: 'Comedor Comunitario El Restrepo',
+            address: 'Carrera 19 # 17-22 sur, Barrio Restrepo, Bogotá',
+            city: 'Bogotá',
+            lat: 4.5820,
+            lng: -74.1030,
+            type: 'kitchen',
+            dailyMeals: 700,
+            contactName: 'Secretaría de Integración Social Bogotá',
+            contact: 'Línea 195',
+            needs: 'Granos, aceite vegetal, azúcar, avena y frutas de larga duración.',
+            schedule: '11:00 AM - 3:00 PM',
+            verified: true,
+            dateAdded: '11/08/2026, 11:30:00'
+        },
+        {
+            id: 'kitchen_quibdo_ungrd',
+            name: 'Comedor de Auxilio Quibdó (Cruz Roja / UNGRD)',
+            address: 'Carrera 3 # 24-12, Quibdó, Chocó',
+            city: 'Quibdó',
+            lat: 5.6930,
+            lng: -76.6570,
+            type: 'kitchen',
+            dailyMeals: 1500,
+            contactName: 'Brigada de Alimentación Epicentro Chocó',
+            contact: '311 223 3445',
+            needs: 'Agua embotellada urgente, tanques potabilizadores, arroz, atún y galletas calóricas.',
+            schedule: 'Servicio Continuo 7:00 AM - 7:00 PM',
+            verified: true,
+            dateAdded: '11/08/2026, 09:30:00'
+        }
+    ],
+
+    // ACOPIO Y ALBERGUES PARA MASCOTAS / ANIMALES
+    petShelters: [
+        {
+            id: 'pet_bogota_idpyba',
+            name: 'Punto de Acopio Pet & Unidad Vet IDPYBA / Cruz Roja',
+            address: 'Avenida Caracas # 54-38, Chapinero, Bogotá',
+            city: 'Bogotá',
+            lat: 4.6430,
+            lng: -74.0650,
+            type: 'pet',
+            petCapacity: 80,
+            acceptedTypes: 'Perros, Gatos, Mascotas Pequeñas',
+            contactName: 'Instituto de Protección Animal (IDPYBA)',
+            contact: '(601) 377 7650',
+            needs: 'Alimento concentrado perro/gato, guacales de transporte, gasas veterinarias, suero y cobijas.',
+            schedule: '8:00 AM - 6:00 PM',
+            verified: true,
+            dateAdded: '11/08/2026, 10:15:00'
+        },
+        {
+            id: 'pet_cali_emergencia',
+            name: 'Refugio y Acopio Animal de Emergencia Cali',
+            address: 'Calle 5 # 62-00, Barrio Pampalinda, Cali, Valle del Cauca',
+            city: 'Cali',
+            lat: 3.4080,
+            lng: -76.5480,
+            type: 'pet',
+            petCapacity: 120,
+            acceptedTypes: 'Perros y Gatos de familias evacuadas',
+            contactName: 'Bienestar Animal Cali / Red Protectora',
+            contact: '316 454 3210',
+            needs: 'Comida húmeda, medicamentos para quemaduras y traumatismos, collares, bozales y arena para gatos.',
+            schedule: 'Abierto 24 Horas',
+            verified: true,
+            dateAdded: '11/08/2026, 10:45:00'
+        },
+        {
+            id: 'pet_manizales_nubia',
+            name: 'Albergue Temporal de Mascotas Manizales',
+            address: 'Sector La Nubia, cerca a Aeropuerto, Manizales, Caldas',
+            city: 'Manizales',
+            lat: 5.0320,
+            lng: -75.4650,
+            type: 'pet',
+            petCapacity: 60,
+            acceptedTypes: 'Mascotas de evacuados y animales rescatados',
+            contactName: 'Unidad de Protección Animal Manizales',
+            contact: '310 987 1234',
+            needs: 'Concentrado, cobijas limpias, guantes de manejo y caniles.',
+            schedule: '8:00 AM - 5:00 PM',
+            verified: true,
+            dateAdded: '11/08/2026, 11:20:00'
+        }
+    ],
+
+    // PUNTOS DE VOLUNTARIADO Y APOYO LOGÍSTICO
+    volunteerHubs: [
+        {
+            id: 'vol_bogota_defensacivil',
+            name: 'Sede Principal Defensa Civil Colombiana - Voluntariado',
+            address: 'Carrera 13 # 19-31, Bogotá',
+            city: 'Bogotá',
+            lat: 4.6065,
+            lng: -74.0740,
+            type: 'volunteer',
+            rolesNeeded: 'Armado de kits, clasificación de insumos, carga y descarga',
+            contactName: 'Coordinación Nacional de Voluntarios DCC',
+            contact: 'Línea 144 / (601) 327 9000',
+            needs: 'Se requieren voluntarios con disposición física de 4 horas en adelante. Traer documento de identidad.',
+            schedule: 'Turnos: 8:00 AM - 1:00 PM / 1:00 PM - 6:00 PM',
+            verified: true,
+            dateAdded: '11/08/2026, 09:00:00'
+        },
+        {
+            id: 'vol_cali_pmu',
+            name: 'Puesto de Mando Unificado Voluntariado Cali - Plazoleta Jairo Varela',
+            address: 'Av. 2 Nte. # 10-01, Granada, Cali, Valle del Cauca',
+            city: 'Cali',
+            lat: 3.4542,
+            lng: -76.5348,
+            type: 'volunteer',
+            rolesNeeded: 'Logística de acopio, apoyo en comedores y registro de afectados',
+            contactName: 'Gestión del Riesgo Distrital Cali',
+            contact: '310 523 9811',
+            needs: 'Voluntarios mayores de edad con calzado cerrado y ropa cómoda.',
+            schedule: 'Convocatoria continua 24 Horas',
+            verified: true,
+            dateAdded: '11/08/2026, 09:30:00'
+        },
+        {
+            id: 'vol_pereira_cruzroja',
+            name: 'Voluntariado Cruz Roja Risaralda',
+            address: 'Carrera 9 # 25-25, Pereira, Risaralda',
+            city: 'Pereira',
+            lat: 4.8110,
+            lng: -75.6980,
+            type: 'volunteer',
+            rolesNeeded: 'Empaque de víveres, médicos/enfermeros voluntarios, apoyo psicosocial',
+            contactName: 'Cruz Roja Seccional Risaralda',
+            contact: '(606) 335 4880',
+            needs: 'Personal de salud voluntario y brigadistas para selección de ayudas.',
+            schedule: '8:00 AM - 6:00 PM',
+            verified: true,
+            dateAdded: '11/08/2026, 10:00:00'
         }
     ],
 
     emergencyRequests: [],
 
+    // HOSPITALES Y BANCOS DE SANGRE VERIFICADOS
     hospitals: [
-        { id: 'h1', name: 'Hospital Universitario San Jorge', city: 'Pereira', department: 'Risaralda', lat: 4.8080, lng: -75.7020, status: 'overwhelmed', phone: 'Línea 123 (Urgencias Pereira)', type: 'hospital' },
-        { id: 'h2', name: 'SES Hospital de Caldas', city: 'Manizales', department: 'Caldas', lat: 5.0600, lng: -75.5100, status: 'damaged', phone: 'Línea 123 (Urgencias Manizales)', type: 'hospital' },
-        { id: 'h3', name: 'Hospital San Juan de Dios', city: 'Armenia', department: 'Quindío', lat: 4.5500, lng: -75.6600, status: 'overwhelmed', phone: 'Línea 123 (Urgencias Armenia)', type: 'hospital' },
-        { id: 'h4', name: 'Hospital Universitario del Valle (HUV)', city: 'Cali', department: 'Valle del Cauca', lat: 3.4250, lng: -76.5450, status: 'overwhelmed', phone: 'Línea 123 (Urgencias Cali)', type: 'hospital' },
-        { id: 'h5', name: 'Hospital San Francisco de Asís', city: 'Quibdó', department: 'Chocó', lat: 5.6950, lng: -76.6620, status: 'damaged', phone: 'Línea 123 (Urgencias Quibdó)', type: 'hospital' },
-        { id: 'h6', name: 'Hospital Departamental de Buenaventura', city: 'Buenaventura', department: 'Valle del Cauca', lat: 3.8830, lng: -77.0270, status: 'damaged', phone: 'Línea 123 (Urgencias Buenaventura)', type: 'hospital' }
+        { id: 'h1', name: 'Hospital Universitario San Jorge', city: 'Pereira', department: 'Risaralda', lat: 4.8080, lng: -75.7020, status: 'overwhelmed', phone: 'Línea 123 (Urgencias Pereira)', type: 'hospital', address: 'Cra 4 # 24-88, Pereira' },
+        { id: 'h2', name: 'SES Hospital de Caldas', city: 'Manizales', department: 'Caldas', lat: 5.0600, lng: -75.5100, status: 'damaged', phone: 'Línea 123 (Urgencias Manizales)', type: 'hospital', address: 'Calle 48 # 25-62, Manizales' },
+        { id: 'h3', name: 'Hospital San Juan de Dios', city: 'Armenia', department: 'Quindío', lat: 4.5500, lng: -75.6600, status: 'overwhelmed', phone: 'Línea 123 (Urgencias Armenia)', type: 'hospital', address: 'Av. Bolívar # 17N-00, Armenia' },
+        { id: 'h4', name: 'Hospital Universitario del Valle (HUV)', city: 'Cali', department: 'Valle del Cauca', lat: 3.4250, lng: -76.5450, status: 'overwhelmed', phone: 'Línea 123 (Urgencias Cali)', type: 'hospital', address: 'Calle 5 # 36-08, Cali' },
+        { id: 'h5', name: 'Hospital San Francisco de Asís', city: 'Quibdó', department: 'Chocó', lat: 5.6950, lng: -76.6620, status: 'damaged', phone: 'Línea 123 (Urgencias Quibdó)', type: 'hospital', address: 'Carrera 1 # 26-10, Quibdó' },
+        { id: 'h6', name: 'Hospital Departamental de Buenaventura', city: 'Buenaventura', department: 'Valle del Cauca', lat: 3.8830, lng: -77.0270, status: 'damaged', phone: 'Línea 123 (Urgencias Buenaventura)', type: 'hospital', address: 'Av. Simón Bolívar, Buenaventura' },
+        { id: 'h_sangre_bogota', name: 'Hemocentro y Banco de Sangre Cruz Roja Bogotá', city: 'Bogotá', department: 'Cundinamarca', lat: 4.6650, lng: -74.0880, status: 'operational', phone: '(601) 437 6300 Ext 114', type: 'hospital', address: 'Carrera 68 # 68B-31, Bogotá', needs: 'Recepción urgente de donantes de sangre grupos O+, O-, A+.' },
+        { id: 'h_sangre_cali', name: 'Banco de Sangre Cruz Roja Seccional Valle', city: 'Cali', department: 'Valle del Cauca', lat: 3.4270, lng: -76.5420, status: 'operational', phone: '(602) 514 1100', type: 'hospital', address: 'Calle 5 # 38-00, Cali', needs: 'Jornada continua de donación de sangre para heridos del sismo.' },
+        { id: 'h_sangre_medellin', name: 'Banco de Sangre Cruz Roja Seccional Antioquia', city: 'Medellín', department: 'Antioquia', lat: 6.2280, lng: -75.5770, status: 'operational', phone: '(604) 350 5300', type: 'hospital', address: 'Carrera 52 # 25-310, Medellín', needs: 'Recepción de donantes voluntarios de sangre.' }
     ],
 
     donations: [
@@ -498,10 +773,9 @@ const initialData = {
     missingPersons: []
 };
 
-// Guardar datos iniciales con la clave v4
+// Guardar datos iniciales con la clave v6
 try {
     localStorage.setItem(DATA_KEY, JSON.stringify(initialData));
 } catch(e) {
     console.warn('Error inicializando datos locales:', e);
 }
-

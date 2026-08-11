@@ -19,10 +19,10 @@ let isGeoVerifiedColombia = false;
 let verifiedAddressDetails = null;
 let isAdminAuthenticated = false;
 
-const DATA_KEY_APP = 'earthquake_data_v2026_colombia_v5';
+const DATA_KEY_APP = 'earthquake_data_v2026_colombia_v6';
 const ADMIN_LOGS_KEY = 'acopio_admin_telemetry_logs';
 
-let db = { affectedZones: [], collectionCenters: [], shelters: [], emergencyRequests: [], hospitals: [], epicenter: null, donations: [], emergencyContacts: {}, missingPersons: [] };
+let db = { affectedZones: [], collectionCenters: [], shelters: [], emergencyRequests: [], hospitals: [], epicenter: null, donations: [], emergencyContacts: {}, missingPersons: [], kitchens: [], petShelters: [], volunteerHubs: [] };
 let telemetryLogs = [];
 
 // --- Initialization ---
@@ -233,6 +233,42 @@ function loadData() {
             });
         }
 
+        if (initialData.kitchens) {
+            if (!db.kitchens || db.kitchens.length === 0) {
+                db.kitchens = [...initialData.kitchens];
+            } else {
+                initialData.kitchens.forEach(item => {
+                    if (!db.kitchens.some(k => k.id === item.id)) {
+                        db.kitchens.push(item);
+                    }
+                });
+            }
+        }
+
+        if (initialData.petShelters) {
+            if (!db.petShelters || db.petShelters.length === 0) {
+                db.petShelters = [...initialData.petShelters];
+            } else {
+                initialData.petShelters.forEach(item => {
+                    if (!db.petShelters.some(p => p.id === item.id)) {
+                        db.petShelters.push(item);
+                    }
+                });
+            }
+        }
+
+        if (initialData.volunteerHubs) {
+            if (!db.volunteerHubs || db.volunteerHubs.length === 0) {
+                db.volunteerHubs = [...initialData.volunteerHubs];
+            } else {
+                initialData.volunteerHubs.forEach(item => {
+                    if (!db.volunteerHubs.some(v => v.id === item.id)) {
+                        db.volunteerHubs.push(item);
+                    }
+                });
+            }
+        }
+
         if (initialData.emergencyContacts) {
             db.emergencyContacts = initialData.emergencyContacts;
         }
@@ -262,6 +298,9 @@ function loadData() {
     if (!db.emergencyRequests) db.emergencyRequests = [];
     if (!db.collectionCenters) db.collectionCenters = [];
     if (!db.shelters) db.shelters = [];
+    if (!db.kitchens) db.kitchens = [];
+    if (!db.petShelters) db.petShelters = [];
+    if (!db.volunteerHubs) db.volunteerHubs = [];
 };
 
 window.closeModal = function(modalId) {
@@ -408,14 +447,23 @@ function updateDashboardStats() {
     const needElem = document.getElementById('stat-needs-count');
     if (needElem) needElem.textContent = needCount;
 
-    const zonesElem = document.getElementById('stat-zones');
-    if (zonesElem) zonesElem.textContent = (db.affectedZones || []).length;
-
     const sheltersElem = document.getElementById('stat-shelters');
     if (sheltersElem) sheltersElem.textContent = (db.shelters || []).length;
 
     const centersElem = document.getElementById('stat-centers');
     if (centersElem) centersElem.textContent = (db.collectionCenters || []).length;
+
+    const kitchensElem = document.getElementById('stat-kitchens');
+    if (kitchensElem) kitchensElem.textContent = (db.kitchens || []).length;
+
+    const hospitalsElem = document.getElementById('stat-hospitals');
+    if (hospitalsElem) hospitalsElem.textContent = (db.hospitals || []).length;
+
+    const petsElem = document.getElementById('stat-pets');
+    if (petsElem) petsElem.textContent = (db.petShelters || []).length;
+
+    const volunteersElem = document.getElementById('stat-volunteers');
+    if (volunteersElem) volunteersElem.textContent = (db.volunteerHubs || []).length;
 }
 
 // --- Export JSON Data ---
@@ -837,6 +885,42 @@ function renderMapMarkers() {
         markerClusterGroup.addLayer(marker);
     });
 
+    // Kitchens / Ollas Comunitarias
+    (db.kitchens || []).forEach(item => {
+        const icon = L.divIcon({
+            className: 'custom-marker marker-kitchen',
+            html: '<span class="marker-emoji">🍲</span>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 18]
+        });
+        const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
+        markerClusterGroup.addLayer(marker);
+    });
+
+    // Pet Shelters / Acopio Animal
+    (db.petShelters || []).forEach(item => {
+        const icon = L.divIcon({
+            className: 'custom-marker marker-pet',
+            html: '<span class="marker-emoji">🐾</span>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 18]
+        });
+        const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
+        markerClusterGroup.addLayer(marker);
+    });
+
+    // Volunteer Hubs
+    (db.volunteerHubs || []).forEach(item => {
+        const icon = L.divIcon({
+            className: 'custom-marker marker-volunteer',
+            html: '<span class="marker-emoji">🤝</span>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 18]
+        });
+        const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
+        markerClusterGroup.addLayer(marker);
+    });
+
     // Emergency Needs Requests (🆘)
     (db.emergencyRequests || []).forEach(item => {
         const icon = L.divIcon({
@@ -849,7 +933,7 @@ function renderMapMarkers() {
         markerClusterGroup.addLayer(marker);
     });
 
-    // Hospitals
+    // Hospitals & Blood Banks
     (db.hospitals || []).forEach(item => {
         const icon = L.divIcon({
             className: 'custom-marker marker-hospital',
@@ -864,10 +948,18 @@ function renderMapMarkers() {
 
 function createPopupContent(item) {
     let html = `<div class="popup-content">`;
-    const typeNames = { collection: '📦 Centro de Acopio', shelter: '🏠 Refugio / Albergue', need: '🆘 Solicitud de Ayuda Urgente', hospital: '🏥 Hospital Público' };
+    const typeNames = {
+        collection: '📦 Centro de Acopio',
+        shelter: '🏠 Refugio / Albergue',
+        kitchen: '🍲 Comedor de Ayuda',
+        hospital: '🏥 Hospital / Banco Sangre',
+        pet: '🐾 Mascotas & Animales',
+        volunteer: '🤝 Punto de Voluntariado',
+        need: '🆘 Solicitud de Ayuda Urgente'
+    };
     
     html += `<h3>${item.name}</h3>`;
-    html += `<p class="popup-detail" style="opacity:0.6;font-size:0.75rem;">${typeNames[item.type]}</p>`;
+    html += `<p class="popup-detail" style="opacity:0.6;font-size:0.75rem;">${typeNames[item.type] || 'Espacio de Ayuda'}</p>`;
 
     if (item.verified) {
         html += `<div style="margin:4px 0;"><span class="verified-badge">🛡️ Registro Verificado CO (Evidencia en Custodia)</span></div>`;
@@ -901,12 +993,32 @@ function createPopupContent(item) {
             const pct = item.capacity > 0 ? Math.round(((item.occupancy || 0) / item.capacity) * 100) : 0;
             html += `<p class="popup-detail">👥 Ocupación: ${item.occupancy || 0}/${item.capacity} (${pct}%)</p>`;
         }
+        if (item.needs) html += `<p class="popup-detail">📋 Insumos: ${item.needs}</p>`;
+    }
+
+    if (item.type === 'kitchen') {
+        if (item.dailyMeals) html += `<p class="popup-detail">🍲 <strong>Raciones Diarias:</strong> ${item.dailyMeals} raciones/día</p>`;
+        if (item.needs) html += `<p class="popup-detail">📋 <strong>Insumos Cocina:</strong> ${item.needs}</p>`;
+        if (item.schedule) html += `<p class="popup-detail">🕐 Horario: ${item.schedule}</p>`;
+    }
+
+    if (item.type === 'pet') {
+        if (item.petCapacity) html += `<p class="popup-detail">🐾 Capacidad Mascotas: ${item.petCapacity}</p>`;
+        if (item.acceptedTypes) html += `<p class="popup-detail">🐕 Tipos Aceptados: ${item.acceptedTypes}</p>`;
+        if (item.needs) html += `<p class="popup-detail">📋 Insumos Vet: ${item.needs}</p>`;
+    }
+
+    if (item.type === 'volunteer') {
+        if (item.rolesNeeded) html += `<p class="popup-detail">🤝 <strong>Tareas:</strong> ${item.rolesNeeded}</p>`;
+        if (item.schedule) html += `<p class="popup-detail">🕐 Turnos: ${item.schedule}</p>`;
+        if (item.needs) html += `<p class="popup-detail">📋 Requisitos: ${item.needs}</p>`;
     }
     
     if (item.type === 'hospital') {
         const statusColors = { operational: '#27ae60', damaged: '#e67e22', overwhelmed: '#d92525' };
-        const statusNames = { operational: 'Operacional', damaged: 'Instalaciones Afectadas', overwhelmed: 'Urgencias Saturadas' };
-        html += `<p class="popup-detail">Estado: <strong style="color:${statusColors[item.status]}">${statusNames[item.status]}</strong></p>`;
+        const statusNames = { operational: 'Operacional / Donación Sangre', damaged: 'Instalaciones Afectadas', overwhelmed: 'Urgencias Saturadas' };
+        html += `<p class="popup-detail">Estado: <strong style="color:${statusColors[item.status] || '#27ae60'}">${statusNames[item.status] || 'Operacional'}</strong></p>`;
+        if (item.needs) html += `<p class="popup-detail">💉 <strong>Requerimiento:</strong> ${item.needs}</p>`;
     }
     
     html += `<div class="popup-actions">`;
@@ -939,8 +1051,13 @@ function initUI() {
     const typeSelect = document.getElementById('add-type');
     if (typeSelect) {
         typeSelect.addEventListener('change', (e) => {
-            document.getElementById('dynamic-fields-collection').classList.toggle('hidden', e.target.value !== 'collection');
-            document.getElementById('dynamic-fields-shelter').classList.toggle('hidden', e.target.value !== 'shelter');
+            const val = e.target.value;
+            document.getElementById('dynamic-fields-collection')?.classList.toggle('hidden', val !== 'collection');
+            document.getElementById('dynamic-fields-shelter')?.classList.toggle('hidden', val !== 'shelter');
+            document.getElementById('dynamic-fields-kitchen')?.classList.toggle('hidden', val !== 'kitchen');
+            document.getElementById('dynamic-fields-hospital')?.classList.toggle('hidden', val !== 'hospital');
+            document.getElementById('dynamic-fields-pet')?.classList.toggle('hidden', val !== 'pet');
+            document.getElementById('dynamic-fields-volunteer')?.classList.toggle('hidden', val !== 'volunteer');
         });
     }
 
@@ -1168,15 +1285,38 @@ function handleAddPlace(e) {
         newItem.needs = document.getElementById('add-needs').value.trim();
         newItem.schedule = document.getElementById('add-schedule').value.trim();
         db.collectionCenters.push(newItem);
-    } else {
+    } else if (type === 'shelter') {
         newItem.capacity = parseInt(document.getElementById('add-capacity').value) || 0;
         newItem.occupancy = parseInt(document.getElementById('add-occupancy').value) || 0;
         db.shelters.push(newItem);
+    } else if (type === 'kitchen') {
+        newItem.dailyMeals = parseInt(document.getElementById('add-kitchen-meals').value) || 0;
+        newItem.needs = document.getElementById('add-kitchen-needs').value.trim();
+        newItem.schedule = 'Atención Diaria';
+        if (!db.kitchens) db.kitchens = [];
+        db.kitchens.push(newItem);
+    } else if (type === 'hospital') {
+        newItem.status = document.getElementById('add-hospital-status').value;
+        newItem.needs = document.getElementById('add-hospital-needs').value.trim();
+        if (!db.hospitals) db.hospitals = [];
+        db.hospitals.push(newItem);
+    } else if (type === 'pet') {
+        newItem.petCapacity = parseInt(document.getElementById('add-pet-capacity').value) || 0;
+        newItem.acceptedTypes = document.getElementById('add-pet-types').value.trim();
+        newItem.needs = newItem.acceptedTypes;
+        if (!db.petShelters) db.petShelters = [];
+        db.petShelters.push(newItem);
+    } else if (type === 'volunteer') {
+        newItem.rolesNeeded = document.getElementById('add-volunteer-roles').value.trim();
+        newItem.schedule = document.getElementById('add-volunteer-shifts').value.trim();
+        newItem.needs = newItem.rolesNeeded;
+        if (!db.volunteerHubs) db.volunteerHubs = [];
+        db.volunteerHubs.push(newItem);
     }
 
     saveData();
-    recordIPVisitorTelemetry(`Registro Centro Verificado: ${newItem.name} (${phone})`);
-    showToast('🛡️ Centro verificado y registrado exitosamente', 'success');
+    recordIPVisitorTelemetry(`Registro Espacio Verificado [${type.toUpperCase()}]: ${newItem.name} (${phone})`);
+    showToast('🛡️ Espacio de auxilio verificado y publicado', 'success');
 
     e.target.reset();
     currentUploadedPhotoBase64 = null;
@@ -1373,6 +1513,14 @@ window.deleteItem = function(id, type) {
             db.collectionCenters = db.collectionCenters.filter(i => i.id !== id);
         } else if (type === 'shelter') {
             db.shelters = db.shelters.filter(i => i.id !== id);
+        } else if (type === 'kitchen') {
+            db.kitchens = db.kitchens.filter(i => i.id !== id);
+        } else if (type === 'pet') {
+            db.petShelters = db.petShelters.filter(i => i.id !== id);
+        } else if (type === 'volunteer') {
+            db.volunteerHubs = db.volunteerHubs.filter(i => i.id !== id);
+        } else if (type === 'hospital') {
+            db.hospitals = db.hospitals.filter(i => i.id !== id);
         } else if (type === 'need') {
             db.emergencyRequests = db.emergencyRequests.filter(i => i.id !== id);
         }
@@ -1410,24 +1558,28 @@ function renderPlacesList() {
     const searchTxt = document.getElementById('search-input')?.value.toLowerCase().trim() || '';
     
     let items = [];
-    if (filterType === 'all' || filterType === 'collection') items = items.concat((db.collectionCenters || []).map(i => ({...i})));
-    if (filterType === 'all' || filterType === 'shelter') items = items.concat((db.shelters || []).map(i => ({...i})));
-    if (filterType === 'all' || filterType === 'need') items = items.concat((db.emergencyRequests || []).map(i => ({...i})));
-    if (filterType === 'all' || filterType === 'hospital') items = items.concat((db.hospitals || []).map(i => ({...i})));
+    if (filterType === 'all' || filterType === 'collection') items = items.concat((db.collectionCenters || []).map(i => ({...i, type: i.type || 'collection'})));
+    if (filterType === 'all' || filterType === 'shelter') items = items.concat((db.shelters || []).map(i => ({...i, type: i.type || 'shelter'})));
+    if (filterType === 'all' || filterType === 'kitchen') items = items.concat((db.kitchens || []).map(i => ({...i, type: i.type || 'kitchen'})));
+    if (filterType === 'all' || filterType === 'pet') items = items.concat((db.petShelters || []).map(i => ({...i, type: i.type || 'pet'})));
+    if (filterType === 'all' || filterType === 'volunteer') items = items.concat((db.volunteerHubs || []).map(i => ({...i, type: i.type || 'volunteer'})));
+    if (filterType === 'all' || filterType === 'hospital') items = items.concat((db.hospitals || []).map(i => ({...i, type: i.type || 'hospital'})));
+    if (filterType === 'all' || filterType === 'need') items = items.concat((db.emergencyRequests || []).map(i => ({...i, type: i.type || 'need'})));
 
     if (searchTxt) {
         items = items.filter(item =>
             item.name.toLowerCase().includes(searchTxt) ||
             (item.address && item.address.toLowerCase().includes(searchTxt)) ||
             (item.city && item.city.toLowerCase().includes(searchTxt)) ||
-            (item.contactName && item.contactName.toLowerCase().includes(searchTxt))
+            (item.contactName && item.contactName.toLowerCase().includes(searchTxt)) ||
+            (item.needs && item.needs.toLowerCase().includes(searchTxt))
         );
     }
 
     if (countEl) countEl.textContent = `${items.length} punto${items.length !== 1 ? 's' : ''} visible${items.length !== 1 ? 's' : ''}`;
 
     if (items.length === 0) {
-        list.innerHTML = `<li style="text-align:center;padding:20px;opacity:0.6;font-size:0.85rem;">No hay puntos registrados en esta categoría. Use las opciones del menú principal para registrar una oferta o pedido de ayuda.</li>`;
+        list.innerHTML = `<li style="text-align:center;padding:20px;opacity:0.6;font-size:0.85rem;">No hay puntos registrados en esta categoría. Use el formulario para añadir un nuevo espacio.</li>`;
         return;
     }
 
@@ -1435,11 +1587,35 @@ function renderPlacesList() {
         const li = document.createElement('li');
         li.className = 'place-card';
         
-        const colors = { collection: 'var(--color-success)', shelter: 'var(--color-shelter)', need: 'var(--color-critical)', hospital: 'var(--color-hospital)' };
-        const icons = { collection: '📦', shelter: '🏠', need: '🆘', hospital: '🏥' };
-        const typeLabels = { collection: 'Centro de Acopio', shelter: 'Refugio', need: 'Pedido de Ayuda', hospital: 'Hospital Público' };
+        const colors = {
+            collection: 'var(--color-success)',
+            shelter: 'var(--color-shelter)',
+            kitchen: '#e67e22',
+            pet: '#00b894',
+            volunteer: '#0984e3',
+            hospital: 'var(--color-hospital)',
+            need: 'var(--color-critical)'
+        };
+        const icons = {
+            collection: '📦',
+            shelter: '🏠',
+            kitchen: '🍲',
+            pet: '🐾',
+            volunteer: '🤝',
+            hospital: '🏥',
+            need: '🆘'
+        };
+        const typeLabels = {
+            collection: 'Centro Acopio',
+            shelter: 'Refugio',
+            kitchen: 'Comedor Ayuda',
+            pet: 'Mascotas',
+            volunteer: 'Voluntariado',
+            hospital: 'Salud / Sangre',
+            need: 'Pedido Ayuda'
+        };
         
-        li.style.borderLeftColor = colors[item.type];
+        li.style.borderLeftColor = colors[item.type] || '#003893';
         
         let verifiedHTML = item.verified ? `<span class="verified-badge">🛡️ Verificado</span>` : '';
         let photoHTML = (isAdminAuthenticated && item.photo) ? `<img src="${item.photo}" class="center-thumb-img" alt="Foto" onclick="event.stopPropagation(); openImageModal('${item.photo}', '${item.name}')">` : '';
@@ -1460,33 +1636,45 @@ function renderPlacesList() {
         }
 
         if (item.type === 'collection') {
-            if (item.needs) {
-                extraInfo += `<p style="font-size:0.75rem;opacity:0.9;margin-top:3px;">📋 <strong>Insumos:</strong> ${item.needs}</p>`;
-            }
-            if (item.schedule) {
-                extraInfo += `<p style="font-size:0.75rem;opacity:0.8;margin-top:2px;">🕐 <strong>Horario:</strong> ${item.schedule}</p>`;
-            }
+            if (item.needs) extraInfo += `<p style="font-size:0.75rem;opacity:0.9;margin-top:3px;">📋 <strong>Insumos:</strong> ${item.needs}</p>`;
+            if (item.schedule) extraInfo += `<p style="font-size:0.75rem;opacity:0.8;margin-top:2px;">🕐 <strong>Horario:</strong> ${item.schedule}</p>`;
+        }
+
+        if (item.type === 'kitchen') {
+            if (item.dailyMeals) extraInfo += `<p style="font-size:0.75rem;color:#e67e22;font-weight:700;margin-top:3px;">🍲 Raciones: ${item.dailyMeals} / día</p>`;
+            if (item.needs) extraInfo += `<p style="font-size:0.75rem;opacity:0.85;margin-top:2px;">📋 <strong>Insumos:</strong> ${item.needs}</p>`;
+        }
+
+        if (item.type === 'pet') {
+            if (item.acceptedTypes) extraInfo += `<p style="font-size:0.75rem;color:#00b894;font-weight:600;margin-top:3px;">🐾 Acepta: ${item.acceptedTypes}</p>`;
+            if (item.needs) extraInfo += `<p style="font-size:0.75rem;opacity:0.85;margin-top:2px;">📋 <strong>Insumos Vet:</strong> ${item.needs}</p>`;
+        }
+
+        if (item.type === 'volunteer') {
+            if (item.rolesNeeded) extraInfo += `<p style="font-size:0.75rem;color:#0984e3;font-weight:600;margin-top:3px;">🤝 Tareas: ${item.rolesNeeded}</p>`;
+            if (item.schedule) extraInfo += `<p style="font-size:0.75rem;opacity:0.85;margin-top:2px;">🕐 <strong>Turnos:</strong> ${item.schedule}</p>`;
         }
 
         if (item.type === 'hospital') {
             const statusClasses = { operational: 'status-operational', damaged: 'status-damaged', overwhelmed: 'status-overwhelmed' };
-            const statusLabels = { operational: 'Operacional', damaged: 'Instalaciones Afectadas', overwhelmed: 'Urgencias Saturadas' };
-            extraInfo += `<span class="status-badge ${statusClasses[item.status]}">${statusLabels[item.status]}</span>`;
+            const statusLabels = { operational: 'Operacional / Donación Sangre', damaged: 'Instalaciones Afectadas', overwhelmed: 'Urgencias Saturadas' };
+            extraInfo += `<span class="status-badge ${statusClasses[item.status] || 'status-operational'}">${statusLabels[item.status] || 'Operacional'}</span>`;
+            if (item.needs) extraInfo += `<p style="font-size:0.75rem;color:#d92525;margin-top:2px;">💉 ${item.needs}</p>`;
         }
         
         li.innerHTML = `
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
                 <div>
-                    <h4>${icons[item.type]} ${item.name} <span class="type-badge">${typeLabels[item.type]}</span> ${verifiedHTML}</h4>
+                    <h4>${icons[item.type] || '📍'} ${item.name} <span class="type-badge">${typeLabels[item.type] || 'Espacio'}</span> ${verifiedHTML}</h4>
                     <p>📍 ${item.address || item.city || ''}</p>
                     ${extraInfo}
                 </div>
                 ${photoHTML}
             </div>
-            ${item.type !== 'hospital' ? `
             <div class="place-actions">
+                <button class="place-action-btn" onclick="event.stopPropagation(); calculateRouteTo(${item.lat}, ${item.lng})" title="Calcular Ruta">🗺️ Ruta</button>
                 <button class="place-action-btn" onclick="event.stopPropagation(); deleteItem('${item.id}', '${item.type}')" title="Eliminar">🗑️</button>
-            </div>` : ''}
+            </div>
         `;
         
         li.addEventListener('click', () => {
