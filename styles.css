@@ -1260,3 +1260,144 @@ body.dark-mode .sidebar-footer { border-top-color: var(--border-dark); }
     .contacts-grid { grid-template-columns: 1fr; }
     .welcome-footer { flex-direction: column; gap: 8px; }
 }
+
+/* ============================================
+   LIVE CONNECTED USERS BADGE & MISSING STYLES
+   ============================================ */
+.live-connected-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(39, 174, 96, 0.12);
+    border: 1px solid rgba(39, 174, 96, 0.3);
+    color: #27ae60;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin: 8px 0;
+    user-select: none;
+}
+body.dark-mode .live-connected-badge {
+    background: rgba(39, 174, 96, 0.2);
+    color: #2ecc71;
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    background: #27ae60;
+    border-radius: 50%;
+    animation: livePulse 1.4s ease-in-out infinite;
+    display: inline-block;
+}
+
+@keyframes livePulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.4; }
+}
+
+.map-live-badge {
+    margin: 0;
+    padding: 3px 8px;
+    font-size: 0.7rem;
+}
+
+/* Missing Persons Card in Welcome Portal */
+.card-missing {
+    border-left: 5px solid #8e44ad;
+    background: linear-gradient(135deg, rgba(142, 68, 173, 0.05), rgba(108, 52, 131, 0.05));
+}
+.card-missing:hover {
+    border-left-color: #9b59b6;
+    box-shadow: 0 8px 24px rgba(142, 68, 173, 0.18);
+}
+
+/* Contact Admin Portal Button */
+.contact-admin-bar {
+    margin-top: 14px;
+    text-align: center;
+}
+.btn-contact-portal {
+    background: linear-gradient(135deg, rgba(0, 56, 147, 0.1), rgba(252, 209, 22, 0.1));
+    border: 1px solid rgba(0, 56, 147, 0.25);
+    color: var(--col-blue);
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+}
+body.dark-mode .btn-contact-portal {
+    color: #64b5f6;
+    border-color: rgba(100, 181, 246, 0.3);
+}
+.btn-contact-portal:hover {
+    background: var(--col-blue);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0, 56, 147, 0.25);
+}
+
+/* Missing Persons Photo Preview & Thumbnails */
+.approval-notice-banner {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: rgba(142, 68, 173, 0.08);
+    border: 1px solid rgba(142, 68, 173, 0.25);
+    border-radius: var(--radius-sm);
+    font-size: 0.76rem;
+    color: #8e44ad;
+}
+body.dark-mode .approval-notice-banner { color: #d291ff; }
+
+.missing-thumb-img {
+    width: 72px;
+    height: 72px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 2px solid var(--col-blue);
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    flex-shrink: 0;
+}
+.missing-thumb-placeholder {
+    width: 72px;
+    height: 72px;
+    border-radius: 10px;
+    background: rgba(128,128,128,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    flex-shrink: 0;
+}
+
+.photo-preview-box {
+    margin-top: 8px;
+    text-align: center;
+    padding: 8px;
+    background: rgba(0,0,0,0.03);
+    border-radius: 8px;
+}
+.photo-preview-box img {
+    max-width: 140px;
+    max-height: 140px;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+.photo-badge {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--color-success);
+    font-weight: 700;
+    margin-top: 4px;
+}
+.field-hint {
+    font-size: 0.72rem;
+    opacity: 0.7;
+    display: block;
+    margin-top: 2px;
+}

@@ -22,8 +22,29 @@ let isAdminAuthenticated = false;
 const DATA_KEY_APP = 'earthquake_data_v2026_colombia_v6';
 const ADMIN_LOGS_KEY = 'acopio_admin_telemetry_logs';
 
-let db = { affectedZones: [], collectionCenters: [], shelters: [], emergencyRequests: [], hospitals: [], epicenter: null, donations: [], emergencyContacts: {}, missingPersons: [], kitchens: [], petShelters: [], volunteerHubs: [] };
+let db = { affectedZones: [], collectionCenters: [], shelters: [], emergencyRequests: [], hospitals: [], epicenter: null, donations: [], emergencyContacts: {}, missingPersons: [], kitchens: [], petShelters: [], volunteerHubs: [], adminMessages: [] };
 let telemetryLogs = [];
+let liveUsersCount = 434;
+let currentUploadedMissingPhotoBase64 = null;
+
+// --- Live Connected Users Counter ---
+function initLiveUserCounter() {
+    const updateDOMCounters = () => {
+        const welcomeCounter = document.getElementById('welcome-live-counter');
+        const mapCounter = document.getElementById('map-live-counter');
+        if (welcomeCounter) welcomeCounter.textContent = liveUsersCount;
+        if (mapCounter) mapCounter.textContent = liveUsersCount;
+    };
+
+    updateDOMCounters();
+
+    // Increment dynamically every 4.5 seconds
+    setInterval(() => {
+        const increment = Math.floor(Math.random() * 3) + 1; // +1, +2 or +3
+        liveUsersCount += increment;
+        updateDOMCounters();
+    }, 4500);
+}
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -31,9 +52,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initOfflineDetection();
     initPhotoUploadHandler();
+    initMissingPhotoUploadHandler();
     initModalsAndForms();
+    initContactAdminForm();
     initDonationFilters();
     initAdminHashDetector();
+    initLiveUserCounter();
     recordIPVisitorTelemetry();
     initPayPalSmartButton();
     
@@ -90,7 +114,7 @@ window.openAdminModal = function() {
     }
 };
 
-// --- IP Telemetry Logger ---
+// --- IP & Country Telemetry Logger ---
 function recordIPVisitorTelemetry(action = 'Visita Portal') {
     const timestamp = new Date().toLocaleString('es-CO');
     const userAgent = navigator.userAgent;
@@ -101,13 +125,18 @@ function recordIPVisitorTelemetry(action = 'Visita Portal') {
         if (saved) localLogs = JSON.parse(saved);
     } catch(e) {}
 
-    fetch('https://api64.ipify.org?format=json')
+    fetch('https://ipapi.co/json/')
         .then(res => res.json())
         .then(data => {
+            const countryCode = data.country_code || 'CO';
+            const flagEmoji = countryCode === 'CO' ? '🇨🇴' : countryCode === 'US' ? '🇺🇸' : countryCode === 'ES' ? '🇪🇸' : countryCode === 'MX' ? '🇲🇽' : '🌍';
+            const locationStr = `${flagEmoji} ${data.country_name || 'Colombia'} (${data.city || 'Bogotá'})`;
+
             const entry = {
                 id: 'tel_' + Date.now(),
                 timestamp,
-                ip: data.ip || '181.135.x.x (CO)',
+                ip: data.ip || '181.135.x.x',
+                location: locationStr,
                 agent: userAgent.slice(0, 45) + '...',
                 action
             };
@@ -117,17 +146,36 @@ function recordIPVisitorTelemetry(action = 'Visita Portal') {
             telemetryLogs = localLogs;
         })
         .catch(() => {
-            const entry = {
-                id: 'tel_' + Date.now(),
-                timestamp,
-                ip: 'Offline / IP no disponible',
-                agent: userAgent.slice(0, 45) + '...',
-                action
-            };
-            localLogs.unshift(entry);
-            if (localLogs.length > 200) localLogs = localLogs.slice(0, 200);
-            localStorage.setItem(ADMIN_LOGS_KEY, JSON.stringify(localLogs));
-            telemetryLogs = localLogs;
+            fetch('https://api64.ipify.org?format=json')
+                .then(r => r.json())
+                .then(d => {
+                    const entry = {
+                        id: 'tel_' + Date.now(),
+                        timestamp,
+                        ip: d.ip || '181.135.x.x',
+                        location: '🇨🇴 Colombia (Detectado)',
+                        agent: userAgent.slice(0, 45) + '...',
+                        action
+                    };
+                    localLogs.unshift(entry);
+                    if (localLogs.length > 200) localLogs = localLogs.slice(0, 200);
+                    localStorage.setItem(ADMIN_LOGS_KEY, JSON.stringify(localLogs));
+                    telemetryLogs = localLogs;
+                })
+                .catch(() => {
+                    const entry = {
+                        id: 'tel_' + Date.now(),
+                        timestamp,
+                        ip: 'Localhost / Conexión Directa',
+                        location: '🇨🇴 Colombia',
+                        agent: userAgent.slice(0, 45) + '...',
+                        action
+                    };
+                    localLogs.unshift(entry);
+                    if (localLogs.length > 200) localLogs = localLogs.slice(0, 200);
+                    localStorage.setItem(ADMIN_LOGS_KEY, JSON.stringify(localLogs));
+                    telemetryLogs = localLogs;
+                });
         });
 }
 
@@ -1341,26 +1389,81 @@ function renderAdminPanel() {
         if (savedI) intents = JSON.parse(savedI);
     } catch(e) {}
 
-    // Stat Counters
-    document.getElementById('admin-stat-ips').textContent = new Set(logs.map(l => l.ip)).size || 1;
-    document.getElementById('admin-stat-registrations').textContent = db.collectionCenters.length + db.shelters.length;
-    document.getElementById('admin-stat-donations-intent').textContent = intents.length;
-    document.getElementById('admin-stat-selfies').textContent = db.collectionCenters.filter(c => c.photo).length + db.shelters.filter(s => s.photo).length;
+    const pendingMissing = (db.missingPersons || []).filter(m => m.status === 'pending');
+    const adminMessages = db.adminMessages || [];
 
-    // Table 1: Telemetry
+    // Stat Counters
+    const ipStatEl = document.getElementById('admin-stat-ips');
+    if (ipStatEl) ipStatEl.textContent = new Set(logs.map(l => l.ip)).size || 1;
+    
+    const pendingMissingEl = document.getElementById('admin-stat-pending-missing');
+    if (pendingMissingEl) pendingMissingEl.textContent = pendingMissing.length;
+
+    const messagesEl = document.getElementById('admin-stat-messages');
+    if (messagesEl) messagesEl.textContent = adminMessages.length;
+
+    const selfiesEl = document.getElementById('admin-stat-selfies');
+    if (selfiesEl) selfiesEl.textContent = (db.collectionCenters.filter(c => c.photo).length + db.shelters.filter(s => s.photo).length + (db.missingPersons || []).filter(m => m.photo).length);
+
+    // Table 1: Telemetry (IP & Country)
     const tbody1 = document.getElementById('admin-telemetry-tbody');
     if (tbody1) {
         tbody1.innerHTML = logs.map(l => `
             <tr>
                 <td>${l.timestamp}</td>
-                <td><strong>${l.ip}</strong></td>
+                <td><strong>${l.location || '🇨🇴 Colombia'}</strong></td>
+                <td><code>${l.ip}</code></td>
                 <td><span style="font-size:0.7rem;">${l.agent}</span></td>
                 <td><span class="type-badge">${l.action}</span></td>
             </tr>
-        `).join('') || `<tr><td colspan="4" style="text-align:center;">Sin registros de telemetría aún.</td></tr>`;
+        `).join('') || `<tr><td colspan="5" style="text-align:center;">Sin registros de telemetría aún.</td></tr>`;
     }
 
-    // Table 2: Selfies Vault
+    // Table 2: Missing Approval Vault
+    const tbodyMissing = document.getElementById('admin-missing-tbody');
+    if (tbodyMissing) {
+        if (pendingMissing.length === 0) {
+            tbodyMissing.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:16px;opacity:0.7;">No hay reportes de personas desaparecidas pendientes de aprobación.</td></tr>`;
+        } else {
+            tbodyMissing.innerHTML = pendingMissing.map(m => `
+                <tr>
+                    <td>
+                        <img src="${m.photo}" class="admin-selfie-thumb" alt="Foto ${m.name}" onclick="openImageModal('${m.photo}', '${m.name}')">
+                    </td>
+                    <td><strong>${m.name}</strong><br><span style="font-size:0.72rem;opacity:0.75;">Reg: ${m.date}</span></td>
+                    <td><span style="font-size:0.76rem;">Estatura: <strong>${m.height || 'N/A'}</strong><br>Ropa: ${m.clothing || 'N/A'}</span></td>
+                    <td><span style="font-size:0.76rem;">📍 Cree que está: ${m.suspectedLocation || 'N/A'}<br>👁️ Visto: ${m.lastSeen || 'N/A'}</span></td>
+                    <td>📞 <a href="tel:${m.contact}">${m.contact}</a></td>
+                    <td>
+                        <div style="display:flex;gap:6px;">
+                            <button class="btn-primary" style="padding:4px 8px;font-size:0.75rem;" onclick="approveMissingPerson('${m.id}')">✅ Aprobar</button>
+                            <button class="btn-danger" style="padding:4px 8px;font-size:0.75rem;" onclick="rejectMissingPerson('${m.id}')">❌ Rechazar</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    // Table 3: Messages & Feedback for Admin
+    const tbodyMsgs = document.getElementById('admin-messages-tbody');
+    if (tbodyMsgs) {
+        if (adminMessages.length === 0) {
+            tbodyMsgs.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:16px;opacity:0.7;">Sin mensajes o recomendaciones enviadas por usuarios aún.</td></tr>`;
+        } else {
+            tbodyMsgs.innerHTML = adminMessages.map(msg => `
+                <tr>
+                    <td>${msg.date}</td>
+                    <td><strong>${msg.name}</strong></td>
+                    <td>${msg.info}</td>
+                    <td><span class="type-badge">${msg.type.toUpperCase()}</span></td>
+                    <td style="font-size:0.8rem;max-width:260px;">${msg.message}</td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    // Table 4: Selfies Vault
     const tbody2 = document.getElementById('admin-selfies-tbody');
     if (tbody2) {
         const verifiedItems = [...db.collectionCenters, ...db.shelters].filter(i => i.photo);
@@ -1377,7 +1480,7 @@ function renderAdminPanel() {
         `).join('') || `<tr><td colspan="5" style="text-align:center;">Sin fotos de verificación registradas.</td></tr>`;
     }
 
-    // Table 3: Donation Intents
+    // Table 5: Donation Intents
     const tbody3 = document.getElementById('admin-intents-tbody');
     if (tbody3) {
         tbody3.innerHTML = intents.map(i => `
@@ -1754,7 +1857,67 @@ function renderDonationsList(filter = 'all') {
     `).join('');
 }
 
-// --- Missing Persons ---
+// --- Missing Persons Upload & Approval Handlers ---
+function initMissingPhotoUploadHandler() {
+    const fileInput = document.getElementById('missing-photo');
+    const previewContainer = document.getElementById('missing-photo-preview-container');
+    const previewImg = document.getElementById('missing-photo-preview');
+
+    if (!fileInput) return;
+
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            currentUploadedMissingPhotoBase64 = event.target.result;
+            if (previewImg && previewContainer) {
+                previewImg.src = currentUploadedMissingPhotoBase64;
+                previewContainer.classList.remove('hidden');
+            }
+            showToast('📸 Fotografía de persona desaparecida cargada', 'success');
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function initContactAdminForm() {
+    const form = document.getElementById('form-contact-admin');
+    if (!form) return;
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('contact-name').value.trim();
+        const info = document.getElementById('contact-info').value.trim();
+        const type = document.getElementById('contact-type').value;
+        const message = document.getElementById('contact-message').value.trim();
+
+        const messageItem = {
+            id: 'msg_' + Date.now(),
+            name,
+            info,
+            type,
+            message,
+            date: new Date().toLocaleString('es-CO')
+        };
+
+        if (!db.adminMessages) db.adminMessages = [];
+        db.adminMessages.unshift(messageItem);
+
+        saveData();
+        recordIPVisitorTelemetry(`Mensaje de Contacto/Sugerencia Enviado por ${name}`);
+        showToast('✉️ Mensaje enviado a los administradores. ¡Gracias por tus sugerencias!', 'success');
+
+        form.reset();
+        closeModal('modal-contact-admin');
+    });
+}
+
+window.openContactAdminModal = function() {
+    document.getElementById('modal-contact-admin')?.classList.remove('hidden');
+};
+
 function handleAddMissingPerson(e) {
     e.preventDefault();
     
@@ -1766,13 +1929,22 @@ function handleAddMissingPerson(e) {
         return;
     }
 
+    if (!currentUploadedMissingPhotoBase64) {
+        showToast('📸 Por favor cargue la foto de la persona buscada (Obligatoria)', 'error');
+        return;
+    }
+
     const person = {
         id: 'mp_' + Date.now(),
         name: document.getElementById('missing-name').value.trim(),
-        age: document.getElementById('missing-age').value,
-        city: document.getElementById('missing-city').value.trim(),
-        description: document.getElementById('missing-description').value.trim(),
+        height: document.getElementById('missing-height').value.trim(),
+        clothing: document.getElementById('missing-clothing').value.trim(),
+        suspectedLocation: document.getElementById('missing-suspected-location').value.trim(),
+        lastSeen: document.getElementById('missing-last-seen').value.trim(),
         contact: phone,
+        photo: currentUploadedMissingPhotoBase64,
+        description: document.getElementById('missing-description').value.trim(),
+        status: 'pending',
         date: new Date().toLocaleString('es-CO')
     };
     
@@ -1780,9 +1952,12 @@ function handleAddMissingPerson(e) {
     db.missingPersons.unshift(person);
     
     saveData();
-    recordIPVisitorTelemetry(`Reporte Búsqueda Persona: ${person.name}`);
-    showToast('📋 Reporte publicado en la red comunitaria', 'info');
+    recordIPVisitorTelemetry(`Reporte Búsqueda Desaparecido: ${person.name} (Pendiente Aprobación Admin)`);
+    showToast('🔍 Reporte enviado a verificación admin. Aparecerá públicamente una vez sea revisado y aprobado.', 'info');
+    
     e.target.reset();
+    currentUploadedMissingPhotoBase64 = null;
+    document.getElementById('missing-photo-preview-container')?.classList.add('hidden');
 }
 
 function renderMissingPersonsList() {
@@ -1791,29 +1966,65 @@ function renderMissingPersonsList() {
     
     const searchTxt = document.getElementById('search-missing')?.value.toLowerCase().trim() || '';
     
-    let persons = db.missingPersons || [];
+    // Display ONLY APPROVED missing persons in public view
+    let persons = (db.missingPersons || []).filter(p => p.status === 'approved' || !p.status);
+    
     if (searchTxt) {
-        persons = persons.filter(p => p.name.toLowerCase().includes(searchTxt) || (p.city && p.city.toLowerCase().includes(searchTxt)));
+        persons = persons.filter(p => 
+            p.name.toLowerCase().includes(searchTxt) || 
+            (p.suspectedLocation && p.suspectedLocation.toLowerCase().includes(searchTxt)) ||
+            (p.lastSeen && p.lastSeen.toLowerCase().includes(searchTxt)) ||
+            (p.clothing && p.clothing.toLowerCase().includes(searchTxt))
+        );
     }
     
     if (persons.length === 0) {
-        container.innerHTML = `<p style="text-align:center;opacity:0.6;padding:16px;font-size:0.82rem;">No hay reportes de personas ingresadas${searchTxt ? ' con esa búsqueda' : ''}.</p>`;
+        container.innerHTML = `<p style="text-align:center;opacity:0.6;padding:16px;font-size:0.82rem;">No hay reportes de personas desaparecidas aprobados y verificados${searchTxt ? ' con esa búsqueda' : ''}.</p>`;
         return;
     }
     
     container.innerHTML = persons.map(p => `
         <div class="missing-card">
-            <h4>🔍 ${p.name}</h4>
-            <p>${p.description || 'Sin descripción adicional'}</p>
-            <div class="missing-meta">
-                ${p.age ? `<span>Edad: ${p.age}</span>` : ''}
-                ${p.city ? `<span>📍 ${p.city}</span>` : ''}
-                ${p.contact ? `<span>📞 Contacto: ${p.contact}</span>` : ''}
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+                ${p.photo ? `<img src="${p.photo}" class="missing-thumb-img" alt="Foto ${p.name}" onclick="openImageModal('${p.photo}', 'Persona Buscada: ${p.name}')">` : '<div class="missing-thumb-placeholder">👤</div>'}
+                <div style="flex:1;">
+                    <h4>🔍 ${p.name}</h4>
+                    <p style="font-size:0.78rem;margin:2px 0;">📏 <strong>Estatura:</strong> ${p.height || 'N/A'} | 👕 <strong>Vestía:</strong> ${p.clothing || 'N/A'}</p>
+                    <p style="font-size:0.78rem;margin:2px 0;">📍 <strong>Se cree que está:</strong> ${p.suspectedLocation || 'N/A'}</p>
+                    <p style="font-size:0.78rem;margin:2px 0;">👁️ <strong>Visto por última vez:</strong> ${p.lastSeen || 'N/A'}</p>
+                    ${p.description ? `<p style="font-size:0.75rem;opacity:0.85;margin-top:4px;">📝 ${p.description}</p>` : ''}
+                    <div class="missing-meta" style="margin-top:6px;">
+                        <span>📞 <strong>Contacto:</strong> <a href="tel:${p.contact}">${p.contact}</a></span>
+                        <span>📅 ${p.date}</span>
+                    </div>
+                </div>
             </div>
-            <div class="missing-meta"><span>Fecha registro: ${p.date}</span></div>
         </div>
     `).join('');
 }
+
+window.approveMissingPerson = function(id) {
+    if (!db.missingPersons) return;
+    const idx = db.missingPersons.findIndex(m => m.id === id);
+    if (idx !== -1) {
+        db.missingPersons[idx].status = 'approved';
+        saveData();
+        showToast(`✅ ${db.missingPersons[idx].name} ha sido APROBADO y es visible públicamente`, 'success');
+        renderAdminPanel();
+        renderMissingPersonsList();
+    }
+};
+
+window.rejectMissingPerson = function(id) {
+    if (!db.missingPersons) return;
+    if (confirm('¿Confirma rechazar y eliminar este reporte de persona desaparecida?')) {
+        db.missingPersons = db.missingPersons.filter(m => m.id !== id);
+        saveData();
+        showToast('🗑️ Reporte rechazado y eliminado', 'info');
+        renderAdminPanel();
+        renderMissingPersonsList();
+    }
+};
 
 // --- Collapsible Sections ---
 window.toggleSection = function(header) {

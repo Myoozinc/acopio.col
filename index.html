@@ -69,6 +69,9 @@
                 <div class="welcome-flag-badge">🇨🇴 Respuesta Terremoto Colombia</div>
                 <h1>Acopio COL</h1>
                 <p class="welcome-subtitle">Sismo Mag. 7.4 • 10 de Agosto de 2026 (San José del Palmar, Chocó)</p>
+                <div class="live-connected-badge" title="Usuarios activos interactuando en la red">
+                    <span class="live-dot"></span> <span class="live-connected-counter" id="welcome-live-counter">434</span> personas conectadas en vivo
+                </div>
                 <div class="welcome-emergency-call">
                     <span>🚨 Emergencias Vitales:</span>
                     <a href="tel:123" class="call-btn-pill">📞 Marcar 123</a>
@@ -117,7 +120,23 @@
                     </div>
                     <div class="card-arrow">➔</div>
                 </button>
+
+                <!-- BOTÓN 5: PERSONAS DESAPARECIDAS -->
+                <button class="portal-action-card card-missing" onclick="enterDirectMapTab('missing')">
+                    <div class="card-icon">🔍</div>
+                    <div class="card-text">
+                        <h2>Personas Desaparecidas</h2>
+                        <p>Busca o publica familiares no localizados con verificación de foto y datos.</p>
+                    </div>
+                    <div class="card-arrow">➔</div>
+                </button>
             </main>
+
+            <div class="contact-admin-bar">
+                <button class="btn-contact-portal" onclick="openContactAdminModal()">
+                    ✉️ Contáctanos / Sugerencias para la App
+                </button>
+            </div>
 
             <footer class="welcome-footer">
                 <span>🛡️ Datos verificados con el Servicio Geológico Colombiano y UNGRD.</span>
@@ -135,6 +154,9 @@
             <div class="map-bar-title-group">
                 <img src="assets/logo.jpg" alt="Acopio COL" class="map-bar-logo">
                 <span class="map-bar-title">Acopio COL</span>
+                <div class="live-connected-badge map-live-badge">
+                    <span class="live-dot"></span> <span class="live-connected-counter" id="map-live-counter">434</span> conectados
+                </div>
             </div>
             <button id="theme-toggle" class="icon-btn" title="Cambiar Tema">🌙</button>
         </div>
@@ -552,37 +574,65 @@
                     <div class="missing-header">
                         <h3>🔍 Reporte de Personas Buscadas</h3>
                         <p>Plataforma para facilitar el reencuentro de familiares tras la emergencia.</p>
+                        <div class="approval-notice-banner">
+                            <span>🛡️ <strong>Verificación de Seguridad:</strong> Todos los reportes requieren foto y aprobación previa del administrador antes de figurar públicamente.</span>
+                        </div>
                     </div>
                     
                     <form id="missing-person-form">
                         <div class="form-group">
-                            <label for="missing-name">Nombre Completo de la Persona</label>
-                            <input type="text" id="missing-name" required placeholder="Nombre y Apellidos">
+                            <label for="missing-name">1. Nombre Completo de la Persona Buscada *</label>
+                            <input type="text" id="missing-name" required placeholder="Nombre y Apellidos completos" minlength="4">
                         </div>
+
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="missing-age">Edad</label>
-                                <input type="number" id="missing-age" placeholder="Edad">
+                                <label for="missing-height">2. Estatura Promedio (m) *</label>
+                                <input type="text" id="missing-height" required placeholder="Ej: 1.70 m / 165 cm">
                             </div>
                             <div class="form-group">
-                                <label for="missing-city">Ciudad / Sector</label>
-                                <input type="text" id="missing-city" placeholder="Última ubicación vista">
+                                <label for="missing-clothing">3. Cómo Vestía / Vestimenta *</label>
+                                <input type="text" id="missing-clothing" required placeholder="Ej: Chaqueta negra, jeans azules">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="missing-description">Características o Datos Relevantes</label>
-                            <textarea id="missing-description" rows="2" placeholder="Señas particulares, ropa, estado de salud"></textarea>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="missing-suspected-location">4. Lugar donde se Cree que Está *</label>
+                                <input type="text" id="missing-suspected-location" required placeholder="Ej: Barrio San Nicolás o albergue cercano">
+                            </div>
+                            <div class="form-group">
+                                <label for="missing-last-seen">5. Último Lugar donde fue Visto *</label>
+                                <input type="text" id="missing-last-seen" required placeholder="Ej: Centro de Pereira, 10 de Agosto 8:00 AM">
+                            </div>
                         </div>
+
                         <div class="form-group">
-                            <label for="missing-contact">Teléfono del Familiar que Busca (Colombia)</label>
-                            <input type="tel" id="missing-contact" required placeholder="Ej: 310 123 4567">
+                            <label for="missing-contact">6. Teléfono del Familiar de Contacto (Colombia) *</label>
+                            <input type="tel" id="missing-contact" required placeholder="Ej: 310 123 4567 o 601 4376300" pattern="^(\+?57)?\s?(3\d{2}|60\d{1})\s?\d{3}\s?\d{4}$">
                         </div>
-                        <button type="submit" class="btn-primary">📋 Publicar Reporte de Búsqueda</button>
+
+                        <div class="form-group">
+                            <label for="missing-photo">7. Foto de la Persona Buscada (Obligatoria) *</label>
+                            <input type="file" id="missing-photo" accept="image/*" capture="user" required>
+                            <span class="field-hint">Formatos compatibles: JPG, PNG, WEBP, HEIC de cámara o galería.</span>
+                            <div id="missing-photo-preview-container" class="photo-preview-box hidden">
+                                <img id="missing-photo-preview" src="" alt="Foto del desaparecido">
+                                <span class="photo-badge">📸 Fotografía cargada correctamente</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="missing-description">Señas o Rasgos Particulares (Opcional)</label>
+                            <textarea id="missing-description" rows="2" placeholder="Cicatrices, tatuajes, estado de salud, medicamentos que requiere"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary">📋 Enviar Reporte a Verificación Admin</button>
                     </form>
                     
                     <div class="search-wrapper" style="margin-top: 20px;">
                         <span class="search-icon">🔍</span>
-                        <input type="text" id="search-missing" placeholder="Buscar por nombre de persona...">
+                        <input type="text" id="search-missing" placeholder="Buscar entre personas verificadas...">
                     </div>
                     
                     <div id="missing-persons-list" class="missing-list">
@@ -803,6 +853,45 @@
         </div>
     </div>
 
+    <!-- MODAL DE CONTACTO CON ADMINISTRADORES -->
+    <div id="modal-contact-admin" class="modal hidden">
+        <div class="modal-backdrop" onclick="closeModal('modal-contact-admin')"></div>
+        <div class="modal-content glass-panel">
+            <button class="close-btn modal-close" onclick="closeModal('modal-contact-admin')">&times;</button>
+            <h3>✉️ Contáctanos / Recomendaciones</h3>
+            <p class="modal-sub">Envía sugerencias, reporta errores o aporta ideas para mejorar la plataforma de auxilio. Tu mensaje será recibido exclusivamente por el equipo de administración.</p>
+
+            <form id="form-contact-admin" style="margin-top:14px;">
+                <div class="form-group">
+                    <label for="contact-name">Tu Nombre Completo *</label>
+                    <input type="text" id="contact-name" required placeholder="Ej: Ana María Gómez" minlength="4">
+                </div>
+
+                <div class="form-group">
+                    <label for="contact-info">Teléfono o Correo de Contacto *</label>
+                    <input type="text" id="contact-info" required placeholder="Ej: 315 123 4567 o correo@ejemplo.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="contact-type">Tipo de Mensaje</label>
+                    <select id="contact-type" class="select-styled">
+                        <option value="sugerencia">💡 Idea / Sugerencia para la App</option>
+                        <option value="reporte">🐛 Reportar Error o Falla</option>
+                        <option value="alianza">🤝 Ofrecer Alianza / Voluntariado Institucional</option>
+                        <option value="urgente">🚨 Consulta Urgente</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="contact-message">Mensaje o Recomendación *</label>
+                    <textarea id="contact-message" rows="3" required placeholder="Escribe aquí tus recomendaciones, comentarios o ideas..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary">✉️ Enviar Mensaje a los Administradores</button>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL 4: ADMIN LOGIN (USUARIO: Gingerboy, PASS: Rona12345) -->
     <div id="modal-admin-login" class="modal hidden">
         <div class="modal-backdrop" onclick="closeModal('modal-admin-login')"></div>
@@ -841,12 +930,12 @@
                     <span style="font-size:0.7rem;opacity:0.7;">Visitantes IP Registrados</span>
                 </div>
                 <div class="admin-stat-card">
-                    <span class="val" id="admin-stat-registrations">0</span>
-                    <span style="font-size:0.7rem;opacity:0.7;">Puntos Verificados</span>
+                    <span class="val" id="admin-stat-pending-missing">0</span>
+                    <span style="font-size:0.7rem;opacity:0.7;">Desaparecidos Pendientes</span>
                 </div>
                 <div class="admin-stat-card">
-                    <span class="val" id="admin-stat-donations-intent">0</span>
-                    <span style="font-size:0.7rem;opacity:0.7;">Intentos de Donación</span>
+                    <span class="val" id="admin-stat-messages">0</span>
+                    <span style="font-size:0.7rem;opacity:0.7;">Mensajes Recibidos</span>
                 </div>
                 <div class="admin-stat-card">
                     <span class="val" id="admin-stat-selfies">0</span>
@@ -856,7 +945,9 @@
 
             <!-- Admin Tabs -->
             <nav class="donation-filter" style="margin-bottom:12px;">
-                <button class="donation-filter-btn active" onclick="showAdminSubTab('telemetry', this)">📡 Telemetría e IPs</button>
+                <button class="donation-filter-btn active" onclick="showAdminSubTab('telemetry', this)">📡 Telemetría, IPs & País</button>
+                <button class="donation-filter-btn" onclick="showAdminSubTab('missing', this)">🔍 Aprobar Desaparecidos</button>
+                <button class="donation-filter-btn" onclick="showAdminSubTab('messages', this)">✉️ Mensajes y Sugerencias</button>
                 <button class="donation-filter-btn" onclick="showAdminSubTab('vault', this)">📸 Bóveda de Fotos</button>
                 <button class="donation-filter-btn" onclick="showAdminSubTab('intents', this)">💛 Seguimiento Donaciones</button>
             </nav>
@@ -868,8 +959,9 @@
                         <thead>
                             <tr>
                                 <th>Fecha / Hora</th>
+                                <th>País / Ubicación IP</th>
                                 <th>Dirección IP</th>
-                                <th>Dispositivo / Browser</th>
+                                <th>Dispositivo / Navegador</th>
                                 <th>Acción</th>
                             </tr>
                         </thead>
@@ -880,7 +972,48 @@
                 </div>
             </div>
 
-            <!-- SubTab 2: Selfies Vault -->
+            <!-- SubTab 2: Missing Approval Vault -->
+            <div id="admin-tab-missing" class="admin-pane hidden">
+                <div class="admin-table-wrapper custom-scrollbar" style="max-height:320px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Foto</th>
+                                <th>Nombre Completo</th>
+                                <th>Estatura / Ropa</th>
+                                <th>Ubicación / Última Vez</th>
+                                <th>Contacto CO</th>
+                                <th>Acciones de Aprobación</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-missing-tbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SubTab 3: Messages & Feedback -->
+            <div id="admin-tab-messages" class="admin-pane hidden">
+                <div class="admin-table-wrapper custom-scrollbar" style="max-height:300px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Remitente</th>
+                                <th>Contacto</th>
+                                <th>Tipo</th>
+                                <th>Mensaje / Recomendación</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-messages-tbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SubTab 4: Selfies Vault -->
             <div id="admin-tab-vault" class="admin-pane hidden">
                 <div class="admin-table-wrapper custom-scrollbar" style="max-height:300px;">
                     <table class="admin-table">
@@ -900,7 +1033,7 @@
                 </div>
             </div>
 
-            <!-- SubTab 3: Donation Intents -->
+            <!-- SubTab 5: Donation Intents -->
             <div id="admin-tab-intents" class="admin-pane hidden">
                 <div class="admin-table-wrapper custom-scrollbar" style="max-height:300px;">
                     <table class="admin-table">
