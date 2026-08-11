@@ -909,90 +909,91 @@ function renderMapMarkers() {
         });
     }
 
-    // Collection Centers
-    (db.collectionCenters || []).forEach(item => {
-        const icon = L.divIcon({
-            className: 'custom-marker marker-collection',
-            html: '<span class="marker-emoji">📦</span>',
-            iconSize: [36, 36],
-            iconAnchor: [18, 18]
-        });
-        const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
-        markerClusterGroup.addLayer(marker);
-    });
+    // Filter & Highlight Markers Logic
+    let bounds = [];
+    const isFiltered = (activeCategoryFilter !== 'all');
 
-    // Shelters
-    (db.shelters || []).forEach(item => {
-        const icon = L.divIcon({
-            className: 'custom-marker marker-shelter',
-            html: '<span class="marker-emoji">🏠</span>',
-            iconSize: [36, 36],
-            iconAnchor: [18, 18]
-        });
-        const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
-        markerClusterGroup.addLayer(marker);
-    });
+    const addMarkersForType = (items, category, markerClass, emoji) => {
+        if (!isFiltered || activeCategoryFilter === category) {
+            const isHighlight = isFiltered && (activeCategoryFilter === category);
+            (items || []).forEach(item => {
+                const iconClass = `custom-marker ${markerClass} ${isHighlight ? 'marker-highlight-pulse' : ''}`;
+                const size = isHighlight ? [48, 48] : [36, 36];
+                const anchor = isHighlight ? [24, 24] : [18, 18];
 
-    // Kitchens / Ollas Comunitarias
-    (db.kitchens || []).forEach(item => {
-        const icon = L.divIcon({
-            className: 'custom-marker marker-kitchen',
-            html: '<span class="marker-emoji">🍲</span>',
-            iconSize: [36, 36],
-            iconAnchor: [18, 18]
-        });
-        const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
-        markerClusterGroup.addLayer(marker);
-    });
+                const icon = L.divIcon({
+                    className: iconClass,
+                    html: `<span class="marker-emoji">${emoji}</span>`,
+                    iconSize: size,
+                    iconAnchor: anchor
+                });
+                const marker = L.marker([item.lat, item.lng], { icon, zIndexOffset: isHighlight ? 4000 : 0 }).bindPopup(createPopupContent(item));
+                markerClusterGroup.addLayer(marker);
+                if (item.lat && item.lng) bounds.push([item.lat, item.lng]);
+            });
+        }
+    };
 
-    // Pet Shelters / Acopio Animal
-    (db.petShelters || []).forEach(item => {
-        const icon = L.divIcon({
-            className: 'custom-marker marker-pet',
-            html: '<span class="marker-emoji">🐾</span>',
-            iconSize: [36, 36],
-            iconAnchor: [18, 18]
-        });
-        const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
-        markerClusterGroup.addLayer(marker);
-    });
+    addMarkersForType(db.collectionCenters, 'collection', 'marker-collection', '📦');
+    addMarkersForType(db.shelters, 'shelter', 'marker-shelter', '🏠');
+    addMarkersForType(db.kitchens, 'kitchen', 'marker-kitchen', '🍲');
+    addMarkersForType(db.petShelters, 'pet', 'marker-pet', '🐾');
+    addMarkersForType(db.volunteerHubs, 'volunteer', 'marker-volunteer', '🤝');
+    addMarkersForType(db.emergencyRequests, 'need', 'marker-need', '🆘');
+    addMarkersForType(db.hospitals, 'hospital', 'marker-hospital', '🏥');
 
-    // Volunteer Hubs
-    (db.volunteerHubs || []).forEach(item => {
-        const icon = L.divIcon({
-            className: 'custom-marker marker-volunteer',
-            html: '<span class="marker-emoji">🤝</span>',
-            iconSize: [36, 36],
-            iconAnchor: [18, 18]
-        });
-        const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
-        markerClusterGroup.addLayer(marker);
-    });
-
-    // Emergency Needs Requests (🆘)
-    (db.emergencyRequests || []).forEach(item => {
-        const icon = L.divIcon({
-            className: 'custom-marker marker-need',
-            html: '<span class="marker-emoji">🆘</span>',
-            iconSize: [36, 36],
-            iconAnchor: [18, 18]
-        });
-        const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
-        markerClusterGroup.addLayer(marker);
-    });
-
-    // Hospitals & Blood Banks
-    (db.hospitals || []).forEach(item => {
-        const icon = L.divIcon({
-            className: 'custom-marker marker-hospital',
-            html: '<span class="marker-emoji">🏥</span>',
-            iconSize: [36, 36],
-            iconAnchor: [18, 18]
-        });
-        const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
-        markerClusterGroup.addLayer(marker);
-    });
+    if (isFiltered && bounds.length > 0 && map) {
+        try {
+            map.fitBounds(bounds, { padding: [60, 60], maxZoom: 13, animate: true });
+        } catch(e) {}
+    }
 }
+
+// --- Interactive Category Filter from Stats Cards ---
+let activeCategoryFilter = 'all';
+
+window.filterMapByCategory = function(category) {
+    if (activeCategoryFilter === category) {
+        activeCategoryFilter = 'all';
+    } else {
+        activeCategoryFilter = category;
+    }
+
+    // Active state styling on stat boxes
+    document.querySelectorAll('.stat-box').forEach(box => {
+        if (activeCategoryFilter !== 'all' && box.dataset.filter === activeCategoryFilter) {
+            box.classList.add('active-filter');
+        } else {
+            box.classList.remove('active-filter');
+        }
+    });
+
+    // Sync select dropdown in list view
+    const filterSelect = document.getElementById('filter-type');
+    if (filterSelect) {
+        filterSelect.value = activeCategoryFilter;
+    }
+
+    renderMapMarkers();
+    renderPlacesList();
+
+    const categoryLabels = {
+        need: '🆘 Pedidos de Ayuda Urgent',
+        shelter: '🏠 Refugios y Albergues',
+        collection: '📦 Centros de Acopio',
+        kitchen: '🍲 Comedores de Ayuda',
+        hospital: '🏥 Salud y Bancos de Sangre',
+        pet: '🐾 Mascotas y Animales',
+        volunteer: '🤝 Voluntarios',
+        all: 'Todos los Espacios'
+    };
+
+    if (activeCategoryFilter !== 'all') {
+        showToast(`🔍 Filtrando en mapa: ${categoryLabels[activeCategoryFilter]} (Pulsando en grande)`, 'info');
+    } else {
+        showToast('🗺️ Mostrando todos los puntos de ayuda', 'info');
+    }
+};
 
 function createPopupContent(item) {
     let html = `<div class="popup-content">`;

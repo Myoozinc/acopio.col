@@ -1,4 +1,4 @@
-const CACHE_NAME = 'acopio-col-v2026-fresh-v4';
+const CACHE_NAME = 'acopio-col-v2026-fresh-v5';
 const STATIC_ASSETS = [
   './',
   './index.html',

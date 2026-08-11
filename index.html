@@ -194,37 +194,37 @@
 
             <!-- Stats Grid -->
             <div class="stats-container stats-grid-7">
-                <div class="stat-box" data-tooltip="Solicitudes de ayuda urgente">
+                <div class="stat-box" data-filter="need" onclick="filterMapByCategory('need')" data-tooltip="Filtrar en el mapa: Pedidos de Ayuda SOS">
                     <span class="stat-icon">🆘</span>
                     <span class="stat-value critical" id="stat-needs-count">0</span>
                     <span class="stat-label">Pedidos</span>
                 </div>
-                <div class="stat-box" data-tooltip="Refugios y albergues temporales">
+                <div class="stat-box" data-filter="shelter" onclick="filterMapByCategory('shelter')" data-tooltip="Filtrar en el mapa: Refugios y Albergues">
                     <span class="stat-icon">🏠</span>
                     <span class="stat-value shelter-color" id="stat-shelters">0</span>
                     <span class="stat-label">Refugios</span>
                 </div>
-                <div class="stat-box" data-tooltip="Centros de Acopio activos">
+                <div class="stat-box" data-filter="collection" onclick="filterMapByCategory('collection')" data-tooltip="Filtrar en el mapa: Centros de Acopio">
                     <span class="stat-icon">📦</span>
                     <span class="stat-value success" id="stat-centers">0</span>
                     <span class="stat-label">Acopios</span>
                 </div>
-                <div class="stat-box" data-tooltip="Comedores de ayuda y ollas comunitarias">
+                <div class="stat-box" data-filter="kitchen" onclick="filterMapByCategory('kitchen')" data-tooltip="Filtrar en el mapa: Comedores de Ayuda">
                     <span class="stat-icon">🍲</span>
                     <span class="stat-value kitchen-color" id="stat-kitchens">0</span>
                     <span class="stat-label">Comedores</span>
                 </div>
-                <div class="stat-box" data-tooltip="Hospitales y bancos de sangre">
+                <div class="stat-box" data-filter="hospital" onclick="filterMapByCategory('hospital')" data-tooltip="Filtrar en el mapa: Hospitales y Bancos de Sangre">
                     <span class="stat-icon">🏥</span>
                     <span class="stat-value hospital-color" id="stat-hospitals">0</span>
                     <span class="stat-label">Salud</span>
                 </div>
-                <div class="stat-box" data-tooltip="Refugios y acopio para mascotas">
+                <div class="stat-box" data-filter="pet" onclick="filterMapByCategory('pet')" data-tooltip="Filtrar en el mapa: Mascotas y Animales">
                     <span class="stat-icon">🐾</span>
                     <span class="stat-value pet-color" id="stat-pets">0</span>
                     <span class="stat-label">Mascotas</span>
                 </div>
-                <div class="stat-box" data-tooltip="Puntos de voluntariado activo">
+                <div class="stat-box" data-filter="volunteer" onclick="filterMapByCategory('volunteer')" data-tooltip="Filtrar en el mapa: Puntos de Voluntariado">
                     <span class="stat-icon">🤝</span>
                     <span class="stat-value volunteer-color" id="stat-volunteers">0</span>
                     <span class="stat-label">Voluntarios</span>

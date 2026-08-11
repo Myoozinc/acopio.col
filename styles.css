@@ -1401,3 +1401,59 @@ body.dark-mode .approval-notice-banner { color: #d291ff; }
     display: block;
     margin-top: 2px;
 }
+
+/* ============================================
+   STAT CARDS CLICKABLE FILTER & INTENSE PULSE
+   ============================================ */
+.stat-box {
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    user-select: none;
+}
+.stat-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+.stat-box.active-filter {
+    border: 2px solid var(--col-blue) !important;
+    background: rgba(0, 56, 147, 0.1) !important;
+    box-shadow: 0 0 0 3px rgba(0, 56, 147, 0.25), 0 4px 14px rgba(0,0,0,0.15) !important;
+    transform: scale(1.05);
+}
+body.dark-mode .stat-box.active-filter {
+    border-color: #64b5f6 !important;
+    background: rgba(100, 181, 246, 0.15) !important;
+    box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.3) !important;
+}
+
+/* Category-specific Active Filter Borders */
+.stat-box[data-filter="need"].active-filter { border-color: #d92525 !important; box-shadow: 0 0 0 3px rgba(217, 37, 37, 0.35) !important; }
+.stat-box[data-filter="shelter"].active-filter { border-color: #8e44ad !important; box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.35) !important; }
+.stat-box[data-filter="collection"].active-filter { border-color: #27ae60 !important; box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.35) !important; }
+.stat-box[data-filter="kitchen"].active-filter { border-color: #e67e22 !important; box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.35) !important; }
+.stat-box[data-filter="hospital"].active-filter { border-color: #d92525 !important; box-shadow: 0 0 0 3px rgba(217, 37, 37, 0.35) !important; }
+.stat-box[data-filter="pet"].active-filter { border-color: #00b894 !important; box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.35) !important; }
+.stat-box[data-filter="volunteer"].active-filter { border-color: #0984e3 !important; box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.35) !important; }
+
+/* Filtered Marker Intense Pulse Animation */
+.marker-highlight-pulse {
+    transform: scale(1.45) !important;
+    z-index: 99999 !important;
+    animation: intenseMarkerPulse 1.1s infinite ease-in-out !important;
+}
+
+.marker-highlight-pulse .marker-emoji {
+    transform: scale(1.2);
+}
+
+@keyframes intenseMarkerPulse {
+    0%, 100% {
+        transform: scale(1.35);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.95), 0 0 24px rgba(0,0,0,0.4);
+    }
+    50% {
+        transform: scale(1.65);
+        box-shadow: 0 0 0 26px rgba(255, 255, 255, 0), 0 0 40px rgba(0,0,0,0.6);
+    }
+}
