@@ -19,7 +19,7 @@ let isGeoVerifiedColombia = false;
 let verifiedAddressDetails = null;
 let isAdminAuthenticated = false;
 
-const DATA_KEY_APP = 'earthquake_data_v2026_colombia_v6';
+const DATA_KEY_APP = 'earthquake_data_v2026_colombia_v7';
 const ADMIN_LOGS_KEY = 'acopio_admin_telemetry_logs';
 
 let db = { affectedZones: [], collectionCenters: [], shelters: [], emergencyRequests: [], hospitals: [], epicenter: null, donations: [], emergencyContacts: {}, missingPersons: [], kitchens: [], petShelters: [], volunteerHubs: [], adminMessages: [] };
@@ -273,107 +273,73 @@ window.openDonationHub = function() {
 
 // --- Data Management ---
 function loadData() {
-    let stored = localStorage.getItem(DATA_KEY_APP) || localStorage.getItem('earthquake_data');
+    let stored = localStorage.getItem(DATA_KEY_APP);
     if (stored) {
         try {
             db = JSON.parse(stored);
         } catch (e) {
-            db = typeof initialData !== 'undefined' ? initialData : {};
+            db = typeof initialData !== 'undefined' ? JSON.parse(JSON.stringify(initialData)) : {};
         }
     } else if (typeof initialData !== 'undefined') {
-        db = initialData;
+        db = JSON.parse(JSON.stringify(initialData));
+    }
+
+    // Always enforce the official Epicenter of Colombia (San José del Palmar, Chocó: 5.3833, -76.2333)
+    if (typeof initialData !== 'undefined' && initialData.epicenter) {
+        db.epicenter = { ...initialData.epicenter };
     }
 
     if (typeof initialData !== 'undefined') {
-        if (!db.collectionCenters || db.collectionCenters.length === 0) {
-            db.collectionCenters = [...initialData.collectionCenters];
-        } else {
-            initialData.collectionCenters.forEach(item => {
-                if (!db.collectionCenters.some(c => c.id === item.id)) {
-                    db.collectionCenters.push(item);
-                }
-            });
-        }
-
-        if (!db.shelters || db.shelters.length === 0) {
-            db.shelters = [...initialData.shelters];
-        } else {
-            initialData.shelters.forEach(item => {
-                if (!db.shelters.some(s => s.id === item.id)) {
-                    db.shelters.push(item);
-                }
-            });
-        }
-
-        if (initialData.kitchens) {
-            if (!db.kitchens || db.kitchens.length === 0) {
-                db.kitchens = [...initialData.kitchens];
+        const mergeInitial = (prop) => {
+            if (!initialData[prop]) return;
+            if (!db[prop] || db[prop].length === 0) {
+                db[prop] = [...initialData[prop]];
             } else {
-                initialData.kitchens.forEach(item => {
-                    if (!db.kitchens.some(k => k.id === item.id)) {
-                        db.kitchens.push(item);
+                initialData[prop].forEach(item => {
+                    if (!db[prop].some(x => (x.id && x.id === item.id) || (x.name && x.name === item.name))) {
+                        db[prop].push(item);
                     }
                 });
             }
-        }
+        };
 
-        if (initialData.petShelters) {
-            if (!db.petShelters || db.petShelters.length === 0) {
-                db.petShelters = [...initialData.petShelters];
-            } else {
-                initialData.petShelters.forEach(item => {
-                    if (!db.petShelters.some(p => p.id === item.id)) {
-                        db.petShelters.push(item);
-                    }
-                });
-            }
-        }
-
-        if (initialData.volunteerHubs) {
-            if (!db.volunteerHubs || db.volunteerHubs.length === 0) {
-                db.volunteerHubs = [...initialData.volunteerHubs];
-            } else {
-                initialData.volunteerHubs.forEach(item => {
-                    if (!db.volunteerHubs.some(v => v.id === item.id)) {
-                        db.volunteerHubs.push(item);
-                    }
-                });
-            }
-        }
+        mergeInitial('collectionCenters');
+        mergeInitial('shelters');
+        mergeInitial('kitchens');
+        mergeInitial('petShelters');
+        mergeInitial('volunteerHubs');
+        mergeInitial('hospitals');
+        mergeInitial('affectedZones');
+        mergeInitial('donations');
 
         if (initialData.emergencyContacts) {
             db.emergencyContacts = initialData.emergencyContacts;
         }
-
-        if (initialData.donations) {
-            if (!db.donations || db.donations.length === 0) {
-                db.donations = [...initialData.donations];
-            } else {
-                initialData.donations.forEach(item => {
-                    if (!db.donations.some(d => d.name === item.name)) {
-                        db.donations.push(item);
-                    }
-                });
-            }
-        }
     }
 
-    if (!db.affectedZones || db.affectedZones.length === 0) {
-        db.affectedZones = typeof initialData !== 'undefined' ? initialData.affectedZones : [];
-    }
-    if (!db.epicenter && typeof initialData !== 'undefined') {
-        db.epicenter = initialData.epicenter;
-    }
-    if (!db.hospitals || db.hospitals.length === 0) {
-        db.hospitals = typeof initialData !== 'undefined' ? initialData.hospitals : [];
-    }
     if (!db.emergencyRequests) db.emergencyRequests = [];
-    if (!db.collectionCenters) db.collectionCenters = [];
-    if (!db.shelters) db.shelters = [];
-    if (!db.kitchens) db.kitchens = [];
-    if (!db.petShelters) db.petShelters = [];
-    if (!db.volunteerHubs) db.volunteerHubs = [];
-};
+
+    // Sanitize item coordinates: keep only points in Colombia or registered international drop-offs (e.g. Doral FL)
+    const isLocationAllowed = (item) => {
+        if (!item || item.lat === undefined || item.lng === undefined) return false;
+        const lat = parseFloat(item.lat);
+        const lng = parseFloat(item.lng);
+        if (isNaN(lat) || isNaN(lng)) return false;
+        if (item.id === 'acop_doral_gem' || (item.city && item.city.includes('Doral'))) return true;
+        return (lat >= -4.5 && lat <= 13.5 && lng >= -82.0 && lng <= -66.0);
+    };
+
+    const sanitize = (list) => (list || []).filter(isLocationAllowed);
+
+    db.collectionCenters = sanitize(db.collectionCenters);
+    db.shelters = sanitize(db.shelters);
+    db.emergencyRequests = sanitize(db.emergencyRequests);
+    db.kitchens = sanitize(db.kitchens);
+    db.petShelters = sanitize(db.petShelters);
+    db.volunteerHubs = sanitize(db.volunteerHubs);
+    db.hospitals = sanitize(db.hospitals);
+    db.affectedZones = sanitize(db.affectedZones);
+}
 
 window.closeModal = function(modalId) {
     document.getElementById(modalId)?.classList.add('hidden');
@@ -447,54 +413,7 @@ function initTheme() {
     }
 }
 
-// --- Data Management ---
-function loadData() {
-    let stored = localStorage.getItem(DATA_KEY_APP) || localStorage.getItem('earthquake_data');
-    if (stored) {
-        try {
-            db = JSON.parse(stored);
-        } catch (e) {
-            db = typeof initialData !== 'undefined' ? initialData : {};
-        }
-    } else if (typeof initialData !== 'undefined') {
-        db = initialData;
-    }
-
-    if (typeof initialData !== 'undefined') {
-        if (!db.collectionCenters || db.collectionCenters.length === 0) {
-            db.collectionCenters = [...initialData.collectionCenters];
-        } else {
-            initialData.collectionCenters.forEach(item => {
-                if (!db.collectionCenters.some(c => c.id === item.id)) {
-                    db.collectionCenters.push(item);
-                }
-            });
-        }
-
-        if (!db.shelters || db.shelters.length === 0) {
-            db.shelters = [...initialData.shelters];
-        } else {
-            initialData.shelters.forEach(item => {
-                if (!db.shelters.some(s => s.id === item.id)) {
-                    db.shelters.push(item);
-                }
-            });
-        }
-    }
-
-    if (!db.affectedZones || db.affectedZones.length === 0) {
-        db.affectedZones = typeof initialData !== 'undefined' ? initialData.affectedZones : [];
-    }
-    if (!db.epicenter && typeof initialData !== 'undefined') {
-        db.epicenter = initialData.epicenter;
-    }
-    if (!db.hospitals || db.hospitals.length === 0) {
-        db.hospitals = typeof initialData !== 'undefined' ? initialData.hospitals : [];
-    }
-    if (!db.emergencyRequests) db.emergencyRequests = [];
-    if (!db.collectionCenters) db.collectionCenters = [];
-    if (!db.shelters) db.shelters = [];
-}
+// --- Data Saving ---
 
 function saveData() {
     localStorage.setItem(DATA_KEY_APP, JSON.stringify(db));
@@ -685,7 +604,7 @@ function initModalsAndForms() {
 
 // --- Map Setup & Pointer Picker ---
 function initMap() {
-    const center = db.epicenter ? [db.epicenter.lat, db.epicenter.lng] : [4.5709, -74.2973];
+    const center = [5.3833, -76.2333]; // San José del Palmar, Chocó, Colombia (Epicentro)
 
     map = L.map('map', {
         zoomControl: false,

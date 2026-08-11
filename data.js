@@ -3,7 +3,7 @@
 // Fuentes: SGC, USGS, UNGRD, Cruz Roja Colombiana, Medios Oficiales & Reportes Comunitarios
 // ============================================
 
-const DATA_KEY = 'earthquake_data_v2026_colombia_v6';
+const DATA_KEY = 'earthquake_data_v2026_colombia_v7';
 
 const initialData = {
     epicenter: {
