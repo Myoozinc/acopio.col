@@ -24,26 +24,50 @@ const ADMIN_LOGS_KEY = 'acopio_admin_telemetry_logs';
 
 let db = { affectedZones: [], collectionCenters: [], shelters: [], emergencyRequests: [], hospitals: [], epicenter: null, donations: [], emergencyContacts: {}, missingPersons: [], kitchens: [], petShelters: [], volunteerHubs: [], adminMessages: [] };
 let telemetryLogs = [];
-let liveUsersCount = 434;
+let liveUsersCount = 742;
 let currentUploadedMissingPhotoBase64 = null;
 
 // --- Live Connected Users Counter ---
 function initLiveUserCounter() {
+    const MIN_USERS = 674;
+    const MAX_USERS = 1345;
+
+    // Guard initial value within valid bounds
+    if (liveUsersCount < MIN_USERS || liveUsersCount > MAX_USERS) {
+        liveUsersCount = Math.floor(Math.random() * (850 - 720 + 1)) + 720;
+    }
+
     const updateDOMCounters = () => {
         const welcomeCounter = document.getElementById('welcome-live-counter');
         const mapCounter = document.getElementById('map-live-counter');
-        if (welcomeCounter) welcomeCounter.textContent = liveUsersCount;
-        if (mapCounter) mapCounter.textContent = liveUsersCount;
+        if (welcomeCounter) welcomeCounter.textContent = liveUsersCount.toLocaleString();
+        if (mapCounter) mapCounter.textContent = liveUsersCount.toLocaleString();
     };
 
     updateDOMCounters();
 
-    // Increment dynamically every 4.5 seconds
+    // Dynamically update counter: goes up more than down, strictly bound [674, 1345]
     setInterval(() => {
-        const increment = Math.floor(Math.random() * 3) + 1; // +1, +2 or +3
-        liveUsersCount += increment;
+        if (liveUsersCount >= MAX_USERS - 15) {
+            // Near max boundary (1345): adjust downwards
+            liveUsersCount -= Math.floor(Math.random() * 3) + 1;
+        } else if (liveUsersCount <= MIN_USERS + 15) {
+            // Near min boundary (674): adjust upwards
+            liveUsersCount += Math.floor(Math.random() * 3) + 1;
+        } else {
+            // Standard state: ~70% chance to increase (+1 to +4), ~30% chance to decrease (-1 to -2)
+            const shouldIncrease = Math.random() < 0.70;
+            if (shouldIncrease) {
+                liveUsersCount += Math.floor(Math.random() * 4) + 1;
+            } else {
+                liveUsersCount -= Math.floor(Math.random() * 2) + 1;
+            }
+        }
+
+        // Strict boundary enforcement [674, 1345]
+        liveUsersCount = Math.max(MIN_USERS, Math.min(MAX_USERS, liveUsersCount));
         updateDOMCounters();
-    }, 4500);
+    }, 4000);
 }
 
 // --- Initialization ---
