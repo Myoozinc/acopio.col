@@ -19,7 +19,7 @@ let isGeoVerifiedColombia = false;
 let verifiedAddressDetails = null;
 let isAdminAuthenticated = false;
 
-const DATA_KEY_APP = 'earthquake_data_v2026_colombia_v3';
+const DATA_KEY_APP = 'earthquake_data_v2026_colombia_v5';
 const ADMIN_LOGS_KEY = 'acopio_admin_telemetry_logs';
 
 let db = { affectedZones: [], collectionCenters: [], shelters: [], emergencyRequests: [], hospitals: [], epicenter: null, donations: [], emergencyContacts: {}, missingPersons: [] };
@@ -120,11 +120,12 @@ function recordIPVisitorTelemetry(action = 'Visita Portal') {
             const entry = {
                 id: 'tel_' + Date.now(),
                 timestamp,
-                ip: '186.155.x.x (Red Colombia)',
+                ip: 'Offline / IP no disponible',
                 agent: userAgent.slice(0, 45) + '...',
                 action
             };
             localLogs.unshift(entry);
+            if (localLogs.length > 200) localLogs = localLogs.slice(0, 200);
             localStorage.setItem(ADMIN_LOGS_KEY, JSON.stringify(localLogs));
             telemetryLogs = localLogs;
         });
@@ -196,6 +197,71 @@ window.openNeedHelpModal = function() {
 window.openDonationHub = function() {
     document.getElementById('modal-donations-hub')?.classList.remove('hidden');
     initPayPalSmartButton();
+};
+
+// --- Data Management ---
+function loadData() {
+    let stored = localStorage.getItem(DATA_KEY_APP) || localStorage.getItem('earthquake_data');
+    if (stored) {
+        try {
+            db = JSON.parse(stored);
+        } catch (e) {
+            db = typeof initialData !== 'undefined' ? initialData : {};
+        }
+    } else if (typeof initialData !== 'undefined') {
+        db = initialData;
+    }
+
+    if (typeof initialData !== 'undefined') {
+        if (!db.collectionCenters || db.collectionCenters.length === 0) {
+            db.collectionCenters = [...initialData.collectionCenters];
+        } else {
+            initialData.collectionCenters.forEach(item => {
+                if (!db.collectionCenters.some(c => c.id === item.id)) {
+                    db.collectionCenters.push(item);
+                }
+            });
+        }
+
+        if (!db.shelters || db.shelters.length === 0) {
+            db.shelters = [...initialData.shelters];
+        } else {
+            initialData.shelters.forEach(item => {
+                if (!db.shelters.some(s => s.id === item.id)) {
+                    db.shelters.push(item);
+                }
+            });
+        }
+
+        if (initialData.emergencyContacts) {
+            db.emergencyContacts = initialData.emergencyContacts;
+        }
+
+        if (initialData.donations) {
+            if (!db.donations || db.donations.length === 0) {
+                db.donations = [...initialData.donations];
+            } else {
+                initialData.donations.forEach(item => {
+                    if (!db.donations.some(d => d.name === item.name)) {
+                        db.donations.push(item);
+                    }
+                });
+            }
+        }
+    }
+
+    if (!db.affectedZones || db.affectedZones.length === 0) {
+        db.affectedZones = typeof initialData !== 'undefined' ? initialData.affectedZones : [];
+    }
+    if (!db.epicenter && typeof initialData !== 'undefined') {
+        db.epicenter = initialData.epicenter;
+    }
+    if (!db.hospitals || db.hospitals.length === 0) {
+        db.hospitals = typeof initialData !== 'undefined' ? initialData.hospitals : [];
+    }
+    if (!db.emergencyRequests) db.emergencyRequests = [];
+    if (!db.collectionCenters) db.collectionCenters = [];
+    if (!db.shelters) db.shelters = [];
 };
 
 window.closeModal = function(modalId) {
@@ -1391,6 +1457,15 @@ function renderPlacesList() {
             const pct = Math.round(((item.occupancy || 0) / item.capacity) * 100);
             const barColor = pct > 90 ? 'var(--color-critical)' : pct > 70 ? 'var(--color-severe)' : 'var(--color-success)';
             extraInfo += `<div class="occupancy-bar"><div class="occupancy-fill" style="width:${pct}%;background:${barColor}"></div></div><p style="font-size:0.75rem;opacity:0.75;">Ocupación: ${item.occupancy || 0}/${item.capacity} (${pct}%)</p>`;
+        }
+
+        if (item.type === 'collection') {
+            if (item.needs) {
+                extraInfo += `<p style="font-size:0.75rem;opacity:0.9;margin-top:3px;">📋 <strong>Insumos:</strong> ${item.needs}</p>`;
+            }
+            if (item.schedule) {
+                extraInfo += `<p style="font-size:0.75rem;opacity:0.8;margin-top:2px;">🕐 <strong>Horario:</strong> ${item.schedule}</p>`;
+            }
         }
 
         if (item.type === 'hospital') {
