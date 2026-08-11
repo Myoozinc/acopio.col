@@ -817,9 +817,9 @@ function renderMapMarkers() {
     (db.collectionCenters || []).forEach(item => {
         const icon = L.divIcon({
             className: 'custom-marker marker-collection',
-            html: '<span>📦</span>',
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
+            html: '<span class="marker-emoji">📦</span>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 18]
         });
         const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
         markerClusterGroup.addLayer(marker);
@@ -829,9 +829,9 @@ function renderMapMarkers() {
     (db.shelters || []).forEach(item => {
         const icon = L.divIcon({
             className: 'custom-marker marker-shelter',
-            html: '<span>🏠</span>',
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
+            html: '<span class="marker-emoji">🏠</span>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 18]
         });
         const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
         markerClusterGroup.addLayer(marker);
@@ -841,9 +841,9 @@ function renderMapMarkers() {
     (db.emergencyRequests || []).forEach(item => {
         const icon = L.divIcon({
             className: 'custom-marker marker-need',
-            html: '<span>🆘</span>',
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
+            html: '<span class="marker-emoji">🆘</span>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 18]
         });
         const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
         markerClusterGroup.addLayer(marker);
@@ -853,9 +853,9 @@ function renderMapMarkers() {
     (db.hospitals || []).forEach(item => {
         const icon = L.divIcon({
             className: 'custom-marker marker-hospital',
-            html: '<span>🏥</span>',
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
+            html: '<span class="marker-emoji">🏥</span>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 18]
         });
         const marker = L.marker([item.lat, item.lng], { icon }).bindPopup(createPopupContent(item));
         markerClusterGroup.addLayer(marker);

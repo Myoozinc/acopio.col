@@ -944,6 +944,138 @@ body.dark-mode #map { background: #0a0e18; }
 
 .map-overlay { position: absolute; z-index: 1000; }
 
+/* ============================================
+   MAP MARKERS & ANIMATED PULSE EFFECTS
+   ============================================ */
+
+/* Epicenter Pulsing Beacon */
+.pulse-icon {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    background: #d92525;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(217, 37, 37, 0.8), 0 4px 14px rgba(0,0,0,0.4);
+    animation: epicenterPulse 1.6s ease-out infinite;
+}
+
+@keyframes epicenterPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(217, 37, 37, 0.8), 0 4px 14px rgba(0,0,0,0.4);
+        transform: scale(0.95);
+    }
+    70% {
+        box-shadow: 0 0 0 24px rgba(217, 37, 37, 0), 0 4px 14px rgba(0,0,0,0.4);
+        transform: scale(1.1);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(217, 37, 37, 0), 0 4px 14px rgba(0,0,0,0.4);
+        transform: scale(0.95);
+    }
+}
+
+/* Base Custom Marker */
+.custom-marker {
+    position: relative;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: 2.5px solid #ffffff;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    user-select: none;
+}
+
+.custom-marker:hover {
+    transform: scale(1.25) translateY(-3px);
+    z-index: 9999 !important;
+}
+
+.marker-emoji {
+    display: inline-block;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+    line-height: 1;
+}
+
+/* CENTROS DE ACOPIO (📦) - PULSO DE COLOR VERDE ALTA VISIBILIDAD */
+.marker-collection {
+    background: linear-gradient(135deg, #27ae60, #1e8449);
+    border-radius: 12px;
+    animation: pulseMarkerGreen 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.marker-collection::after {
+    content: '';
+    position: absolute;
+    inset: -7px;
+    border-radius: 16px;
+    border: 2.5px solid rgba(39, 174, 96, 0.85);
+    opacity: 0;
+    animation: expandPulseGreen 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    pointer-events: none;
+}
+
+@keyframes pulseMarkerGreen {
+    0% {
+        box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.85), 0 4px 14px rgba(0,0,0,0.35);
+    }
+    50% {
+        box-shadow: 0 0 0 16px rgba(39, 174, 96, 0), 0 4px 18px rgba(0,0,0,0.45);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(39, 174, 96, 0), 0 4px 14px rgba(0,0,0,0.35);
+    }
+}
+
+@keyframes expandPulseGreen {
+    0% {
+        transform: scale(0.85);
+        opacity: 0.95;
+    }
+    100% {
+        transform: scale(1.65);
+        opacity: 0;
+    }
+}
+
+/* REFUGIOS (🏠) - PULSO MORADO */
+.marker-shelter {
+    background: linear-gradient(135deg, #8e44ad, #6c3483);
+    border-radius: 50%;
+    animation: pulseMarkerPurple 2.2s infinite;
+}
+
+@keyframes pulseMarkerPurple {
+    0% { box-shadow: 0 0 0 0 rgba(142, 68, 173, 0.75), 0 4px 12px rgba(0,0,0,0.3); }
+    50% { box-shadow: 0 0 0 12px rgba(142, 68, 173, 0), 0 4px 14px rgba(0,0,0,0.4); }
+    100% { box-shadow: 0 0 0 0 rgba(142, 68, 173, 0), 0 4px 12px rgba(0,0,0,0.3); }
+}
+
+/* SOLICITUDES URGENTES (🆘) - PULSO ROJO URGENTE */
+.marker-need {
+    background: linear-gradient(135deg, #d92525, #900c3f);
+    border-radius: 10px;
+    animation: pulseMarkerRed 1.3s infinite;
+}
+
+@keyframes pulseMarkerRed {
+    0% { box-shadow: 0 0 0 0 rgba(217, 37, 37, 0.9), 0 4px 12px rgba(0,0,0,0.4); }
+    50% { box-shadow: 0 0 0 16px rgba(217, 37, 37, 0), 0 4px 18px rgba(0,0,0,0.5); }
+    100% { box-shadow: 0 0 0 0 rgba(217, 37, 37, 0), 0 4px 12px rgba(0,0,0,0.4); }
+}
+
+/* HOSPITALES (🏥) */
+.marker-hospital {
+    background: linear-gradient(135deg, #2980b9, #1c5980);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(41,128,185,0.35);
+}
+
 /* COMPACT MAP LEGEND */
 #map-legend {
     bottom: 24px;
