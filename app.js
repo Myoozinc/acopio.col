@@ -19,7 +19,7 @@ let isGeoVerifiedColombia = false;
 let verifiedAddressDetails = null;
 let isAdminAuthenticated = false;
 
-const DATA_KEY_APP = 'earthquake_data_v2026_colombia_v7';
+const DATA_KEY_APP = 'earthquake_data_v2026_colombia_v8';
 const ADMIN_LOGS_KEY = 'acopio_admin_telemetry_logs';
 
 let db = { affectedZones: [], collectionCenters: [], shelters: [], emergencyRequests: [], hospitals: [], epicenter: null, donations: [], emergencyContacts: {}, missingPersons: [], kitchens: [], petShelters: [], volunteerHubs: [], adminMessages: [] };
