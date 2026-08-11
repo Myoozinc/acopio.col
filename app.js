@@ -918,8 +918,8 @@ function renderMapMarkers() {
             const isHighlight = isFiltered && (activeCategoryFilter === category);
             (items || []).forEach(item => {
                 const iconClass = `custom-marker ${markerClass} ${isHighlight ? 'marker-highlight-pulse' : ''}`;
-                const size = isHighlight ? [48, 48] : [36, 36];
-                const anchor = isHighlight ? [24, 24] : [18, 18];
+                const size = isHighlight ? [46, 46] : [36, 36];
+                const anchor = isHighlight ? [23, 23] : [18, 18];
 
                 const icon = L.divIcon({
                     className: iconClass,
@@ -928,7 +928,14 @@ function renderMapMarkers() {
                     iconAnchor: anchor
                 });
                 const marker = L.marker([item.lat, item.lng], { icon, zIndexOffset: isHighlight ? 4000 : 0 }).bindPopup(createPopupContent(item));
-                markerClusterGroup.addLayer(marker);
+                
+                // If filtering a specific category, bypass clustering so every point stays precisely visible on zoom
+                if (isHighlight) {
+                    zonesLayerGroup.addLayer(marker);
+                } else {
+                    markerClusterGroup.addLayer(marker);
+                }
+                
                 if (item.lat && item.lng) bounds.push([item.lat, item.lng]);
             });
         }
@@ -944,7 +951,7 @@ function renderMapMarkers() {
 
     if (isFiltered && bounds.length > 0 && map) {
         try {
-            map.fitBounds(bounds, { padding: [60, 60], maxZoom: 13, animate: true });
+            map.fitBounds(bounds, { padding: [60, 60], maxZoom: 14, animate: true });
         } catch(e) {}
     }
 }
