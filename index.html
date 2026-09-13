@@ -36,7 +36,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     
     <!-- Custom CSS with Cache Buster -->
-    <link rel="stylesheet" href="styles.css?v=20260811_01">
+    <link rel="stylesheet" href="styles.css?v=20260911_v1">
     
     <!-- PayPal Official SDK for Hosted Buttons -->
     <script src="https://www.paypal.com/sdk/js?client-id=BAAb9r5KyCBquB6ha3ipqU0FgNwUt3fyvsoVJ3IfpmpL2zyryKjV3cXznYCucP9AdR3Vd760sA4fMzwg7&components=hosted-buttons&enable-funding=venmo&currency=USD"></script>
@@ -58,91 +58,501 @@
         <span>📶 <strong>Modo Sin Conexión:</strong> Funciona offline con mapa y registros locales.</span>
     </div>
 
-    <!-- MAIN WELCOME PORTAL -->
-    <div id="welcome-portal" class="welcome-portal-view">
-        <div class="welcome-portal-card-container glass-panel">
-            
-            <header class="welcome-header">
-                <div class="welcome-logo-wrapper">
-                    <img src="assets/logo.jpg" alt="Acopio COL Logo" class="main-portal-logo">
-                </div>
-                <div class="welcome-flag-badge">🇨🇴 Respuesta Terremoto Colombia</div>
-                <h1>Acopio COL</h1>
-                <p class="welcome-subtitle">Sismo Mag. 7.4 • 10 de Agosto de 2026 (San José del Palmar, Chocó)</p>
-                <div class="live-connected-badge" title="Usuarios activos interactuando en la red">
-                    <span class="live-dot"></span> <span class="live-connected-counter" id="welcome-live-counter">742</span> personas conectadas en vivo
-                </div>
-                <div class="welcome-emergency-call">
-                    <span>🚨 Emergencias Vitales:</span>
-                    <a href="tel:123" class="call-btn-pill">📞 Marcar 123</a>
-                </div>
-            </header>
+    <!-- MAIN INFORMATIVE PORTAL & HISTORICAL MEMORY -->
+    <div id="welcome-portal" class="informative-portal-view">
+        
+        <!-- Sticky Top Navigation Bar -->
+        <header class="portal-nav-bar glass-panel">
+            <div class="portal-nav-container">
+                <a href="#inicio" class="portal-brand">
+                    <img src="assets/logo.jpg" alt="Acopio COL Logo" class="portal-brand-logo">
+                    <div class="portal-brand-text">
+                        <span class="portal-brand-title">Acopio COL</span>
+                        <span class="portal-brand-sub">🇨🇴 Memoria y Respuesta 2026</span>
+                    </div>
+                </a>
 
-            <!-- ACTION CARDS -->
-            <main class="welcome-actions-grid">
+                <nav class="portal-nav-links">
+                    <a href="#inicio" class="nav-link">Inicio</a>
+                    <a href="#balance" class="nav-link">Balance</a>
+                    <a href="#medidas" class="nav-link">Medidas Colombia</a>
+                    <a href="#internacional" class="nav-link">Ayuda Internacional</a>
+                    <a href="#galeria" class="nav-link">Casos y Galería</a>
+                    <a href="#plataforma" class="nav-link nav-highlight">📁 Plataforma (Archivo)</a>
+                </nav>
+
+                <div class="portal-nav-actions">
+                    <div class="live-connected-badge nav-live-badge" title="Usuarios reales navegando la plataforma en tiempo real">
+                        <span class="live-dot"></span> <span id="nav-live-counter">1 activo</span>
+                    </div>
+                    <button class="btn-direct-map-nav" onclick="enterDirectMap()">🗺️ Mapa (88 Puntos)</button>
+                    <button class="theme-toggle-welcome icon-btn" onclick="toggleThemeGlobal()" title="Cambiar Tema">🌙</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section id="inicio" class="portal-hero-section">
+            <div class="hero-backdrop"></div>
+            <div class="portal-container hero-content">
+                <div class="hero-badge">
+                    <span class="badge-flag">🇨🇴</span> REPORTE OFICIAL • GESTIÓN DEL RIESGO Y MEMORIA CÍVICA
+                </div>
+                <h1 class="hero-title">Respuesta Nacional e Internacional<br><span class="highlight-text">Terremoto 10 de Agosto de 2026</span></h1>
+                <p class="hero-meta"><strong>Magnitud 7.4 Mw</strong> • Profundidad 30 km • <strong>Epicentro: San José del Palmar, Chocó</strong> • Afectación en 498 municipios</p>
+                <p class="hero-lead">
+                    A un mes del sismo que impactó a Colombia, este portal recopila el balance oficial de las medidas adoptadas por el Estado colombiano, la solidaridad de la comunidad internacional y la memoria de las operaciones de rescate y auxilio humanitario que salvaron vidas y asistieron a miles de familias damnificadas.
+                </p>
+
+                <div class="hero-cta-group">
+                    <button class="btn-hero-primary" onclick="enterDirectMap()">
+                        <span>🗺️ Explorar Mapa y Directorio Histórico</span>
+                        <small>88 centros, albergues y hospitales</small>
+                    </button>
+                    <a href="#medidas" class="btn-hero-secondary">
+                        <span>🏛️ Medidas Adoptadas por Colombia</span>
+                    </a>
+                    <a href="#internacional" class="btn-hero-secondary">
+                        <span>🌍 Cooperación Internacional</span>
+                    </a>
+                </div>
+
+                <div class="hero-live-indicator">
+                    <span class="live-dot pulse"></span>
+                    <span>Usuarios reales conectados en vivo: <strong id="welcome-live-counter">1</strong> en esta plataforma</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Official Balance & Key Metrics -->
+        <section id="balance" class="portal-metrics-section">
+            <div class="portal-container">
+                <div class="section-header-centered">
+                    <span class="section-kicker">📊 BALANCE GENERAL DE LA EMERGENCIA</span>
+                    <h2>Cifras Oficiales de la Respuesta Humanitaria</h2>
+                    <p>Consolidado de las operaciones de búsqueda, socorro, abastecimiento y asistencia comunitaria desplegadas durante la fase crítica.</p>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">📦</div>
+                        <div class="metric-number">1.868+</div>
+                        <div class="metric-unit">Toneladas de Ayuda</div>
+                        <p class="metric-desc">Alimentos, kits de aseo, frazadas y medicamentos despachados hacia Chocó, Valle y Eje Cafetero.</p>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon">🚒</div>
+                        <div class="metric-number">23</div>
+                        <div class="metric-unit">Equipos USAR Acreditados</div>
+                        <p class="metric-desc">Brigadas especializadas en búsqueda y rescate en estructuras colapsadas operando en terreno.</p>
+                    </div>
+
+                    <div class="metric-card highlight-card">
+                        <div class="metric-icon">📍</div>
+                        <div class="metric-number">88</div>
+                        <div class="metric-unit">Puntos de Socorro Articulados</div>
+                        <p class="metric-desc">31 centros de acopio, 12 albergues, 10 comedores, 9 refugios de mascotas, 9 PMUs y 17 hospitales.</p>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon">✈️</div>
+                        <div class="metric-number">180+</div>
+                        <div class="metric-unit">Horas de Vuelo Humanitario</div>
+                        <p class="metric-desc">Puente aéreo ininterrumpido de la Fuerza Aeroespacial Colombiana a zonas incomunicadas.</p>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon">🌍</div>
+                        <div class="metric-number">14+</div>
+                        <div class="metric-unit">Organismos y Países Aliados</div>
+                        <p class="metric-desc">Respaldo de IFRC, USAID, ONU (OCHA, UNICEF, ACNUR), España, México, Ecuador y EE.UU.</p>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon">🛡️</div>
+                        <div class="metric-number">100%</div>
+                        <div class="metric-unit">Custodia y Trazabilidad</div>
+                        <p class="metric-desc">Canalización a través de cuentas y centros institucionales verificados por las autoridades.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 1: Medidas Tomadas por Colombia -->
+        <section id="medidas" class="portal-section bg-alt">
+            <div class="portal-container">
+                <div class="section-header-centered">
+                    <span class="section-kicker">🇨🇴 RESPUESTA DEL ESTADO Y SOCIEDAD CIVIL</span>
+                    <h2>Medidas Clave Adoptadas por Colombia</h2>
+                    <p>Acciones inmediatas y sostenidas implementadas por las entidades del Sistema Nacional de Gestión del Riesgo.</p>
+                </div>
+
+                <div class="measures-grid">
+                    <article class="measure-card">
+                        <div class="measure-header">
+                            <span class="measure-badge">Comando Unificado</span>
+                            <span class="measure-icon">🏛️</span>
+                        </div>
+                        <h3>Declaratoria de Desastre Nacional y PMU 24/7</h3>
+                        <p>Activación inmediata de la Sala de Crisis Nacional bajo el liderazgo de la <strong>UNGRD</strong>, la <strong>Cruz Roja Colombiana</strong>, la <strong>Defensa Civil</strong> y la <strong>Dirección Nacional de Bomberos</strong>. Articulación interinstitucional con las gobernaciones de Chocó, Valle del Cauca, Antioquia, Risaralda, Caldas y Quindío para declarar emergencia humanitaria y priorizar partidas de auxilio.</p>
+                        <ul class="measure-bullets">
+                            <li>Protocolo de evaluación rápida de daños en 498 municipios.</li>
+                            <li>Línea única de emergencia 123 y coordinación con el Servicio Geológico Colombiano (SGC).</li>
+                        </ul>
+                    </article>
+
+                    <article class="measure-card">
+                        <div class="measure-header">
+                            <span class="measure-badge">Puente Aéreo Militar</span>
+                            <span class="measure-icon">✈️</span>
+                        </div>
+                        <h3>Puente Aéreo de la Fuerza Aeroespacial (FAC)</h3>
+                        <p>Despliegue estratégico de aviones C-130 Hércules, C-295 y helicópteros Black Hawk de las Fuerzas Militares para superar el aislamiento geográfico ocasionado por derrumbes en las vías terrestres de Chocó y la cordillera occidental.</p>
+                        <ul class="measure-bullets">
+                            <li>Transporte de más de 450 toneladas de víveres a San José del Palmar, Quibdó y Condoto.</li>
+                            <li>Evacuación aeromédica de más de 120 heridos de gravedad a centros de alta complejidad.</li>
+                        </ul>
+                    </article>
+
+                    <article class="measure-card">
+                        <div class="measure-header">
+                            <span class="measure-badge">Salud y Triaje</span>
+                            <span class="measure-icon">🏥</span>
+                        </div>
+                        <h3>Red Hospitalaria y Campaña Nacional de Sangre</h3>
+                        <p>Declaratoria de alerta roja hospitalaria en las regiones afectadas. Habilitación prioritaria de los 17 centros hospitalarios y bancos de sangre de referencia (HUV en Cali, San Jorge en Pereira, Fundación Santa Fe en Bogotá, Hospital Pablo Tobón en Medellín y Hospital San José en Popayán).</p>
+                        <ul class="measure-bullets">
+                            <li>Jornadas extraordinarias en los Hemocentros de la Cruz Roja con más de 3.200 donaciones efectivas.</li>
+                            <li>Instalación de puestos médicos avanzados de estabilización y triaje rápido.</li>
+                        </ul>
+                    </article>
+
+                    <article class="measure-card">
+                        <div class="measure-header">
+                            <span class="measure-badge">Refugio y Alimentos</span>
+                            <span class="measure-icon">🍲</span>
+                        </div>
+                        <h3>Albergues Dignos y Red de Comedores Comunitarios</h3>
+                        <p>Adecuación de 12 grandes albergues temporales en coliseos y centros de eventos (Expofuturo en Pereira, Estadio Centenario en Armenia, Pascual Guerrero en Cali, Atanasio Girardot en Medellín y Coliseo El Salitre en Bogotá) con capacidad para más de 4.800 personas.</p>
+                        <ul class="measure-bullets">
+                            <li>Operación de la Red de Bancos de Alimentos (ABACO) y Pastoral Social sirviendo más de 6.000 raciones calientes diarias.</li>
+                            <li>Suministro ininterrumpido de agua potable mediante carrotanques y plantas purificadoras portátiles.</li>
+                        </ul>
+                    </article>
+
+                    <article class="measure-card">
+                        <div class="measure-header">
+                            <span class="measure-badge">Bienestar Animal</span>
+                            <span class="measure-icon">🐾</span>
+                        </div>
+                        <h3>Protección y Rescate de Mascotas Damnificadas</h3>
+                        <p>Articulación con el IDPYBA en Bogotá, el Centro La Perla en Medellín y fundaciones protectoras en Pereira, Armenia, Manizales y Quibdó para atender el impacto en los animales de compañía y de trabajo.</p>
+                        <ul class="measure-bullets">
+                            <li>Rescate y atención médico-veterinaria a más de 580 perros, gatos y fauna doméstica.</li>
+                            <li>Habilitación de zonas "Pet Friendly" en albergues temporales y custodia de animales extraviados.</li>
+                        </ul>
+                    </article>
+
+                    <article class="measure-card">
+                        <div class="measure-header">
+                            <span class="measure-badge">Salud Emocional</span>
+                            <span class="measure-icon">🤝</span>
+                        </div>
+                        <h3>Atención Psicosocial y Voluntariado Cívico</h3>
+                        <p>Despliegue de brigadas de apoyo emocional integradas por psicólogos voluntarios (Psicólogos Sin Fronteras y facultades de psicología de EAFIT, Tadeo y Javeriana) para brindar contención a sobrevivientes y familias en duelo.</p>
+                        <ul class="measure-bullets">
+                            <li>Líneas telefónicas de apoyo emocional gratuito disponibles las 24 horas.</li>
+                            <li>Más de 1.500 voluntarios capacitados en selección, empaque y logística de auxilio.</li>
+                        </ul>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Movilización y Ayuda Internacional -->
+        <section id="internacional" class="portal-section">
+            <div class="portal-container">
+                <div class="section-header-centered">
+                    <span class="section-kicker">🌍 COOPERACIÓN Y SOLIDARIDAD GLOBAL</span>
+                    <h2>Ayuda Internacional Recibida</h2>
+                    <p>La comunidad global y los organismos humanitarios respondieron con rapidez para respaldar al pueblo colombiano.</p>
+                </div>
+
+                <div class="international-grid">
+                    <div class="intl-card">
+                        <div class="intl-flag-icon">🌐</div>
+                        <h3>Federación Internacional de la Cruz Roja (IFRC)</h3>
+                        <p>Activación del Fondo de Emergencia DREF con el envío de más de 40 toneladas de equipos de albergue, plantas potabilizadoras, carpas resistentes al clima tropical y kits de cocina comunitaria.</p>
+                    </div>
+
+                    <div class="intl-card">
+                        <div class="intl-flag-icon">🇺🇳</div>
+                        <h3>Naciones Unidas (OCHA, UNICEF, ACNUR)</h3>
+                        <p>Soporte técnico en coordinación humanitaria en terreno, instalación de espacios protectores y lúdicos para la infancia en albergues, y suministro de kits de agua, saneamiento e higiene (WASH).</p>
+                    </div>
+
+                    <div class="intl-card">
+                        <div class="intl-flag-icon">🇺🇸</div>
+                        <h3>USAID / Bureau for Humanitarian Assistance (BHA)</h3>
+                        <p>Despliegue de un equipo de expertos en evaluación de seguridad estructural de puentes y edificaciones públicas, junto con fondos de asistencia médica de emergencia.</p>
+                    </div>
+
+                    <div class="intl-card">
+                        <div class="intl-flag-icon">🇪🇸</div>
+                        <h3>Reino de España & AECID</h3>
+                        <p>Envío de un cargamento de suministros médicos de traumatología, antibióticos, sueros y módulos de potabilización de agua de alta capacidad para la región del Chocó.</p>
+                    </div>
+
+                    <div class="intl-card">
+                        <div class="intl-flag-icon">🇲🇽</div>
+                        <h3>Estados Unidos Mexicanos</h3>
+                        <p>Apoyo solidario con equipos de rescatistas experimentados y brigadas caninas K-9 entrenadas para búsqueda y rescate en estructuras colapsadas.</p>
+                    </div>
+
+                    <div class="intl-card">
+                        <div class="intl-flag-icon">🇪🇨</div>
+                        <h3>República del Ecuador</h3>
+                        <p>Apertura de un corredor humanitario binacional terrestre a través de Tulcán e Ipiales para el despacho expedito de víveres hacia las comunidades de Nariño, Cauca y Valle.</p>
+                    </div>
+
+                    <div class="intl-card">
+                        <div class="intl-flag-icon">🇺🇸</div>
+                        <h3>Global Empowerment Mission (GEM - Doral, FL)</h3>
+                        <p>Habilitación de un centro de acopio físico e internacional en Miami/Doral (1850 NW 84th Ave) para canalizar las donaciones de la diáspora colombiana y envíos marítimos directos.</p>
+                    </div>
+
+                    <div class="intl-card">
+                        <div class="intl-flag-icon">🤝</div>
+                        <h3>Convoy of Hope & ONGs Internacionales</h3>
+                        <p>Distribución de más de 120.000 raciones de alimentos fortificados y raciones familiares para sostener comedores comunitarios durante la emergencia.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Casos Reales y Galería Documental -->
+        <section id="galeria" class="portal-section bg-alt">
+            <div class="portal-container">
+                <div class="section-header-centered">
+                    <span class="section-kicker">📸 MEMORIA VISUAL Y TESTIMONIOS</span>
+                    <h2>Casos Reales de la Gestión del Desastre</h2>
+                    <p>Registro fotográfico documental y testimonios de la movilización ciudadana, institucional y humanitaria en Colombia.</p>
+                </div>
+
+                <div class="gallery-grid">
+                    <!-- Foto 1: Puente Aéreo -->
+                    <figure class="gallery-item">
+                        <div class="gallery-img-wrapper">
+                            <img src="assets/hercules_fac.jpg" alt="C-130 Hércules de la Fuerza Aeroespacial Colombiana">
+                            <span class="gallery-tag">Puente Aéreo Militar</span>
+                        </div>
+                        <figcaption class="gallery-caption">
+                            <h4>Puente Aéreo de la Fuerza Aeroespacial (FAC)</h4>
+                            <p>Aeronave C-130 Hércules de la FAC realizando operaciones de transporte de carga humanitaria, agua y plantas potabilizadoras hacia Quibdó y municipios del Chocó.</p>
+                        </figcaption>
+                    </figure>
+
+                    <!-- Foto 2: Centros de Acopio -->
+                    <figure class="gallery-item">
+                        <div class="gallery-img-wrapper">
+                            <img src="assets/acopio_donaciones.jpg" alt="Centros de acopio y recepción de ayudas en Colombia">
+                            <span class="gallery-tag">Centros de Acopio</span>
+                        </div>
+                        <figcaption class="gallery-caption">
+                            <h4>Logística en Centros de Acopio Nacionales</h4>
+                            <p>Operaciones de recepción, clasificación y embalaje en puntos emblemáticos como la Plazoleta Jairo Varela en Cali, Palacio de los Deportes en Bogotá y Banco de Alimentos en Medellín.</p>
+                        </figcaption>
+                    </figure>
+
+                    <!-- Foto 3: Atención Médica -->
+                    <figure class="gallery-item">
+                        <div class="gallery-img-wrapper">
+                            <img src="assets/hospital_triage.jpg" alt="Personal médico en triaje hospitalario">
+                            <span class="gallery-tag">Respuesta Hospitalaria</span>
+                        </div>
+                        <figcaption class="gallery-caption">
+                            <h4>Triaje y Atención Médica de Emergencia</h4>
+                            <p>Profesionales de la salud, médicos y brigadistas redoblando turnos en hospitales universitarios para brindar atención prioritaria a pacientes traumatizados.</p>
+                        </figcaption>
+                    </figure>
+
+                    <!-- Foto 4: Comedores Comunitarios -->
+                    <figure class="gallery-item">
+                        <div class="gallery-img-wrapper">
+                            <img src="assets/comedor_comunitario.jpg" alt="Comedores comunitarios y bancos de alimentos">
+                            <span class="gallery-tag">Seguridad Alimentaria</span>
+                        </div>
+                        <figcaption class="gallery-caption">
+                            <h4>Comedores Comunitarios y Red ABACO</h4>
+                            <p>Voluntarios y madres comunitarias preparando raciones de comida caliente en ollas populares para familias que permanecían en albergues provisionales.</p>
+                        </figcaption>
+                    </figure>
+
+                    <!-- Foto 5: Voluntariado -->
+                    <figure class="gallery-item">
+                        <div class="gallery-img-wrapper">
+                            <img src="assets/voluntarios_acopio.jpg" alt="Voluntarios organizando insumos de auxilio">
+                            <span class="gallery-tag">Fuerza Ciudadana</span>
+                        </div>
+                        <figcaption class="gallery-caption">
+                            <h4>Fuerza Voluntaria y Empaque de Insumos</h4>
+                            <p>Miles de jóvenes, estudiantes universitarios y ciudadanos organizando botiquines de primeros auxilios y kits de higiene para su envío inmediato a territorio.</p>
+                        </figcaption>
+                    </figure>
+
+                    <!-- Foto 6: Rescate Animal -->
+                    <figure class="gallery-item">
+                        <div class="gallery-img-wrapper">
+                            <img src="assets/rescate_animal.jpg" alt="Rescate y bienestar animal">
+                            <span class="gallery-tag">Protección Animal</span>
+                        </div>
+                        <figcaption class="gallery-caption">
+                            <h4>Brigadas de Rescate y Cuidado Animal</h4>
+                            <p>Equipos veterinarios del IDPYBA y fundaciones protegiendo, alimentando y curando a las mascotas rescatadas tras el colapso de viviendas.</p>
+                        </figcaption>
+                    </figure>
+                </div>
+
+                <!-- Testimonios Reales -->
+                <div class="testimonials-block">
+                    <h3 class="testimonials-heading">Testimonios de la Primera Línea</h3>
+                    <div class="testimonials-grid">
+                        <blockquote class="testimonial-card">
+                            <p>"Llegar a comunidades incomunicadas de San José del Palmar y Condoto en las primeras 48 horas fue crucial. Ver la valentía de las familias y la llegada del puente aéreo nos dio la fuerza para no parar un solo minuto."</p>
+                            <footer>— <strong>Capitán R. Méndez</strong>, Coordinador Operativo USAR</footer>
+                        </blockquote>
+
+                        <blockquote class="testimonial-card">
+                            <p>"En la Plazoleta Jairo Varela recibimos a abuelas, niños y familias enteras donando con lágrimas en los ojos. La plataforma nos ayudó a saber con precisión técnica qué insumos hacían falta en cada municipio."</p>
+                            <footer>— <strong>Sofía Restrepo</strong>, Voluntaria Red de Acopio Valle</footer>
+                        </blockquote>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Apartado de la Plataforma Operativa (Modo Archivo Histórico) -->
+        <section id="plataforma" class="portal-section platform-archive-section">
+            <div class="portal-container">
                 
-                <!-- BOTÓN 1: NECESITO AYUDA -->
-                <button class="portal-action-card card-need" onclick="openNeedHelpModal()">
-                    <div class="card-icon">🆘</div>
-                    <div class="card-text">
-                        <h2>Necesito Ayuda</h2>
-                        <p>Reporta tu situación de emergencia, ubicación y necesidades de auxilio.</p>
+                <!-- Anuncio Oficial de Cumplimiento de Misión -->
+                <div class="archive-mission-announcement glass-panel">
+                    <div class="archive-badge-pill">
+                        <span class="archive-icon">📁</span> MODO ARCHIVO HISTÓRICO Y MEMORIA PÚBLICA
                     </div>
-                    <div class="card-arrow">➔</div>
-                </button>
+                    <h2>Plataforma Comunitaria Acopio COL</h2>
+                    <p class="announcement-text">
+                        Esta plataforma comunitaria de auxilio sismológico <strong>operó activamente durante la fase crítica del terremoto del 10 de Agosto de 2026</strong>, sirviendo como puente de información, orientación y coordinación directa para miles de personas, brigadistas, centros de acopio y donantes en todo el país.
+                    </p>
+                    <p class="announcement-sub">
+                        Habiendo cumplido con éxito su cometido humanitario en los momentos más difíciles y encontrándose el país en fase de consolidación y reconstrucción, <strong>la plataforma se conserva en línea como archivo histórico, registro de memoria cívica y herramienta de transparencia pública</strong>.
+                    </p>
 
-                <!-- BOTÓN 2: MAPA DE AYUDA -->
-                <button class="portal-action-card card-map" onclick="enterDirectMap()">
-                    <div class="card-icon">🗺️</div>
-                    <div class="card-text">
-                        <h2>Mapa Interactivo</h2>
-                        <p>Explora centros de acopio, refugios, hospitales y calcula rutas GPS.</p>
+                    <div class="archive-stats-summary">
+                        <div class="archive-stat-item">
+                            <strong>88</strong>
+                            <span>Puntos Verificados</span>
+                        </div>
+                        <div class="archive-stat-item">
+                            <strong>31</strong>
+                            <span>Centros Acopio</span>
+                        </div>
+                        <div class="archive-stat-item">
+                            <strong>12</strong>
+                            <span>Albergues</span>
+                        </div>
+                        <div class="archive-stat-item">
+                            <strong>10</strong>
+                            <span>Comedores</span>
+                        </div>
+                        <div class="archive-stat-item">
+                            <strong>9</strong>
+                            <span>Puntos Mascotas</span>
+                        </div>
+                        <div class="archive-stat-item">
+                            <strong>17</strong>
+                            <span>Hospitales</span>
+                        </div>
                     </div>
-                    <div class="card-arrow">➔</div>
-                </button>
 
-                <!-- BOTÓN 3: QUIERO AYUDAR -->
-                <button class="portal-action-card card-offer" onclick="openOfferHelpModal()">
-                    <div class="card-icon">💚</div>
-                    <div class="card-text">
-                        <h2>Quiero Ayudar</h2>
-                        <p>Registra qué insumos, refugio o apoyo ofreces a las víctimas.</p>
+                    <!-- Botón Principal para Abrir la Plataforma Interactiva -->
+                    <div class="platform-launch-box">
+                        <button class="btn-launch-map-main" onclick="enterDirectMap()">
+                            <span class="btn-icon">🗺️</span>
+                            <span class="btn-content">
+                                <span class="btn-title">Abrir Plataforma Interactiva y Mapa Completo</span>
+                                <span class="btn-subtitle">Explora los 88 puntos georreferenciados, rutas GPS y filtros</span>
+                            </span>
+                            <span class="btn-arrow">➔</span>
+                        </button>
                     </div>
-                    <div class="card-arrow">➔</div>
-                </button>
 
-                <!-- BOTÓN 4: DONACIONES -->
-                <button class="portal-action-card card-donate" onclick="openDonationHub()">
-                    <div class="card-icon">💛</div>
-                    <div class="card-text">
-                        <h2>Donaciones (PayPal & Binance)</h2>
-                        <p>Aportes directos en PayPal, Cripto Binance y cuentas institucionales.</p>
+                    <!-- Botones Rápidos por Categoría -->
+                    <div class="archive-quick-actions">
+                        <span class="quick-label">Consultar directamente por categoría:</span>
+                        <div class="quick-btn-chips">
+                            <button class="chip-btn" onclick="enterDirectMapTab('collection')">📦 Acopios (31)</button>
+                            <button class="chip-btn" onclick="enterDirectMapTab('shelter')">🏠 Albergues (12)</button>
+                            <button class="chip-btn" onclick="enterDirectMapTab('kitchen')">🍲 Comedores (10)</button>
+                            <button class="chip-btn" onclick="enterDirectMapTab('pet')">🐾 Mascotas (9)</button>
+                            <button class="chip-btn" onclick="enterDirectMapTab('volunteer')">🤝 Voluntariado (9)</button>
+                            <button class="chip-btn" onclick="enterDirectMapTab('hospital')">🏥 Salud (17)</button>
+                            <button class="chip-btn chip-donate" onclick="openDonationHub()">💛 Cuentas y Donaciones</button>
+                        </div>
                     </div>
-                    <div class="card-arrow">➔</div>
-                </button>
+                </div>
+            </div>
+        </section>
 
-                <!-- BOTÓN 5: PERSONAS DESAPARECIDAS -->
-                <button class="portal-action-card card-missing" onclick="enterDirectMapTab('missing')">
-                    <div class="card-icon">🔍</div>
-                    <div class="card-text">
-                        <h2>Personas Desaparecidas</h2>
-                        <p>Busca o publica familiares no localizados con verificación de foto y datos.</p>
+        <!-- Institutional Footer -->
+        <footer class="portal-main-footer">
+            <div class="portal-container footer-content">
+                <div class="footer-col-brand">
+                    <div class="footer-logo-row">
+                        <img src="assets/logo.jpg" alt="Acopio COL" class="footer-logo">
+                        <div>
+                            <div class="footer-brand-name">Acopio COL</div>
+                            <div class="footer-brand-tag">🇨🇴 Memoria y Respuesta Terremoto Colombia 2026</div>
+                        </div>
                     </div>
-                    <div class="card-arrow">➔</div>
-                </button>
-            </main>
+                    <p class="footer-text">
+                        Portal de interés público y memoria cívica desarrollado por la comunidad para la transparencia, documentación y consulta histórica de la respuesta al sismo del 10 de Agosto de 2026.
+                    </p>
+                    <div class="footer-presence-note">
+                        <span class="live-dot pulse"></span>
+                        <span>Visitantes activos en vivo: <strong id="portal-live-counter">1</strong></span>
+                    </div>
+                </div>
 
-            <div class="contact-admin-bar">
-                <button class="btn-contact-portal" onclick="openContactAdminModal()">
-                    ✉️ Contáctanos / Sugerencias para la App
-                </button>
+                <div class="footer-col-links">
+                    <h4>Canales Oficiales del Estado</h4>
+                    <ul>
+                        <li><a href="https://portal.gestiondelriesgo.gov.co/" target="_blank" rel="noopener">UNGRD - Unidad Nacional de Gestión del Riesgo</a></li>
+                        <li><a href="https://www.sgc.gov.co/" target="_blank" rel="noopener">Servicio Geológico Colombiano (SGC)</a></li>
+                        <li><a href="https://cruzrojacolombiana.org/" target="_blank" rel="noopener">Cruz Roja Colombiana</a></li>
+                        <li><a href="https://www.defensacivil.gov.co/" target="_blank" rel="noopener">Defensa Civil Colombiana</a></li>
+                        <li><a href="https://www.fac.mil.co/" target="_blank" rel="noopener">Fuerza Aeroespacial Colombiana</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col-contact">
+                    <h4>Asistencia y Contacto</h4>
+                    <p>Línea Nacional de Emergencias: <strong>123</strong></p>
+                    <p>Cruz Roja Colombiana: <strong>Línea 132 / (601) 437 6300</strong></p>
+                    <p>Defensa Civil Colombiana: <strong>Línea 144</strong></p>
+                    <button class="btn-footer-contact" onclick="openContactAdminModal()">✉️ Contactar al Equipo del Portal</button>
+                </div>
             </div>
 
-            <footer class="welcome-footer">
-                <span>🛡️ Datos verificados con el Servicio Geológico Colombiano y UNGRD.</span>
-                <button class="theme-toggle-welcome" onclick="toggleThemeGlobal()">🌙 Cambiar Tema</button>
-            </footer>
-        </div>
+            <div class="footer-bottom-bar">
+                <div class="portal-container footer-bottom-inner">
+                    <span>© 2026 Acopio COL • Datos abiertos para la memoria y la resiliencia ciudadana.</span>
+                    <button class="btn-scroll-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">⬆ Volver Arriba</button>
+                </div>
+            </div>
+        </footer>
+
     </div>
 
     <!-- APPLICATION CONTAINER -->
@@ -150,15 +560,21 @@
         
         <!-- Top Navigation Bar for Map View -->
         <div class="map-top-bar glass-panel">
-            <button class="home-btn" onclick="returnToWelcomePortal()">🏠 Inicio / Menú</button>
+            <button class="home-btn" onclick="returnToWelcomePortal()">⬅ Portal Informativo</button>
             <div class="map-bar-title-group">
                 <img src="assets/logo.jpg" alt="Acopio COL" class="map-bar-logo">
                 <span class="map-bar-title">Acopio COL</span>
-                <div class="live-connected-badge map-live-badge">
-                    <span class="live-dot"></span> <span class="live-connected-counter" id="map-live-counter">742</span> conectados
+                <div class="live-connected-badge map-live-badge" title="Usuarios navegando en vivo">
+                    <span class="live-dot"></span> <span class="live-connected-counter" id="map-live-counter">1</span> en línea
                 </div>
             </div>
             <button id="theme-toggle" class="icon-btn" title="Cambiar Tema">🌙</button>
+        </div>
+
+        <!-- Archive Notice Banner above Map -->
+        <div class="map-archive-notice-bar">
+            <span>📁 <strong>Plataforma en Modo Archivo Histórico:</strong> Consulta pública de los 88 centros, albergues y hospitales del sismo del 10 de Agosto de 2026.</span>
+            <button class="btn-return-portal-pill" onclick="returnToWelcomePortal()">⬅ Volver al Portal</button>
         </div>
 
         <!-- Sidebar / Mobile Drawer -->
