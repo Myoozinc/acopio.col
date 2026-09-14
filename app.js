@@ -1,7 +1,7 @@
 // ============================================
 // ACOPIO COLOMBIA - App Principal & Admin / Telemetría
 // Respuesta Terremoto 7.4 Colombia - 10 Agosto 2026
-// PWA, Portal Inicial Móvil, PayPal Business (A9ACPWUBK89YQ) & Binance Pay (242214516)
+// PWA, Portal Inicial Móvil, Histórico de Emergencia y Coordinación Humanitaria
 // ============================================
 
 // --- Global State ---
@@ -19,7 +19,7 @@ let isGeoVerifiedColombia = false;
 let verifiedAddressDetails = null;
 let isAdminAuthenticated = false;
 
-const DATA_KEY_APP = 'earthquake_data_v2026_colombia_v8';
+const DATA_KEY_APP = 'earthquake_data_v2026_colombia_v9';
 const ADMIN_LOGS_KEY = 'acopio_admin_telemetry_logs';
 
 let db = { affectedZones: [], collectionCenters: [], shelters: [], emergencyRequests: [], hospitals: [], epicenter: null, donations: [], emergencyContacts: {}, missingPersons: [], kitchens: [], petShelters: [], volunteerHubs: [], adminMessages: [] };
@@ -128,11 +128,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initMissingPhotoUploadHandler();
     initModalsAndForms();
     initContactAdminForm();
-    initDonationFilters();
     initAdminHashDetector();
     initLiveUserCounter();
     recordIPVisitorTelemetry();
-    initPayPalSmartButton();
     
     // Hide loading screen
     setTimeout(() => {
@@ -143,24 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 800);
 });
-
-// --- Official PayPal Hosted Smart Button (A9ACPWUBK89YQ) ---
-function initPayPalSmartButton() {
-    setTimeout(() => {
-        if (typeof paypal !== 'undefined' && paypal.HostedButtons) {
-            try {
-                const targetElem = document.getElementById("paypal-container-A9ACPWUBK89YQ");
-                if (targetElem && targetElem.children.length === 0) {
-                    paypal.HostedButtons({
-                        hostedButtonId: "A9ACPWUBK89YQ"
-                    }).render("#paypal-container-A9ACPWUBK89YQ");
-                }
-            } catch (err) {
-                console.warn("PayPal Smart Button init:", err);
-            }
-        }
-    }, 1200);
-}
 
 // --- Hash & Admin Stealth Router (Accesible solo por /admin o #admin) ---
 function initAdminHashDetector() {
@@ -252,23 +232,6 @@ function recordIPVisitorTelemetry(action = 'Visita Portal') {
         });
 }
 
-window.trackDonationIntent = function(channel) {
-    recordIPVisitorTelemetry(`Intento Donación: ${channel}`);
-    let intents = [];
-    try {
-        const saved = localStorage.getItem('acopio_donation_intents');
-        if (saved) intents = JSON.parse(saved);
-    } catch(e) {}
-    
-    intents.unshift({
-        date: new Date().toLocaleString('es-CO'),
-        channel: channel,
-        ip: '181.135.x.x (Registrado)',
-        status: 'Iniciado / Redirigido'
-    });
-    localStorage.setItem('acopio_donation_intents', JSON.stringify(intents));
-};
-
 // --- Welcome Portal Navigation ---
 window.enterDirectMap = function() {
     document.getElementById('welcome-portal')?.classList.add('hidden');
@@ -294,7 +257,6 @@ window.enterDirectMap = function() {
 };
 
 window.enterDirectMapTab = function(tabName) {
-    closeModal('modal-donations-hub');
     enterDirectMap();
     setTimeout(() => {
         document.querySelector(`[data-tab="${tabName}"]`)?.click();
@@ -313,11 +275,6 @@ window.openOfferHelpModal = function() {
 
 window.openNeedHelpModal = function() {
     document.getElementById('modal-need-help')?.classList.remove('hidden');
-};
-
-window.openDonationHub = function() {
-    document.getElementById('modal-donations-hub')?.classList.remove('hidden');
-    initPayPalSmartButton();
 };
 
 // --- Data Management ---
@@ -359,7 +316,6 @@ function loadData() {
         mergeInitial('volunteerHubs');
         mergeInitial('hospitals');
         mergeInitial('affectedZones');
-        mergeInitial('donations');
 
         if (initialData.emergencyContacts) {
             db.emergencyContacts = initialData.emergencyContacts;
@@ -478,7 +434,6 @@ function renderAll() {
     renderEmergencyContacts();
     renderSafetyTips();
     renderZonesList();
-    renderDonationsList();
     renderMissingPersonsList();
 }
 
@@ -1090,9 +1045,6 @@ function initUI() {
             target.classList.add('active');
             target.setAttribute('aria-selected', 'true');
             document.getElementById(`tab-${target.dataset.tab}`).classList.add('active');
-            if (target.dataset.tab === 'donations') {
-                initPayPalSmartButton();
-            }
         });
     });
 
@@ -1383,12 +1335,6 @@ function renderAdminPanel() {
         if (saved) logs = JSON.parse(saved);
     } catch(e) {}
 
-    let intents = [];
-    try {
-        const savedI = localStorage.getItem('acopio_donation_intents');
-        if (savedI) intents = JSON.parse(savedI);
-    } catch(e) {}
-
     const pendingMissing = (db.missingPersons || []).filter(m => m.status === 'pending');
     const adminMessages = db.adminMessages || [];
 
@@ -1479,23 +1425,10 @@ function renderAdminPanel() {
             </tr>
         `).join('') || `<tr><td colspan="5" style="text-align:center;">Sin fotos de verificación registradas.</td></tr>`;
     }
-
-    // Table 5: Donation Intents
-    const tbody3 = document.getElementById('admin-intents-tbody');
-    if (tbody3) {
-        tbody3.innerHTML = intents.map(i => `
-            <tr>
-                <td>${i.date}</td>
-                <td><strong>${i.channel}</strong></td>
-                <td>${i.ip}</td>
-                <td><span class="status-badge status-operational">${i.status}</span></td>
-            </tr>
-        `).join('') || `<tr><td colspan="4" style="text-align:center;">Sin intentos de donación registrados.</td></tr>`;
-    }
 }
 
 window.showAdminSubTab = function(paneId, btn) {
-    document.querySelectorAll('#modal-admin-panel .donation-filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#modal-admin-panel .admin-subtab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     document.querySelectorAll('.admin-pane').forEach(p => p.classList.add('hidden'));
     document.getElementById(`admin-tab-${paneId}`)?.classList.remove('hidden');
@@ -1506,17 +1439,11 @@ window.exportAdminAuditLog = function() {
     try {
         logs = JSON.parse(localStorage.getItem(ADMIN_LOGS_KEY) || '[]');
     } catch(e) {}
-    
-    let intents = [];
-    try {
-        intents = JSON.parse(localStorage.getItem('acopio_donation_intents') || '[]');
-    } catch(e) {}
 
     const auditData = {
         meta: { title: 'Acopio COL Audit Report', adminUser: 'Gingerboy', exportDate: new Date().toISOString() },
         database: db,
-        telemetryIPs: logs,
-        donationIntents: intents
+        telemetryIPs: logs
     };
 
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(auditData, null, 2));
@@ -1827,36 +1754,6 @@ function renderZonesList() {
     `).join('');
 }
 
-// --- Donations ---
-function initDonationFilters() {
-    document.querySelectorAll('.donation-filter-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            document.querySelectorAll('.donation-filter-btn').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            renderDonationsList(e.target.dataset.dtype);
-        });
-    });
-}
-
-function renderDonationsList(filter = 'all') {
-    const container = document.getElementById('donations-list');
-    if (!container || !db.donations) return;
-    
-    const filtered = filter === 'all' ? db.donations : db.donations.filter(d => d.type === filter);
-    
-    container.innerHTML = filtered.map(d => `
-        <div class="donation-card">
-            <h4>${d.name}</h4>
-            <p class="donation-desc">${d.description}</p>
-            <div class="donation-account">🏛️ ${d.account}</div>
-            ${d.officialPhone ? `<p class="donation-desc" style="font-weight:600;">📞 ${d.officialPhone}</p>` : ''}
-            <div class="donation-links">
-                <a href="${d.website}" target="_blank" rel="noopener" onclick="trackDonationIntent('${d.name}')">🌐 Sitio Oficial de Donación</a>
-            </div>
-        </div>
-    `).join('');
-}
-
 // --- Missing Persons Upload & Approval Handlers ---
 function initMissingPhotoUploadHandler() {
     const fileInput = document.getElementById('missing-photo');
@@ -2034,13 +1931,13 @@ window.toggleSection = function(header) {
 
 // --- Social Sharing ---
 window.shareOnWhatsApp = function() {
-    const text = '🆘 Mapa de Ayuda Sismo 7.4 Colombia — Quiero Ayudar / Necesito Ayuda / Donaciones PayPal y Binance:';
+    const text = '🆘 Directorio y Archivo Histórico Terremoto Colombia 7.4 — Registros verificados y memoria comunitaria:';
     const url = window.location.href;
     window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
 };
 
 window.shareOnTwitter = function() {
-    const text = '🆘 Mapa de Ayuda Terremoto Colombia 7.4 — Registra ayuda, pide auxilio o dona en PayPal/Binance: #SismoColombia #TerremotoColombia';
+    const text = '🆘 Directorio y Archivo Histórico Terremoto Colombia 7.4 — Registros de auxilio y memoria pública: #SismoColombia #TerremotoColombia';
     const url = window.location.href;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
 };

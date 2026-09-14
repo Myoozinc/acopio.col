@@ -3,7 +3,7 @@
 // Fuentes: SGC, USGS, UNGRD, Cruz Roja Colombiana, Medios Oficiales & Reportes Comunitarios
 // ============================================
 
-const DATA_KEY = 'earthquake_data_v2026_colombia_v8';
+const DATA_KEY = 'earthquake_data_v2026_colombia_v9';
 
 const initialData = {
     epicenter: {
@@ -1185,68 +1185,7 @@ const initialData = {
         { id: 'h16', name: 'Hospital Universitario Hernando Moncaleano', city: 'Neiva', department: 'Huila', lat: 2.9320, lng: -75.2810, status: 'operational', phone: '(608) 871 5900', type: 'hospital', address: 'Calle 9 # 15-25, Neiva', needs: 'Recepción de emergencias y donación de sangre.' }
     ],
 
-    donations: [
-        { 
-            name: 'Cruz Roja Colombiana', 
-            description: 'Institución oficial humanitaria. Aportes recibidos en dinero para canalizar recursos de forma rápida en la zona afectada.', 
-            website: 'https://ayuda.cruzrojacolombiana.org', 
-            account: 'Cuenta Corriente Davivienda No. 0560455069996490 (Sociedad Nacional de la Cruz Roja Colombiana)', 
-            type: 'national',
-            officialPhone: 'WhatsApp Oficial: +57 321 213 9525 / Tel: (601) 4376300'
-        },
-        { 
-            name: 'UNGRD - Unidad Nacional para la Gestión del Riesgo', 
-            description: 'Coordinación gubernamental de respuesta del Sistema Nacional de Gestión del Riesgo.', 
-            website: 'https://portal.gestiondelriesgo.gov.co/', 
-            account: 'Línea Gratuita Nacional: 01-8000-113200 / PBX (+57) 601 5529696', 
-            type: 'national',
-            officialPhone: '01-8000-113200 / contactenos@gestiondelriesgo.gov.co'
-        },
-        { 
-            name: 'Global Empowerment Mission (GEM)', 
-            description: 'Organización internacional humanitaria respondiendo a la emergencia en Colombia. Punto físico de acopio en Doral, FL y donaciones en línea.', 
-            website: 'https://www.gem.org/', 
-            account: 'Donaciones en línea en gem.org | Centro físico: 1850 NW 84th Ave #100, Doral, FL 33126', 
-            type: 'international',
-            officialPhone: 'info@gem.org / Voluntariado: www.gem.org/volunteer'
-        },
-        { 
-            name: 'Psicólogos Sin Fronteras', 
-            description: 'Atención psicológica gratuita y confidencial para personas víctimas del terremoto en Colombia y Venezuela.', 
-            website: 'https://www.instagram.com/psfvenezuela/', 
-            account: 'Líneas directas: Colombia +57 316 297 1851 | Venezuela +58 412 722 5080 | EE.UU. +1 754 275 0793', 
-            type: 'international',
-            officialPhone: 'Colombia: +57 316 297 1851 | Venezuela: +58 412 722 5080 | USA: +1 754 275 0793'
-        },
-        { 
-            name: 'Convoy of Hope', 
-            description: 'Organización internacional humanitaria activada para respuesta al desastre sismico en Colombia.', 
-            website: 'https://www.convoyofhope.org/', 
-            account: 'Donaciones verificadas a través de su portal oficial', 
-            type: 'international'
-        },
-        { 
-            name: 'UNICEF Colombia', 
-            description: 'Protección infantil, provisión de agua potable y kits de higiene para emergencias.', 
-            website: 'https://www.unicef.org/colombia/', 
-            account: 'Donación directa en su plataforma oficial en Colombia', 
-            type: 'international'
-        },
-        { 
-            name: 'International Rescue Committee (IRC)', 
-            description: 'Asistencia de salud, protección y respuesta a poblaciones vulnerables.', 
-            website: 'https://www.rescue.org/', 
-            account: 'Donaciones en línea mediante el sitio oficial de la organización', 
-            type: 'international'
-        },
-        { 
-            name: 'ACNUR / UNHCR Colombia', 
-            description: 'Suministros de emergencia y apoyo a familias en situación de vulnerabilidad o desplazamiento.', 
-            website: 'https://www.acnur.org/colombia', 
-            account: 'Donaciones en línea en sitio oficial institucional', 
-            type: 'international'
-        }
-    ],
+    donations: [],
 
     emergencyContacts: {
         national: [

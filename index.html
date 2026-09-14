@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Acopio COL - Respuesta Terremoto 7.4 Colombia | 10 Agosto 2026</title>
-    <meta name="description" content="Plataforma de auxilio sismico en Colombia. Necesito Ayuda, Mapa interactivo, Quiero Ayudar y Donaciones en PayPal y Binance.">
-    <meta name="keywords" content="terremoto colombia 2026, acopio col, necesito ayuda terremoto, mapa ayuda, quiero ayudar colombia, donaciones paypal binance">
+    <meta name="description" content="Portal informativo, balance oficial y archivo histórico de la respuesta al terremoto del 10 de Agosto de 2026 en Colombia.">
+    <meta name="keywords" content="terremoto colombia 2026, acopio col, respuesta humanitaria, mapa ayuda, centros de acopio colombia">
     
     <!-- PWA & Mobile Web App Capabilities -->
     <link rel="manifest" href="manifest.json">
@@ -16,7 +16,7 @@
     
     <!-- Open Graph & Meta Image -->
     <meta property="og:title" content="Acopio COL - Ayuda Terremoto 2026">
-    <meta property="og:description" content="Necesito Ayuda • Mapa de Emergencia • Quiero Ayudar • Donaciones PayPal & Binance">
+    <meta property="og:description" content="Balance Oficial • Medidas Nacionales • Ayuda Internacional • Mapa y Archivo Histórico">
     <meta property="og:image" content="assets/logo.jpg">
     <meta property="og:type" content="website">
     
@@ -36,10 +36,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     
     <!-- Custom CSS with Cache Buster -->
-    <link rel="stylesheet" href="styles.css?v=20260911_v1">
-    
-    <!-- PayPal Official SDK for Hosted Buttons -->
-    <script src="https://www.paypal.com/sdk/js?client-id=BAAb9r5KyCBquB6ha3ipqU0FgNwUt3fyvsoVJ3IfpmpL2zyryKjV3cXznYCucP9AdR3Vd760sA4fMzwg7&components=hosted-buttons&enable-funding=venmo&currency=USD"></script>
+    <link rel="stylesheet" href="styles.css?v=20260914_v1">
 </head>
 <body class="light-mode">
     
@@ -443,7 +440,7 @@
                     </div>
                     <h2>Plataforma Comunitaria Acopio COL</h2>
                     <p class="announcement-text">
-                        Esta plataforma comunitaria de auxilio sismológico <strong>operó activamente durante la fase crítica del terremoto del 10 de Agosto de 2026</strong>, sirviendo como puente de información, orientación y coordinación directa para miles de personas, brigadistas, centros de acopio y donantes en todo el país.
+                        Esta plataforma comunitaria de auxilio sismológico <strong>operó activamente durante la fase crítica del terremoto del 10 de Agosto de 2026</strong>, sirviendo como puente de información, orientación y coordinación directa para miles de personas, brigadistas, centros de acopio y comunidades solidarias en todo el país.
                     </p>
                     <p class="announcement-sub">
                         Habiendo cumplido con éxito su cometido humanitario en los momentos más difíciles y encontrándose el país en fase de consolidación y reconstrucción, <strong>la plataforma se conserva en línea como archivo histórico, registro de memoria cívica y herramienta de transparencia pública</strong>.
@@ -456,40 +453,30 @@
                         </div>
                         <div class="archive-stat-item">
                             <strong>31</strong>
-                            <span>Centros Acopio</span>
+                            <span>Centros de Acopio</span>
                         </div>
                         <div class="archive-stat-item">
                             <strong>12</strong>
                             <span>Albergues</span>
                         </div>
                         <div class="archive-stat-item">
-                            <strong>10</strong>
-                            <span>Comedores</span>
-                        </div>
-                        <div class="archive-stat-item">
-                            <strong>9</strong>
-                            <span>Puntos Mascotas</span>
-                        </div>
-                        <div class="archive-stat-item">
                             <strong>17</strong>
-                            <span>Hospitales</span>
+                            <span>Hospitales de Red</span>
+                        </div>
+                        <div class="archive-stat-item">
+                            <strong>28</strong>
+                            <span>Otros Puntos de Apoyo</span>
                         </div>
                     </div>
 
-                    <!-- Botón Principal para Abrir la Plataforma Interactiva -->
-                    <div class="platform-launch-box">
-                        <button class="btn-launch-map-main" onclick="enterDirectMap()">
-                            <span class="btn-icon">🗺️</span>
-                            <span class="btn-content">
-                                <span class="btn-title">Abrir Plataforma Interactiva y Mapa Completo</span>
-                                <span class="btn-subtitle">Explora los 88 puntos georreferenciados, rutas GPS y filtros</span>
-                            </span>
-                            <span class="btn-arrow">➔</span>
+                    <div class="archive-cta-block">
+                        <button class="btn-archive-explore" onclick="enterDirectMap()">
+                            <span>🗺️ Explorar Directorio y Mapa Histórico</span>
+                            <span class="btn-sub">Consulta de registros de acopio, hospitales y albergues que prestaron servicio</span>
                         </button>
                     </div>
 
-                    <!-- Botones Rápidos por Categoría -->
-                    <div class="archive-quick-actions">
+                    <div class="archive-quick-shortcuts">
                         <span class="quick-label">Consultar directamente por categoría:</span>
                         <div class="quick-btn-chips">
                             <button class="chip-btn" onclick="enterDirectMapTab('collection')">📦 Acopios (31)</button>
@@ -498,7 +485,6 @@
                             <button class="chip-btn" onclick="enterDirectMapTab('pet')">🐾 Mascotas (9)</button>
                             <button class="chip-btn" onclick="enterDirectMapTab('volunteer')">🤝 Voluntariado (9)</button>
                             <button class="chip-btn" onclick="enterDirectMapTab('hospital')">🏥 Salud (17)</button>
-                            <button class="chip-btn chip-donate" onclick="openDonationHub()">💛 Cuentas y Donaciones</button>
                         </div>
                     </div>
                 </div>
@@ -661,10 +647,6 @@
                     <span class="tab-icon">➕</span>
                     <span class="tab-text">Añadir</span>
                 </button>
-                <button class="tab-btn" data-tab="donations" role="tab">
-                    <span class="tab-icon">💛</span>
-                    <span class="tab-text">Donar</span>
-                </button>
                 <button class="tab-btn" data-tab="missing" role="tab">
                     <span class="tab-icon">🔍</span>
                     <span class="tab-text">Buscar</span>
@@ -770,7 +752,7 @@
                         <div class="form-group">
                             <label for="add-type">Tipo de Espacio a Registrar</label>
                             <select id="add-type" required class="select-styled">
-                                <option value="collection">📦 Centro de Acopio (Insumos / Donaciones)</option>
+                                <option value="collection">📦 Centro de Acopio (Insumos y Víveres)</option>
                                 <option value="shelter">🏠 Refugio / Albergue Temporal</option>
                                 <option value="kitchen">🍲 Comedor de Ayuda / Olla Comunitaria</option>
                                 <option value="hospital">🏥 Hospital / Punto Médico / Banco de Sangre</option>
@@ -904,85 +886,6 @@
 
                         <button type="submit" class="btn-primary">🛡️ Validar y Publicar Punto</button>
                     </form>
-                </div>
-
-                <!-- Donations Tab -->
-                <div id="tab-donations" class="tab-pane">
-                    <!-- PROFESSIONAL DONATIONS EMBLEM HEADER -->
-                    <div class="donations-brand-header">
-                        <img src="assets/donaciones_logo.jpg" alt="Donaciones por Colombia - Unidos para Ayudar" class="donations-emblem-img">
-                        <div class="donations-brand-text">
-                            <h3>Donaciones por Colombia</h3>
-                            <p>Unidos para Ayudar • Canales Oficiales y Directos Verificados</p>
-                        </div>
-                    </div>
-                    
-                    <div class="user-donation-highlight-box">
-                        <!-- OFFICIAL PAYPAL BUSINESS DONATION CARD -->
-                        <div class="ud-card paypal-card">
-                            <div class="ud-header">
-                                <span class="ud-icon">💳</span>
-                                <div>
-                                    <h4>Donación por PayPal (Tarjeta o App)</h4>
-                                    <span class="ud-badge">Universal & Directo</span>
-                                </div>
-                            </div>
-                            <p class="ud-desc">Paga directamente desde la <strong>App de PayPal</strong> o con Tarjeta de Crédito/Débito:</p>
-
-                            <!-- OFFICIAL PAYPAL HOSTED BUTTON CONTAINER -->
-                            <div id="paypal-container-tab" style="margin:12px 0;min-height:45px;text-align:center;">
-                                <div id="paypal-container-A9ACPWUBK89YQ"></div>
-                            </div>
-
-                            <div class="ud-action-row" style="flex-direction:column;gap:8px;">
-                                <a href="https://www.paypal.com/donate/?hosted_button_id=A9ACPWUBK89YQ" id="paypal-app-link" target="_blank" rel="noopener" class="btn-paypal-app" onclick="trackDonationIntent('PayPal Mobile App')">
-                                    <span>📲 Abrir en la App de PayPal (Datos Pre-llenados)</span>
-                                </a>
-                                <div style="display:flex;gap:8px;width:100%;">
-                                    <a href="https://www.paypal.com/ncp/links/A9ACPWUBK89YQ" target="_blank" rel="noopener" class="btn-paypal-web" style="flex:1;" onclick="trackDonationIntent('PayPal Web')">
-                                        <span>🌐 Enlace Web Alternativo</span>
-                                    </a>
-                                    <button class="btn-copy-sm" onclick="copyText('https://www.paypal.com/donate/?hosted_button_id=A9ACPWUBK89YQ', 'Enlace directo de PayPal copiado'); trackDonationIntent('PayPal Copy')">📋 Copiar Link</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- OFFICIAL BINANCE PAY CARD -->
-                        <div class="ud-card binance-card">
-                            <div class="ud-header">
-                                <span class="ud-icon">🟡</span>
-                                <div>
-                                    <h4>Donación Cripto (Binance Pay)</h4>
-                                    <span class="ud-badge binance-badge">USDT / BTC / ETH</span>
-                                </div>
-                            </div>
-                            <p class="ud-desc">Escanee el código QR oficial de Binance Pay o copie el ID:</p>
-
-                            <div class="qr-preview-wrapper">
-                                <img src="assets/binance_qr.jpg" alt="Binance Pay QR Code" class="qr-img-pro" onclick="openImageModal('assets/binance_qr.jpg', 'QR Oficial Binance Pay (ID: 242214516)')">
-                                <p style="font-size:0.73rem;opacity:0.75;margin-top:6px;font-weight:600;">🔍 Toca la imagen para ampliar el Código QR</p>
-                            </div>
-
-                            <div class="crypto-address-box">
-                                <code id="binance-address">Binance Pay ID: 242214516</code>
-                                <button class="btn-copy-sm" onclick="copyText('242214516', 'ID Binance Pay (242214516) copiado'); trackDonationIntent('Binance Pay')">📋 Copiar ID</button>
-                            </div>
-                            <div class="crypto-address-box">
-                                <code id="usdt-address">USDT (TRC20): TAcop1oCoL2026Sism0HeLpCoLomBiA</code>
-                                <button class="btn-copy-sm" onclick="copyText('TAcop1oCoL2026Sism0HeLpCoLomBiA', 'Dirección USDT copiada'); trackDonationIntent('USDT TRC20')">📋 Copiar</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="donation-filter" style="margin-top:14px;">
-                        <button class="donation-filter-btn active" data-dtype="all">Todas</button>
-                        <button class="donation-filter-btn" data-dtype="national">🇨🇴 Nacionales</button>
-                        <button class="donation-filter-btn" data-dtype="international">🌍 Internacionales</button>
-                    </div>
-                    
-                    <div id="donations-list">
-                        <!-- Populated by JS -->
-                    </div>
                 </div>
 
                 <!-- Missing Persons Tab -->
@@ -1200,75 +1103,6 @@
         </div>
     </div>
 
-    <!-- MODAL 3: DONACIONES PORTAL -->
-    <div id="modal-donations-hub" class="modal hidden">
-        <div class="modal-backdrop" onclick="closeModal('modal-donations-hub')"></div>
-        <div class="modal-content glass-panel">
-            <button class="close-btn modal-close" onclick="closeModal('modal-donations-hub')">&times;</button>
-            
-            <!-- PROFESSIONAL DONATIONS EMBLEM HEADER -->
-            <div class="donations-brand-header">
-                <img src="assets/donaciones_logo.jpg" alt="Donaciones por Colombia - Unidos para Ayudar" class="donations-emblem-img">
-                <div class="donations-brand-text">
-                    <h3>Donaciones por Colombia</h3>
-                    <p>Unidos para Ayudar • Canales Oficiales y Directos Verificados</p>
-                </div>
-            </div>
-
-            <div class="user-donation-highlight-box" style="margin-top:14px;">
-                <div class="ud-card paypal-card">
-                    <div class="ud-header">
-                        <span class="ud-icon">💳</span>
-                        <div>
-                            <h4>Donación por PayPal (Tarjeta o App)</h4>
-                            <span class="ud-badge">Universal & Directo</span>
-                        </div>
-                    </div>
-                    <p class="ud-desc">Paga directamente desde la <strong>App de PayPal</strong> o con Tarjeta de Crédito/Débito:</p>
-
-                    <div class="ud-action-row" style="flex-direction:column;gap:8px;">
-                        <a href="https://www.paypal.com/donate/?hosted_button_id=A9ACPWUBK89YQ" target="_blank" rel="noopener" class="btn-paypal-app" onclick="trackDonationIntent('PayPal Mobile App')">
-                            <span>📲 Abrir en la App de PayPal (Datos Pre-llenados)</span>
-                        </a>
-                        <div style="display:flex;gap:8px;width:100%;">
-                            <a href="https://www.paypal.com/ncp/links/A9ACPWUBK89YQ" target="_blank" rel="noopener" class="btn-paypal-web" style="flex:1;" onclick="trackDonationIntent('PayPal Web')">
-                                <span>🌐 Enlace Web Alternativo</span>
-                            </a>
-                            <button class="btn-copy-sm" onclick="copyText('https://www.paypal.com/donate/?hosted_button_id=A9ACPWUBK89YQ', 'Enlace directo de PayPal copiado'); trackDonationIntent('PayPal Copy')">📋 Copiar Link</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="ud-card binance-card">
-                    <div class="ud-header">
-                        <span class="ud-icon">🟡</span>
-                        <div>
-                            <h4>Donación Cripto (Binance Pay)</h4>
-                            <span class="ud-badge binance-badge">Sin comisiones bancarias</span>
-                        </div>
-                    </div>
-                    <p class="ud-desc">Escanee el código QR oficial de Binance Pay o copie el ID:</p>
-                    
-                    <div class="qr-preview-wrapper">
-                        <img src="assets/binance_qr.jpg" alt="Binance Pay QR Code" class="qr-img-pro" onclick="openImageModal('assets/binance_qr.jpg', 'QR Oficial Binance Pay (ID: 242214516)')">
-                        <p style="font-size:0.73rem;opacity:0.75;margin-top:6px;font-weight:600;">🔍 Toca la imagen para ampliar el Código QR</p>
-                    </div>
-
-                    <div class="crypto-address-box">
-                        <code>Binance Pay ID: 242214516</code>
-                        <button class="btn-copy-sm" onclick="copyText('242214516', 'Binance Pay ID copiado'); trackDonationIntent('Binance Pay')">📋 Copiar</button>
-                    </div>
-                    <div class="crypto-address-box" style="margin-top:6px;">
-                        <code>USDT (TRC20): TAcop1oCoL2026Sism0HeLpCoLomBiA</code>
-                        <button class="btn-copy-sm" onclick="copyText('TAcop1oCoL2026Sism0HeLpCoLomBiA', 'Dirección USDT copiada'); trackDonationIntent('USDT TRC20')">📋 Copiar</button>
-                    </div>
-                </div>
-            </div>
-
-            <button class="btn-secondary" style="margin-top:14px;" onclick="enterDirectMapTab('donations')">🌐 Ver Cuentas de Cruz Roja y UNGRD</button>
-        </div>
-    </div>
-
     <!-- MODAL DE CONTACTO CON ADMINISTRADORES -->
     <div id="modal-contact-admin" class="modal hidden">
         <div class="modal-backdrop" onclick="closeModal('modal-contact-admin')"></div>
@@ -1360,12 +1194,11 @@
             </div>
 
             <!-- Admin Tabs -->
-            <nav class="donation-filter" style="margin-bottom:12px;">
-                <button class="donation-filter-btn active" onclick="showAdminSubTab('telemetry', this)">📡 Telemetría, IPs & País</button>
-                <button class="donation-filter-btn" onclick="showAdminSubTab('missing', this)">🔍 Aprobar Desaparecidos</button>
-                <button class="donation-filter-btn" onclick="showAdminSubTab('messages', this)">✉️ Mensajes y Sugerencias</button>
-                <button class="donation-filter-btn" onclick="showAdminSubTab('vault', this)">📸 Bóveda de Fotos</button>
-                <button class="donation-filter-btn" onclick="showAdminSubTab('intents', this)">💛 Seguimiento Donaciones</button>
+            <nav class="admin-subtabs-nav" style="margin-bottom:12px;">
+                <button class="admin-subtab-btn active" onclick="showAdminSubTab('telemetry', this)">📡 Telemetría, IPs & País</button>
+                <button class="admin-subtab-btn" onclick="showAdminSubTab('missing', this)">🔍 Aprobar Desaparecidos</button>
+                <button class="admin-subtab-btn" onclick="showAdminSubTab('messages', this)">✉️ Mensajes y Sugerencias</button>
+                <button class="admin-subtab-btn" onclick="showAdminSubTab('vault', this)">📸 Bóveda de Fotos</button>
             </nav>
 
             <!-- SubTab 1: Telemetry & IPs -->
@@ -1449,25 +1282,6 @@
                 </div>
             </div>
 
-            <!-- SubTab 5: Donation Intents -->
-            <div id="admin-tab-intents" class="admin-pane hidden">
-                <div class="admin-table-wrapper custom-scrollbar" style="max-height:300px;">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Canal Intentado</th>
-                                <th>IP del Visitante</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-intents-tbody">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
             <div style="margin-top:14px;display:flex;gap:10px;">
                 <button class="btn-primary" style="flex:1;" onclick="exportAdminAuditLog()">💾 Exportar Informe de Auditoría Completo (JSON)</button>
                 <button class="btn-secondary" onclick="closeModal('modal-admin-panel')">Cerrar Panel</button>
@@ -1542,14 +1356,14 @@
     <!-- Scripts with Cache Buster Versioning -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-    <script src="data.js?v=20260811_01"></script>
-    <script src="app.js?v=20260811_01"></script>
+    <script src="data.js?v=20260914_v2"></script>
+    <script src="app.js?v=20260914_v2"></script>
 
     <!-- Register Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=20260811_01')
+                navigator.serviceWorker.register('./sw.js?v=20260914_v2')
                     .then(reg => {
                         console.log('Service Worker registrado:', reg.scope);
                         reg.update();
